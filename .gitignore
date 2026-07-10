@@ -98,6 +98,31 @@ InitTestScene*.unity*
 /[Aa]ssets/AddressableAssetsData/*/*.bin*
 
 # Visual Scripting auto-generated files
+
+# Test Build Folders - do not commit
+/TestBuild*/
+/TestBuild_BackUpThisFolder_ButDontShipItWithYourGame/
+TestBuild*/
+
+# Burst Debug Information - do not commit
+*_BurstDebugInformation_DoNotShip/
+Summon*_BurstDebugInformation_DoNotShip/
+
+# IL2CPP intermediate files
+/Il2CppOutput/
+/il2cppOutput/
+
+# Rider IDE settings
+.idea/
+.idea_modules/
+*.sln.iml
+
+# VSCode settings
+.vscode/
+
+# OS Files
+Thumbs.db
+.DS_Store
 /[Aa]ssets/Unity.VisualScripting.Generated/VisualScripting.Flow/UnitOptions.db
 /[Aa]ssets/Unity.VisualScripting.Generated/VisualScripting.Flow/UnitOptions.db.meta
 /[Aa]ssets/Unity.VisualScripting.Generated/VisualScripting.Core/Property Providers
