@@ -18,6 +18,8 @@ public class FightDeploymentManager : MonoBehaviour
     private FightGridTile selectedTile;
     private bool isDeploymentLocked = false;
 
+    public FightUnit PlayerUnit => playerUnit;
+
     private void OnDestroy()
     {
         UnsubscribeFromTiles();

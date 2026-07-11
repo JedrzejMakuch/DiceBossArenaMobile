@@ -18,6 +18,7 @@ public class FightStateManager : MonoBehaviour
 
     [Header("Managers References")]
     [SerializeField] private FightDeploymentManager deploymentManager;
+    [SerializeField] private FightTurnManager turnManager;
 
     public FightState CurrentState { get; private set; }
 
@@ -27,7 +28,14 @@ public class FightStateManager : MonoBehaviour
 
         if (startFightButton != null)
         {
+            startFightButton.interactable = false;
             startFightButton.onClick.AddListener(StartFight);
+        }
+        else
+        {
+            Debug.LogError(
+                "FightStateManager: Start Fight Button is not assigned.",
+                this);
         }
     }
 
@@ -42,22 +50,46 @@ public class FightStateManager : MonoBehaviour
     public void SetReadyToStart()
     {
         SetState(FightState.ReadyToStart);
+
+        if (startFightButton != null)
+        {
+            startFightButton.interactable = true;
+        }
     }
 
     private void StartFight()
     {
         if (CurrentState != FightState.ReadyToStart)
         {
-            Debug.Log("Cannot start fight. Player has not selected a starting tile.");
+            Debug.Log(
+                "Cannot start fight. Player has not selected a starting tile.");
+
             return;
         }
 
-        if (deploymentManager != null)
+        if (deploymentManager == null)
         {
-            deploymentManager.LockDeployment();
+            Debug.LogError(
+                "FightStateManager: Deployment Manager is not assigned.",
+                this);
+
+            return;
         }
 
+        if (turnManager == null)
+        {
+            Debug.LogError(
+                "FightStateManager: Fight Turn Manager is not assigned.",
+                this);
+
+            return;
+        }
+
+        deploymentManager.LockDeployment();
+
         SetState(FightState.CombatStarted);
+
+        turnManager.StartCombat();
 
         if (startFightButton != null)
         {
@@ -70,7 +102,6 @@ public class FightStateManager : MonoBehaviour
     private void SetState(FightState newState)
     {
         CurrentState = newState;
-
         UpdateInfoText();
     }
 
