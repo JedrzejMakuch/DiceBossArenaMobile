@@ -7,16 +7,16 @@ public class EnemySpawnManager : MonoBehaviour
 {
     [Header("References")]
     [SerializeField] private FightArenaGenerator arenaGenerator;
-    [SerializeField] private GameObject enemyPlaceholderPrefab;
+    [SerializeField] private FightUnit enemyUnitPrefab;
     [SerializeField] private Transform enemiesRoot;
 
     [Header("Spawn Settings")]
     [SerializeField, Min(1)] private int enemyCount = 3;
 
-    private readonly List<GameObject> spawnedEnemies = new();
+    private readonly List<FightUnit> spawnedEnemies = new();
     private readonly List<FightGridTile> enemySpawnTiles = new();
 
-    public IReadOnlyList<GameObject> SpawnedEnemies => spawnedEnemies;
+    public IReadOnlyList<FightUnit> SpawnedEnemies => spawnedEnemies;
     public IReadOnlyList<FightGridTile> EnemySpawnTiles => enemySpawnTiles;
 
     public void SpawnEnemies()
@@ -30,10 +30,10 @@ public class EnemySpawnManager : MonoBehaviour
             return;
         }
 
-        if (enemyPlaceholderPrefab == null)
+        if (enemyUnitPrefab == null)
         {
             Debug.LogError(
-                "EnemySpawnManager: Enemy Placeholder Prefab is not assigned.",
+                "EnemySpawnManager: Enemy Unit Prefab is not assigned.",
                 this);
 
             return;
@@ -78,16 +78,14 @@ public class EnemySpawnManager : MonoBehaviour
             ? enemiesRoot
             : transform;
 
-        GameObject enemy = Instantiate(
-            enemyPlaceholderPrefab,
-            tile.GetStandPosition(),
-            Quaternion.identity,
+        FightUnit enemy = Instantiate(
+            enemyUnitPrefab,
             parent);
 
-        enemy.name = $"EnemyPlaceholder_{tile.GridX}_{tile.GridY}";
+        enemy.name = $"Enemy_{tile.GridX}_{tile.GridY}";
+        enemy.AssignToTile(tile);
 
         tile.SetEnemySpawn(true);
-        tile.SetOccupied(true);
 
         spawnedEnemies.Add(enemy);
         enemySpawnTiles.Add(tile);
@@ -95,11 +93,11 @@ public class EnemySpawnManager : MonoBehaviour
 
     private void ClearSpawnedEnemies()
     {
-        foreach (GameObject enemy in spawnedEnemies)
+        foreach (FightUnit enemy in spawnedEnemies)
         {
             if (enemy != null)
             {
-                Destroy(enemy);
+                Destroy(enemy.gameObject);
             }
         }
 

@@ -41,6 +41,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7716869948995681895}
   - component: {fileID: 624097752368119417}
+  - component: {fileID: -7445895486324660339}
   m_Layer: 6
   m_Name: EnemyPlaceholder
   m_TagString: Untagged
@@ -123,3 +124,22 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
+--- !u!114 &-7445895486324660339
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7582598679197648240}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 93ccf8ec5870edf4bb514e396f8fe8f9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FightUnit
+  unitName: Enemy
+  team: 1
+  maxHealth: 10
+  attackPower: 2
+  initiative: 10
+  currentHealth: 5
+  currentTile: {fileID: 0}

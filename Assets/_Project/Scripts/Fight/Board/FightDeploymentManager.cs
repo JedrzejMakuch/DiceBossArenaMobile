@@ -8,7 +8,7 @@ public class FightDeploymentManager : MonoBehaviour
     [Header("References")]
     [SerializeField] private FightArenaGenerator arenaGenerator;
     [SerializeField] private FightStateManager fightStateManager;
-    [SerializeField] private GameObject playerPlaceholder;
+    [SerializeField] private FightUnit playerUnit;
     [SerializeField] private Button startFightButton;
 
     [Header("Deployment Settings")]
@@ -40,10 +40,10 @@ public class FightDeploymentManager : MonoBehaviour
             return;
         }
 
-        if (playerPlaceholder == null)
+        if (playerUnit == null)
         {
             Debug.LogError(
-                "FightDeploymentManager: Player Placeholder is not assigned.",
+                "FightDeploymentManager: Player Unit is not assigned.",
                 this);
 
             return;
@@ -58,7 +58,6 @@ public class FightDeploymentManager : MonoBehaviour
             return;
         }
 
-        playerPlaceholder.SetActive(false);
         startFightButton.interactable = false;
 
         SubscribeToTiles();
@@ -131,15 +130,14 @@ public class FightDeploymentManager : MonoBehaviour
         if (selectedTile != null)
         {
             selectedTile.SetPlayerSpawn(true);
-            selectedTile.SetOccupied(false);
         }
 
         selectedTile = tile;
         selectedTile.SetSelectedVisual();
         selectedTile.SetOccupied(true);
 
-        playerPlaceholder.transform.position = selectedTile.GetStandPosition();
-        playerPlaceholder.SetActive(true);
+        playerUnit.gameObject.SetActive(true);
+        playerUnit.AssignToTile(selectedTile);
 
         startFightButton.interactable = true;
 
