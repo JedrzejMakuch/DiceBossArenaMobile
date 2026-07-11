@@ -1,18 +1,13 @@
 using System.Collections.Generic;
 using System.Linq;
-using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
+using System;
 
 public class FightTurnManager : MonoBehaviour
 {
     [Header("Unit Sources")]
     [SerializeField] private FightDeploymentManager deploymentManager;
     [SerializeField] private EnemySpawnManager enemySpawnManager;
-
-    [Header("UI")]
-    [SerializeField] private TMP_Text turnInfoText;
-    [SerializeField] private Button endTurnButton;
 
     private readonly List<FightUnit> turnOrder = new();
 
@@ -25,32 +20,20 @@ public class FightTurnManager : MonoBehaviour
     public int RoundNumber => roundNumber;
     public bool CombatRunning => combatRunning;
 
+    public event Action<FightUnit, int> TurnStarted;
+    public event Action<FightUnit> TurnEnded;
+    public event Action<string> CombatStopped;
+
     private void Awake()
     {
         combatRunning = false;
         activeUnit = null;
         activeUnitIndex = -1;
         roundNumber = 0;
-
-        if (endTurnButton != null)
-        {
-            endTurnButton.interactable = false;
-            endTurnButton.onClick.AddListener(EndCurrentTurn);
-        }
-
-        if (turnInfoText != null)
-        {
-            turnInfoText.text = "Waiting for combat";
-        }
     }
 
     private void OnDestroy()
     {
-        if (endTurnButton != null)
-        {
-            endTurnButton.onClick.RemoveListener(EndCurrentTurn);
-        }
-
         UnsubscribeFromUnits();
     }
 
@@ -88,11 +71,6 @@ public class FightTurnManager : MonoBehaviour
         SubscribeToUnits();
         StartNextTurn();
 
-        if (endTurnButton != null)
-        {
-            endTurnButton.interactable = true;
-        }
-
         Debug.Log($"Combat started with {turnOrder.Count} units.");
     }
 
@@ -103,7 +81,11 @@ public class FightTurnManager : MonoBehaviour
             return;
         }
 
-        Debug.Log($"{activeUnit.UnitName} ended turn.");
+        FightUnit endedUnit = activeUnit;
+
+        Debug.Log($"{endedUnit.UnitName} ended turn.");
+
+        TurnEnded?.Invoke(endedUnit);
 
         StartNextTurn();
     }
@@ -119,12 +101,31 @@ public class FightTurnManager : MonoBehaviour
             turnOrder.Add(playerUnit);
         }
 
+        Debug.Log(
+            $"EnemySpawnManager reports " +
+            $"{enemySpawnManager.SpawnedEnemies.Count} spawned enemies.");
+
         foreach (FightUnit enemy in enemySpawnManager.SpawnedEnemies)
         {
-            if (enemy != null && enemy.IsAlive)
+            if (enemy == null)
             {
-                turnOrder.Add(enemy);
+                Debug.LogWarning(
+                    "FightTurnManager: SpawnedEnemies contains a null entry.");
+
+                continue;
             }
+
+            Debug.Log(
+                $"Checking enemy: {enemy.gameObject.name}, " +
+                $"Alive={enemy.IsAlive}, " +
+                $"Active={enemy.gameObject.activeInHierarchy}");
+
+            if (!enemy.IsAlive)
+            {
+                continue;
+            }
+
+            turnOrder.Add(enemy);
         }
 
         turnOrder.Sort((first, second) =>
@@ -193,7 +194,7 @@ public class FightTurnManager : MonoBehaviour
 
     private void BeginTurn(FightUnit unit)
     {
-        UpdateTurnInfo();
+        TurnStarted?.Invoke(unit, roundNumber);
 
         Debug.Log(
             $"Round {roundNumber}: {unit.UnitName}'s turn. " +
@@ -273,29 +274,9 @@ public class FightTurnManager : MonoBehaviour
         combatRunning = false;
         activeUnit = null;
 
-        if (endTurnButton != null)
-        {
-            endTurnButton.interactable = false;
-        }
-
-        if (turnInfoText != null)
-        {
-            turnInfoText.text = "Combat stopped";
-        }
+        CombatStopped?.Invoke(reason);
 
         Debug.Log($"Combat stopped. Reason: {reason}");
-    }
-
-    private void UpdateTurnInfo()
-    {
-        if (turnInfoText == null || activeUnit == null)
-        {
-            return;
-        }
-
-        turnInfoText.text =
-            $"Round {roundNumber}\n" +
-            $"Turn: {activeUnit.UnitName}";
     }
 
     private bool ValidateReferences()

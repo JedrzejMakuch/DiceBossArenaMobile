@@ -82,7 +82,17 @@ public class EnemySpawnManager : MonoBehaviour
             enemyUnitPrefab,
             parent);
 
-        enemy.name = $"Enemy_{tile.GridX}_{tile.GridY}";
+        string enemyName = $"Enemy_{tile.GridX}_{tile.GridY}";
+
+        enemy.name = enemyName;
+
+        enemy.Initialize(
+            enemyName,
+            FightTeam.Enemy,
+            enemy.MaxHealth,
+            enemy.AttackPower,
+            enemy.Initiative);
+
         enemy.AssignToTile(tile);
 
         tile.SetEnemySpawn(true);
