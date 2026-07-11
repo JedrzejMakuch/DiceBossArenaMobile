@@ -19,28 +19,32 @@ public class FightArenaGenerator : MonoBehaviour
 
     public IReadOnlyList<FightGridTile> GeneratedTiles => generatedTiles;
 
-    private void Start()
-    {
-        GenerateArena();
-    }
-
     public void GenerateArena()
     {
         ClearArena();
+
+        generatedTiles.Clear();
 
         for (int y = 0; y < height; y++)
         {
             for (int x = 0; x < width; x++)
             {
-                FightGridTile tile = Instantiate(tilePrefab, arenaRoot);
+                Vector3 worldPosition = GridToWorldPosition(x, y);
+
+                FightGridTile tile = Instantiate(
+                    tilePrefab,
+                    worldPosition,
+                    Quaternion.identity,
+                    arenaRoot);
 
                 tile.name = $"FightTile_{x}_{y}";
-                tile.transform.position = GridToWorldPosition(x, y);
                 tile.Initialize(x, y);
 
                 generatedTiles.Add(tile);
             }
         }
+
+        Debug.Log($"Fight arena generated: {generatedTiles.Count} tiles.");
     }
 
     private Vector3 GridToWorldPosition(int x, int y)

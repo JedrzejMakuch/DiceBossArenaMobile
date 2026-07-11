@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
-using System.Collections;
 
 public class FightDeploymentManager : MonoBehaviour
 {
@@ -19,35 +18,43 @@ public class FightDeploymentManager : MonoBehaviour
     private FightGridTile selectedTile;
     private bool isDeploymentLocked = false;
 
-    private IEnumerator Start()
-    {
-        yield return null;
-
-        PrepareDeployment();
-    }
-
     private void OnDestroy()
     {
         UnsubscribeFromTiles();
     }
 
-    private void PrepareDeployment()
+    public void PrepareDeployment()
     {
+        UnsubscribeFromTiles();
+
+        playerSpawnTiles.Clear();
+        selectedTile = null;
+        isDeploymentLocked = false;
+
         if (arenaGenerator == null)
         {
-            Debug.LogError("FightDeploymentManager: Arena Generator is not assigned.");
+            Debug.LogError(
+                "FightDeploymentManager: Arena Generator is not assigned.",
+                this);
+
             return;
         }
 
         if (playerPlaceholder == null)
         {
-            Debug.LogError("FightDeploymentManager: Player Placeholder is not assigned.");
+            Debug.LogError(
+                "FightDeploymentManager: Player Placeholder is not assigned.",
+                this);
+
             return;
         }
 
         if (startFightButton == null)
         {
-            Debug.LogError("FightDeploymentManager: Start Fight Button is not assigned.");
+            Debug.LogError(
+                "FightDeploymentManager: Start Fight Button is not assigned.",
+                this);
+
             return;
         }
 
@@ -56,6 +63,8 @@ public class FightDeploymentManager : MonoBehaviour
 
         SubscribeToTiles();
         ChoosePlayerSpawnTiles();
+
+        Debug.Log("Player deployment prepared.");
     }
 
     private void SubscribeToTiles()

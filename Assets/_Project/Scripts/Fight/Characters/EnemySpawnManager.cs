@@ -19,14 +19,7 @@ public class EnemySpawnManager : MonoBehaviour
     public IReadOnlyList<GameObject> SpawnedEnemies => spawnedEnemies;
     public IReadOnlyList<FightGridTile> EnemySpawnTiles => enemySpawnTiles;
 
-    private IEnumerator Start()
-    {
-        yield return null;
-
-        SpawnEnemies();
-    }
-
-    private void SpawnEnemies()
+    public void SpawnEnemies()
     {
         if (arenaGenerator == null)
         {
