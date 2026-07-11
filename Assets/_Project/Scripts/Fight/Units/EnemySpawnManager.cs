@@ -1,4 +1,4 @@
-using System.Collections;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -18,6 +18,8 @@ public class EnemySpawnManager : MonoBehaviour
 
     public IReadOnlyList<FightUnit> SpawnedEnemies => spawnedEnemies;
     public IReadOnlyList<FightGridTile> EnemySpawnTiles => enemySpawnTiles;
+
+    public event Action EnemiesSpawned;
 
     public void SpawnEnemies()
     {
@@ -43,7 +45,7 @@ public class EnemySpawnManager : MonoBehaviour
 
         List<FightGridTile> availableTiles = arenaGenerator.GeneratedTiles
             .Where(CanSpawnEnemyOnTile)
-            .OrderBy(_ => Random.value)
+            .OrderBy(_ => UnityEngine.Random.value)
             .Take(enemyCount)
             .ToList();
 
@@ -59,6 +61,8 @@ public class EnemySpawnManager : MonoBehaviour
         {
             SpawnEnemy(tile);
         }
+
+        EnemiesSpawned?.Invoke();
 
         Debug.Log($"Spawned {spawnedEnemies.Count} enemies.");
     }

@@ -827,6 +827,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: PlayerPlaceholder
       objectReference: {fileID: 0}
+    - target: {fileID: 8516971563219315118, guid: d94f9f9b6be328b4a8df88af70a18470, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -1978,6 +1982,53 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1224403021}
   m_CullTransparentMesh: 1
+--- !u!1 &1229000016
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1229000017}
+  - component: {fileID: 1229000018}
+  m_Layer: 0
+  m_Name: FightTurnUIManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1229000017
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1229000016}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1431030727}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1229000018
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1229000016}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 572207f082e22584a893676ad85ded68, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FightTurnUIManager
+  turnManager: {fileID: 1232197400}
+  turnInfoText: {fileID: 1791658928}
+  endTurnButton: {fileID: 1684200465}
 --- !u!1 &1232197398
 GameObject:
   m_ObjectHideFlags: 0
@@ -2024,8 +2075,52 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::FightTurnManager
   deploymentManager: {fileID: 451924744}
   enemySpawnManager: {fileID: 1119193656}
-  turnInfoText: {fileID: 1791658928}
-  endTurnButton: {fileID: 1684200465}
+--- !u!1 &1347550827
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1347550828}
+  - component: {fileID: 1347550829}
+  m_Layer: 0
+  m_Name: EnemyTurnManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1347550828
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1347550827}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1431030727}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1347550829
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1347550827}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 29fa8f3a864055b4d89b817799fa3dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyTurnManager
+  turnManager: {fileID: 1232197400}
+  enemyTurnDelay: 0.75
 --- !u!1 &1371341100
 GameObject:
   m_ObjectHideFlags: 0
@@ -2108,6 +2203,8 @@ Transform:
   - {fileID: 1119193655}
   - {fileID: 538774772}
   - {fileID: 1232197399}
+  - {fileID: 1347550828}
+  - {fileID: 1229000017}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1454235569

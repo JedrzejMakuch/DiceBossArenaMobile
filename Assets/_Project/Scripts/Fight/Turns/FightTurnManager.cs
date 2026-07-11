@@ -115,11 +115,6 @@ public class FightTurnManager : MonoBehaviour
                 continue;
             }
 
-            Debug.Log(
-                $"Checking enemy: {enemy.gameObject.name}, " +
-                $"Alive={enemy.IsAlive}, " +
-                $"Active={enemy.gameObject.activeInHierarchy}");
-
             if (!enemy.IsAlive)
             {
                 continue;
