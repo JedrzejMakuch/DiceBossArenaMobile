@@ -52,27 +52,42 @@ public class FightUnit : MonoBehaviour
         HealthChanged?.Invoke(this);
     }
 
-    public void AssignToTile(FightGridTile tile)
+    public bool TryAssignToTile(FightGridTile tile)
     {
+        if (tile == null)
+        {
+            return false;
+        }
+
         if (currentTile == tile)
         {
-            return;
+            return true;
         }
 
-        if (currentTile != null)
+        if (!tile.TryOccupy(this))
         {
-            currentTile.SetOccupied(false);
+            Debug.LogWarning(
+                $"{UnitName} cannot occupy tile " +
+                $"({tile.GridX}, {tile.GridY}).");
+
+            return false;
         }
 
+        FightGridTile previousTile = currentTile;
         currentTile = tile;
 
-        if (currentTile == null)
+        if (previousTile != null)
         {
-            return;
+            previousTile.TryRelease(this);
         }
 
-        currentTile.SetOccupied(true);
         transform.position = currentTile.GetStandPosition();
+
+        Debug.Log(
+            $"{UnitName} assigned to tile " +
+            $"({currentTile.GridX}, {currentTile.GridY}).");
+
+        return true;
     }
 
     public void TakeDamage(int amount)
@@ -114,7 +129,7 @@ public class FightUnit : MonoBehaviour
     {
         if (currentTile != null)
         {
-            currentTile.SetOccupied(false);
+            currentTile.TryRelease(this);
             currentTile = null;
         }
 
@@ -123,5 +138,16 @@ public class FightUnit : MonoBehaviour
         Debug.Log($"{unitName} died.");
 
         gameObject.SetActive(false);
+    }
+
+    public void ReleaseCurrentTile()
+    {
+        if (currentTile == null)
+        {
+            return;
+        }
+
+        currentTile.TryRelease(this);
+        currentTile = null;
     }
 }

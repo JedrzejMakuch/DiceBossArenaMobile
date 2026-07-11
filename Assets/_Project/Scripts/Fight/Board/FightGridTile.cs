@@ -14,7 +14,7 @@ public class FightGridTile : MonoBehaviour, IPointerClickHandler
     [SerializeField] private bool canPlayerSpawn = false;
     [SerializeField] private bool canEnemySpawn = false;
     [SerializeField] private bool hasObstacle = false;
-    [SerializeField] private bool isOccupied = false;
+    [SerializeField] private FightUnit occupyingUnit;
 
     [Header("References")]
     [SerializeField] private Transform standPoint;
@@ -36,7 +36,8 @@ public class FightGridTile : MonoBehaviour, IPointerClickHandler
     public bool CanPlayerSpawn => canPlayerSpawn;
     public bool CanEnemySpawn => canEnemySpawn;
     public bool HasObstacle => hasObstacle;
-    public bool IsOccupied => isOccupied;
+    public bool IsOccupied => occupyingUnit != null;
+    public FightUnit OccupyingUnit => occupyingUnit;
 
     public Vector3 GetStandPosition()
     {
@@ -58,7 +59,7 @@ public class FightGridTile : MonoBehaviour, IPointerClickHandler
         canPlayerSpawn = false;
         canEnemySpawn = false;
         hasObstacle = false;
-        isOccupied = false;
+        occupyingUnit = null;
 
         SetNormalVisual();
     }
@@ -82,9 +83,46 @@ public class FightGridTile : MonoBehaviour, IPointerClickHandler
         canEnemySpawn = value;
     }
 
-    public void SetOccupied(bool value)
+    public bool CanBeOccupiedBy(FightUnit unit)
     {
-        isOccupied = value;
+        if (unit == null)
+        {
+            return false;
+        }
+
+        return isWalkable &&
+               !isBlocked &&
+               !hasObstacle &&
+               (occupyingUnit == null || occupyingUnit == unit);
+    }
+
+    public bool TryOccupy(FightUnit unit)
+    {
+        if (!CanBeOccupiedBy(unit))
+        {
+            return false;
+        }
+
+        occupyingUnit = unit;
+
+        Debug.Log(
+            $"Tile ({gridX}, {gridY}) occupied by {unit.UnitName}.");
+
+        return true;
+    }
+
+    public bool TryRelease(FightUnit unit)
+    {
+        if (unit == null || occupyingUnit != unit)
+        {
+            return false;
+        }
+
+        Debug.Log(
+            $"Tile ({gridX}, {gridY}) released by {unit.UnitName}.");
+
+        occupyingUnit = null;
+        return true;
     }
 
     public void SetBlocked(bool value)

@@ -136,10 +136,19 @@ public class FightDeploymentManager : MonoBehaviour
 
         selectedTile = tile;
         selectedTile.SetSelectedVisual();
-        selectedTile.SetOccupied(true);
 
         playerUnit.gameObject.SetActive(true);
-        playerUnit.AssignToTile(selectedTile);
+
+        if (!playerUnit.TryAssignToTile(selectedTile))
+        {
+            Debug.LogError(
+                $"Failed to deploy player on tile: " +
+                $"{selectedTile.GridX}, {selectedTile.GridY}",
+                playerUnit);
+
+            startFightButton.interactable = false;
+            return;
+        }
 
         startFightButton.interactable = true;
 
@@ -148,7 +157,9 @@ public class FightDeploymentManager : MonoBehaviour
             fightStateManager.SetReadyToStart();
         }
 
-        Debug.Log($"Player deployed on tile: {selectedTile.GridX}, {selectedTile.GridY}");
+        Debug.Log(
+            $"Player deployed on tile: " +
+            $"{selectedTile.GridX}, {selectedTile.GridY}");
     }
 
     public void LockDeployment()

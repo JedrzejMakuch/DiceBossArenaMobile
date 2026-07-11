@@ -97,7 +97,7 @@ public class EnemySpawnManager : MonoBehaviour
             enemy.AttackPower,
             enemy.Initiative);
 
-        enemy.AssignToTile(tile);
+        enemy.TryAssignToTile(tile);
 
         tile.SetEnemySpawn(true);
 
@@ -109,21 +109,21 @@ public class EnemySpawnManager : MonoBehaviour
     {
         foreach (FightUnit enemy in spawnedEnemies)
         {
-            if (enemy != null)
-            {
-                Destroy(enemy.gameObject);
-            }
-        }
-
-        foreach (FightGridTile tile in enemySpawnTiles)
-        {
-            if (tile == null)
+            if (enemy == null)
             {
                 continue;
             }
 
-            tile.SetEnemySpawn(false);
-            tile.SetOccupied(false);
+            enemy.ReleaseCurrentTile();
+            Destroy(enemy.gameObject);
+        }
+
+        foreach (FightGridTile tile in enemySpawnTiles)
+        {
+            if (tile != null)
+            {
+                tile.SetEnemySpawn(false);
+            }
         }
 
         spawnedEnemies.Clear();
