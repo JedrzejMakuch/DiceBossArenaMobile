@@ -1,9 +1,12 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 public class FightTurnResourceManager : MonoBehaviour
 {
     [Header("References")]
     [SerializeField] private FightTurnManager turnManager;
+
+    public event Action<FightUnit> TurnResourcesReady;
 
     private void OnEnable()
     {
@@ -26,8 +29,8 @@ public class FightTurnResourceManager : MonoBehaviour
     }
 
     private void HandleTurnStarted(
-        FightUnit unit,
-        int roundNumber)
+    FightUnit unit,
+    int roundNumber)
     {
         if (unit == null || !unit.IsAlive)
         {
@@ -48,6 +51,8 @@ public class FightTurnResourceManager : MonoBehaviour
         }
 
         resources.ResetForTurn();
+
+        TurnResourcesReady?.Invoke(unit);
     }
 
     private void HandleTurnEnded(FightUnit unit)
