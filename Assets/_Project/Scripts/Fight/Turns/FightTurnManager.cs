@@ -155,7 +155,7 @@ public class FightTurnManager : MonoBehaviour
 
         if (turnOrder.Count == 0)
         {
-            StopCombat("No units remaining.");
+            EndCombat("No units remaining.");
             return;
         }
 
@@ -184,7 +184,7 @@ public class FightTurnManager : MonoBehaviour
             }
         }
 
-        StopCombat("No living units remaining.");
+        EndCombat("No living units remaining.");
     }
 
     private void BeginTurn(FightUnit unit)
@@ -264,8 +264,13 @@ public class FightTurnManager : MonoBehaviour
         }
     }
 
-    private void StopCombat(string reason)
+    public void EndCombat(string reason)
     {
+        if (!combatRunning)
+        {
+            return;
+        }
+
         combatRunning = false;
         activeUnit = null;
 
