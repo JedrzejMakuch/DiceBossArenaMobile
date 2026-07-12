@@ -5,7 +5,7 @@ public class PlayerCombatInputManager : MonoBehaviour
     [Header("References")]
     [SerializeField] private FightTurnManager turnManager;
     [SerializeField] private FightTargetingManager targetingManager;
-    [SerializeField] private FightCombatManager combatManager;
+    [SerializeField] private FightSkillManager skillManager;
 
     private void OnEnable()
     {
@@ -29,7 +29,7 @@ public class PlayerCombatInputManager : MonoBehaviour
     {
         if (turnManager == null ||
             targetingManager == null ||
-            combatManager == null)
+            skillManager == null)
         {
             return;
         }
@@ -42,12 +42,37 @@ public class PlayerCombatInputManager : MonoBehaviour
             return;
         }
 
-        bool attackExecuted =
-            combatManager.TryExecuteBasicAttack(
-            attacker,
-            target);
+        FightUnitSkills unitSkills =
+            attacker.GetComponent<FightUnitSkills>();
 
-        if (!attackExecuted)
+        if (unitSkills == null)
+        {
+            Debug.LogError(
+                $"{attacker.UnitName} has no FightUnitSkills.",
+                attacker);
+
+            return;
+        }
+
+        UnitSkillState basicAttack =
+            unitSkills.GetSkillById("basic_attack");
+
+        if (basicAttack == null)
+        {
+            Debug.LogError(
+                $"{attacker.UnitName} has no Basic Attack.",
+                attacker);
+
+            return;
+        }
+
+        bool skillExecuted =
+            skillManager.TryExecuteSkill(
+                attacker,
+                basicAttack,
+                target);
+
+        if (!skillExecuted)
         {
             return;
         }
