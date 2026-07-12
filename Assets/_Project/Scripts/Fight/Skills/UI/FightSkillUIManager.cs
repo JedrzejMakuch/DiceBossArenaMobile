@@ -13,10 +13,8 @@ public class FightSkillUIManager : MonoBehaviour
     [Header("Panel")]
     [SerializeField] private GameObject skillPanel;
 
-    [Header("Basic Attack")]
-    [SerializeField] private Button basicAttackButton;
-    [SerializeField] private TMP_Text basicAttackButtonText;
-    [SerializeField] private TMP_Text basicAttackCooldownText;
+    [Header("Temporary Single Skill Slot")]
+    [SerializeField] private FightSkillButtonView basicAttackButtonView;
 
     [Header("Selection")]
     [SerializeField] private Button cancelSkillButton;
@@ -43,11 +41,6 @@ public class FightSkillUIManager : MonoBehaviour
             skillSelectionManager.SkillSelected += HandleSkillSelected;
 
             skillSelectionManager.SkillSelectionCleared += HandleSkillSelectionCleared;
-        }
-
-        if (basicAttackButton != null)
-        {
-            basicAttackButton.onClick.AddListener(HandleBasicAttackClicked);
         }
 
         if (cancelSkillButton != null)
@@ -78,14 +71,14 @@ public class FightSkillUIManager : MonoBehaviour
             skillSelectionManager.SkillSelectionCleared -= HandleSkillSelectionCleared;
         }
 
-        if (basicAttackButton != null)
-        {
-            basicAttackButton.onClick.RemoveListener(HandleBasicAttackClicked);
-        }
-
         if (cancelSkillButton != null)
         {
             cancelSkillButton.onClick.RemoveListener(HandleCancelSkillClicked);
+        }
+
+        if (basicAttackButtonView != null)
+        {
+            basicAttackButtonView.Bind(null, null);
         }
     }
 
@@ -104,13 +97,19 @@ public class FightSkillUIManager : MonoBehaviour
 
         currentPlayer = unit;
 
-        FightUnitSkills unitSkills =
-            unit.GetComponent<FightUnitSkills>();
+        FightUnitSkills unitSkills = unit.GetComponent<FightUnitSkills>();
 
         if (unitSkills != null)
         {
             basicAttackState =
                 unitSkills.GetSkillById("basic_attack");
+        }
+
+        if (basicAttackButtonView != null)
+        {
+            basicAttackButtonView.Bind(
+                basicAttackState,
+                HandleBasicAttackClicked);
         }
 
         ShowPanel();
@@ -133,10 +132,11 @@ public class FightSkillUIManager : MonoBehaviour
         HidePanel();
     }
 
-    private void HandleBasicAttackClicked()
+    private void HandleBasicAttackClicked(
+    UnitSkillState clickedSkillState)
     {
         if (currentPlayer == null ||
-            basicAttackState == null ||
+            clickedSkillState == null ||
             skillSelectionManager == null)
         {
             return;
@@ -144,7 +144,7 @@ public class FightSkillUIManager : MonoBehaviour
 
         skillSelectionManager.TrySelectSkill(
             currentPlayer,
-            basicAttackState);
+            clickedSkillState);
 
         RefreshUI();
     }
@@ -174,35 +174,12 @@ public class FightSkillUIManager : MonoBehaviour
 
     private void RefreshUI()
     {
-        if (basicAttackButtonText != null)
-        {
-            basicAttackButtonText.text =
-                basicAttackState?.Definition != null
-                    ? basicAttackState.Definition.DisplayName
-                    : "BASIC ATTACK";
-        }
+        bool canSelectBasicAttack = CanSelectBasicAttack();
 
-        if (basicAttackCooldownText != null)
+        if (basicAttackButtonView != null)
         {
-            if (basicAttackState == null ||
-                basicAttackState.CurrentCooldown <= 0)
-            {
-                basicAttackCooldownText.text = string.Empty;
-            }
-            else
-            {
-                basicAttackCooldownText.text =
-                    $"CD: {basicAttackState.CurrentCooldown}";
-            }
-        }
-
-        bool canSelectBasicAttack =
-            CanSelectBasicAttack();
-
-        if (basicAttackButton != null)
-        {
-            basicAttackButton.interactable =
-                canSelectBasicAttack;
+            basicAttackButtonView.Refresh(
+                canSelectBasicAttack);
         }
 
         bool hasSelection =
