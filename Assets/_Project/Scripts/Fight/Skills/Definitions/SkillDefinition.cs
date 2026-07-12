@@ -13,6 +13,7 @@ public class SkillDefinition : ScriptableObject
 
     [Header("Targeting")]
     [SerializeField] private SkillTargetType targetType;
+    [SerializeField] private SkillRangeShape rangeShape = SkillRangeShape.Manhattan;
     [SerializeField, Min(0)] private int minRange;
     [SerializeField, Min(0)] private int maxRange = 1;
 
@@ -34,6 +35,7 @@ public class SkillDefinition : ScriptableObject
     public Sprite Icon => icon;
 
     public SkillTargetType TargetType => targetType;
+    public SkillRangeShape RangeShape => rangeShape;
     public int MinRange => minRange;
     public int MaxRange => maxRange;
 

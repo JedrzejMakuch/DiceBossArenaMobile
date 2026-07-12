@@ -150,23 +150,14 @@ public class FightSkillRangeManager : MonoBehaviour
     }
 
     private bool IsTileWithinSkillRange(
-        FightGridTile origin,
-        FightGridTile target,
-        SkillDefinition definition)
+    FightGridTile origin,
+    FightGridTile target,
+    SkillDefinition definition)
     {
-        if (origin == null ||
-            target == null ||
-            definition == null)
-        {
-            return false;
-        }
-
-        int distance =
-            Mathf.Abs(origin.GridX - target.GridX) +
-            Mathf.Abs(origin.GridY - target.GridY);
-
-        return distance >= definition.MinRange &&
-               distance <= definition.MaxRange;
+        return SkillRangeUtility.IsWithinRange(
+            origin,
+            target,
+            definition);
     }
 
     private void RestoreMovementRange()

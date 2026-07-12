@@ -946,10 +946,14 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3488138166484422674, guid: d94f9f9b6be328b4a8df88af70a18470, type: 3}
       propertyPath: skills.Array.size
-      value: 3
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 3488138166484422674, guid: d94f9f9b6be328b4a8df88af70a18470, type: 3}
       propertyPath: skills.Array.data[2].level
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3488138166484422674, guid: d94f9f9b6be328b4a8df88af70a18470, type: 3}
+      propertyPath: skills.Array.data[3].level
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3488138166484422674, guid: d94f9f9b6be328b4a8df88af70a18470, type: 3}
@@ -957,12 +961,16 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 11400000, guid: cb67290ab93cc1a488badac2c9ab0661, type: 2}
     - target: {fileID: 3488138166484422674, guid: d94f9f9b6be328b4a8df88af70a18470, type: 3}
+      propertyPath: skills.Array.data[3].definition
+      value: 
+      objectReference: {fileID: 11400000, guid: 8364b3a167bf94d46bab0245b7728a94, type: 2}
+    - target: {fileID: 3488138166484422674, guid: d94f9f9b6be328b4a8df88af70a18470, type: 3}
       propertyPath: skills.Array.data[0].currentCooldown
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4572814687096202866, guid: d94f9f9b6be328b4a8df88af70a18470, type: 3}
       propertyPath: currentHealth
-      value: 3
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 8156859835659390550, guid: d94f9f9b6be328b4a8df88af70a18470, type: 3}
       propertyPath: m_LocalPosition.x
@@ -3674,6 +3682,55 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1317062310}
   m_CullTransparentMesh: 1
+--- !u!1 &1323468691
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1323468692}
+  - component: {fileID: 1323468693}
+  m_Layer: 0
+  m_Name: PlayerSkillTileInputManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1323468692
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1323468691}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2017946713}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1323468693
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1323468691}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 78250829d1ec58f4ab1a7c4fc67e01c5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerSkillTileInputManager
+  arenaGenerator: {fileID: 753130400}
+  turnManager: {fileID: 1232197400}
+  skillManager: {fileID: 2020262388}
+  skillSelectionManager: {fileID: 1730101406}
+  skillRangeManager: {fileID: 1495035516}
 --- !u!1 &1347550827
 GameObject:
   m_ObjectHideFlags: 0
@@ -6083,6 +6140,7 @@ Transform:
   - {fileID: 2020262387}
   - {fileID: 1730101405}
   - {fileID: 1495035515}
+  - {fileID: 1323468692}
   - {fileID: 1168067940}
   m_Father: {fileID: 1431030727}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}

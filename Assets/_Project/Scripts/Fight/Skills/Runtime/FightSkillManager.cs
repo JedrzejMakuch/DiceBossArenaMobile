@@ -275,22 +275,13 @@ public class FightSkillManager : MonoBehaviour
     }
 
     private bool IsWithinRange(
-        FightGridTile origin,
-        FightGridTile destination,
-        SkillDefinition skill)
+   FightGridTile origin,
+   FightGridTile destination,
+   SkillDefinition skill)
     {
-        if (origin == null ||
-            destination == null ||
-            skill == null)
-        {
-            return false;
-        }
-
-        int distance =
-            Mathf.Abs(origin.GridX - destination.GridX) +
-            Mathf.Abs(origin.GridY - destination.GridY);
-
-        return distance >= skill.MinRange &&
-               distance <= skill.MaxRange;
+        return SkillRangeUtility.IsWithinRange(
+            origin,
+            destination,
+            skill);
     }
 }

@@ -83,9 +83,23 @@ public class PlayerMovementInputManager : MonoBehaviour
             return;
         }
 
-        if (skillSelectionManager != null &&
-            skillSelectionManager.HasSelectedSkill)
+        if (skillSelectionManager != null && skillSelectionManager.HasSelectedSkill)
         {
+            UnitSkillState selectedSkill = skillSelectionManager.SelectedSkill;
+
+            SkillTargetType targetType =
+                selectedSkill?.Definition != null
+                    ? selectedSkill.Definition.TargetType
+                    : SkillTargetType.Self;
+
+            if (targetType == SkillTargetType.Tile ||
+                targetType == SkillTargetType.Area)
+            {
+                // Kliknięcie obsłuży
+                // PlayerSkillTileInputManager.
+                return;
+            }
+
             skillSelectionManager.ClearSelection();
 
             Debug.Log(
