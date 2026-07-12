@@ -9,6 +9,7 @@ public class PlayerMovementInputManager : MonoBehaviour
     [SerializeField] private FightTurnManager turnManager;
     [SerializeField] private FightTurnResourceManager turnResourceManager;
     [SerializeField] private FightMovementManager movementManager;
+    [SerializeField] private PlayerSkillSelectionManager skillSelectionManager;
 
     private readonly HashSet<FightGridTile> subscribedTiles = new();
 
@@ -18,8 +19,7 @@ public class PlayerMovementInputManager : MonoBehaviour
     {
         if (turnResourceManager != null)
         {
-            turnResourceManager.TurnResourcesReady +=
-                HandleTurnResourcesReady;
+            turnResourceManager.TurnResourcesReady += HandleTurnResourcesReady;
         }
 
         if (turnManager != null)
@@ -33,8 +33,7 @@ public class PlayerMovementInputManager : MonoBehaviour
     {
         if (turnResourceManager != null)
         {
-            turnResourceManager.TurnResourcesReady -=
-                HandleTurnResourcesReady;
+            turnResourceManager.TurnResourcesReady -= HandleTurnResourcesReady;
         }
 
         if (turnManager != null)
@@ -68,19 +67,24 @@ public class PlayerMovementInputManager : MonoBehaviour
 
     private void HandleTileClicked(FightGridTile tile)
     {
-        if (!playerMovementEnabled ||
-            tile == null ||
-            turnManager == null ||
-            movementManager == null)
-        {
-            return;
-        }
-
         FightUnit activeUnit = turnManager.ActiveUnit;
 
         if (activeUnit == null ||
             activeUnit.Team != FightTeam.Player)
         {
+            return;
+        }
+
+        if (skillSelectionManager != null &&
+            skillSelectionManager.HasSelectedSkill)
+        {
+            skillSelectionManager.ClearSelection();
+
+            Debug.Log(
+                $"Skill selection cancelled by clicking tile " +
+                $"({tile.GridX}, {tile.GridY}).",
+                tile);
+
             return;
         }
 

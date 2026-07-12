@@ -72,8 +72,12 @@ public class PlayerCombatInputManager : MonoBehaviour
         if (skillRangeManager == null || !skillRangeManager.IsUnitInCurrentRange(target))
         {
             Debug.Log(
-                $"{target.UnitName} is outside the selected skill range.",
+                $"{target.UnitName} is outside the selected skill range. " +
+                $"Skill selection cancelled.",
                 target);
+
+            targetingManager.ClearTarget();
+            skillSelectionManager.ClearSelection();
 
             return;
         }

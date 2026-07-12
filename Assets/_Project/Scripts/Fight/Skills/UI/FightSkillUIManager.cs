@@ -243,10 +243,16 @@ public class FightSkillUIManager : MonoBehaviour
                 continue;
             }
 
-            bool canSelect =
-                CanSelectSkill(buttonView.SkillState);
+            bool canSelect =  CanSelectSkill(buttonView.SkillState);
+
+            bool isSelected =
+                skillSelectionManager != null &&
+                skillSelectionManager.HasSelectedSkill &&
+                skillSelectionManager.SelectedSkill ==
+                    buttonView.SkillState;
 
             buttonView.Refresh(canSelect);
+            buttonView.SetSelected(isSelected);
         }
 
         bool hasSelection =

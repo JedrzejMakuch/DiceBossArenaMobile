@@ -434,10 +434,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FightSkillButtonView
   button: {fileID: 6374503574023770169}
+  backgroundImage: {fileID: 1483164381632742685}
   iconImage: {fileID: 8875138453576744853}
   skillNameText: {fileID: 9122644061982509966}
   costText: {fileID: 569080179595052020}
   statusText: {fileID: 5819212864652908205}
+  normalColor: {r: 1, g: 1, b: 1, a: 1}
+  selectedColor: {r: 1, g: 0.8, b: 0.2, a: 1}
 --- !u!114 &5685466196062582486
 MonoBehaviour:
   m_ObjectHideFlags: 0

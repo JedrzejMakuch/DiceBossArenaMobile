@@ -7,10 +7,15 @@ public class FightSkillButtonView : MonoBehaviour
 {
     [Header("References")]
     [SerializeField] private Button button;
+    [SerializeField] private Image backgroundImage;
     [SerializeField] private Image iconImage;
     [SerializeField] private TMP_Text skillNameText;
     [SerializeField] private TMP_Text costText;
     [SerializeField] private TMP_Text statusText;
+
+    [Header("Selection Visual")]
+    [SerializeField] private Color normalColor = Color.white;
+    [SerializeField] private Color selectedColor = new Color(1f, 0.8f, 0.2f, 1f);
 
     private UnitSkillState skillState;
     private Action<UnitSkillState> clickedCallback;
@@ -43,6 +48,7 @@ public class FightSkillButtonView : MonoBehaviour
         clickedCallback = newClickedCallback;
 
         Refresh(false);
+        SetSelected(false);
     }
 
     public void Refresh(bool interactable)
@@ -183,5 +189,18 @@ public class FightSkillButtonView : MonoBehaviour
         }
 
         clickedCallback?.Invoke(skillState);
+    }
+
+    public void SetSelected(bool selected)
+    {
+        if (backgroundImage == null)
+        {
+            return;
+        }
+
+        backgroundImage.color =
+            selected
+                ? selectedColor
+                : normalColor;
     }
 }
