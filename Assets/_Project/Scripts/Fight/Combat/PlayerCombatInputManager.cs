@@ -6,6 +6,8 @@ public class PlayerCombatInputManager : MonoBehaviour
     [SerializeField] private FightTurnManager turnManager;
     [SerializeField] private FightTargetingManager targetingManager;
     [SerializeField] private FightSkillManager skillManager;
+    [SerializeField] private PlayerSkillSelectionManager skillSelectionManager;
+    [SerializeField] private FightSkillRangeManager skillRangeManager;
 
     private void OnEnable()
     {
@@ -25,11 +27,13 @@ public class PlayerCombatInputManager : MonoBehaviour
         }
     }
 
-    private void HandleTargetSelected(FightUnit target)
+    private void HandleTargetSelected(
+        FightUnit target)
     {
         if (turnManager == null ||
             targetingManager == null ||
-            skillManager == null)
+            skillManager == null ||
+            skillSelectionManager == null)
         {
             return;
         }
@@ -42,26 +46,34 @@ public class PlayerCombatInputManager : MonoBehaviour
             return;
         }
 
-        FightUnitSkills unitSkills =
-            attacker.GetComponent<FightUnitSkills>();
-
-        if (unitSkills == null)
+        if (!skillSelectionManager.HasSelectedSkill)
         {
-            Debug.LogError(
-                $"{attacker.UnitName} has no FightUnitSkills.",
-                attacker);
+            Debug.Log(
+                "PlayerCombatInputManager: " +
+                "no skill is currently selected.");
 
             return;
         }
 
-        UnitSkillState basicAttack =
-            unitSkills.GetSkillById("basic_attack");
-
-        if (basicAttack == null)
+        if (skillSelectionManager.SelectedCaster !=
+            attacker)
         {
-            Debug.LogError(
-                $"{attacker.UnitName} has no Basic Attack.",
+            Debug.LogWarning(
+                "PlayerCombatInputManager: " +
+                "selected skill belongs to another unit.",
                 attacker);
+
+            skillSelectionManager.ClearSelection();
+            return;
+        }
+
+        UnitSkillState selectedSkill = skillSelectionManager.SelectedSkill;
+
+        if (skillRangeManager == null || !skillRangeManager.IsUnitInCurrentRange(target))
+        {
+            Debug.Log(
+                $"{target.UnitName} is outside the selected skill range.",
+                target);
 
             return;
         }
@@ -69,7 +81,7 @@ public class PlayerCombatInputManager : MonoBehaviour
         bool skillExecuted =
             skillManager.TryExecuteSkill(
                 attacker,
-                basicAttack,
+                selectedSkill,
                 target);
 
         if (!skillExecuted)
@@ -78,5 +90,10 @@ public class PlayerCombatInputManager : MonoBehaviour
         }
 
         targetingManager.ClearTarget();
+
+        // Po wykonaniu skill nie pozostaje zaznaczony.
+        // UI później będzie mogło ponownie wybrać kolejny skill,
+        // jeżeli jednostka nadal ma AP.
+        skillSelectionManager.ClearSelection();
     }
 }

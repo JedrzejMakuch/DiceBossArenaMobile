@@ -26,6 +26,7 @@ public class FightGridTile : MonoBehaviour, IPointerClickHandler
     [SerializeField] private Color selectedColor = new Color(1f, 0.9f, 0.2f, 1f);
     [SerializeField] private Color blockedColor = new Color(0.35f, 0.35f, 0.35f, 1f);
     [SerializeField] private Color movementRangeColor = new Color(0.25f, 0.65f, 1f, 1f);
+    [SerializeField] private Color skillRangeColor = new Color(1f, 0.35f, 0.25f, 1f);
 
     public event Action<FightGridTile> Clicked;
 
@@ -174,6 +175,11 @@ public class FightGridTile : MonoBehaviour, IPointerClickHandler
     public void SetMovementRangeVisual()
     {
         SetColor(movementRangeColor);
+    }
+
+    public void SetSkillRangeVisual()
+    {
+        SetColor(skillRangeColor);
     }
 
     public void OnPointerClick(PointerEventData eventData)
