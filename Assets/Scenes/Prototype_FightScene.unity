@@ -940,9 +940,29 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 59994143}
     m_Modifications:
+    - target: {fileID: -8952087704369165467, guid: d94f9f9b6be328b4a8df88af70a18470, type: 3}
+      propertyPath: maxActionPoints
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 3488138166484422674, guid: d94f9f9b6be328b4a8df88af70a18470, type: 3}
+      propertyPath: skills.Array.size
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 3488138166484422674, guid: d94f9f9b6be328b4a8df88af70a18470, type: 3}
+      propertyPath: skills.Array.data[2].level
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3488138166484422674, guid: d94f9f9b6be328b4a8df88af70a18470, type: 3}
+      propertyPath: skills.Array.data[2].definition
+      value: 
+      objectReference: {fileID: 11400000, guid: cb67290ab93cc1a488badac2c9ab0661, type: 2}
     - target: {fileID: 3488138166484422674, guid: d94f9f9b6be328b4a8df88af70a18470, type: 3}
       propertyPath: skills.Array.data[0].currentCooldown
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4572814687096202866, guid: d94f9f9b6be328b4a8df88af70a18470, type: 3}
+      propertyPath: currentHealth
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 8156859835659390550, guid: d94f9f9b6be328b4a8df88af70a18470, type: 3}
       propertyPath: m_LocalPosition.x

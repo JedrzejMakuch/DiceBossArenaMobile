@@ -9,10 +9,10 @@ public class FightTargetingManager : MonoBehaviour
 
     private FightUnit selectedTarget;
     private bool targetingEnabled;
+    private FightUnit subscribedPlayerUnit;
 
     public FightUnit SelectedTarget => selectedTarget;
     public bool TargetingEnabled => targetingEnabled;
-
     public event Action<FightUnit> TargetSelected;
     public event Action TargetCleared;
 
@@ -48,6 +48,7 @@ public class FightTargetingManager : MonoBehaviour
         }
 
         UnsubscribeFromEnemies();
+        UnsubscribeFromPlayerUnit();
     }
 
     private void SubscribeToEnemies()
@@ -98,25 +99,88 @@ public class FightTargetingManager : MonoBehaviour
         }
     }
 
-    private void HandleTurnStarted(FightUnit unit, int roundNumber)
+    private void HandleTurnStarted(
+    FightUnit unit,
+    int roundNumber)
     {
+        UnsubscribeFromPlayerUnit();
+
         targetingEnabled =
             unit != null &&
             unit.Team == FightTeam.Player;
 
+        if (targetingEnabled)
+        {
+            SubscribeToPlayerUnit(unit);
+        }
+
         ClearTarget();
     }
 
-    private void HandleTurnEnded(FightUnit unit)
+    private void HandleTurnEnded(
+    FightUnit unit)
     {
         targetingEnabled = false;
+
+        UnsubscribeFromPlayerUnit();
         ClearTarget();
     }
 
-    private void HandleCombatStopped(string reason)
+    private void HandleCombatStopped(
+    string reason)
     {
         targetingEnabled = false;
+
+        UnsubscribeFromPlayerUnit();
         ClearTarget();
+    }
+
+    private void SubscribeToPlayerUnit(
+    FightUnit unit)
+    {
+        if (unit == null)
+        {
+            return;
+        }
+
+        FightUnitClickHandler clickHandler =
+            unit.GetComponent<FightUnitClickHandler>();
+
+        if (clickHandler == null)
+        {
+            Debug.LogWarning(
+                $"{unit.UnitName} has no " +
+                $"{nameof(FightUnitClickHandler)}.",
+                unit);
+
+            return;
+        }
+
+        clickHandler.Clicked +=
+            HandleUnitClicked;
+
+        subscribedPlayerUnit =
+            unit;
+    }
+
+    private void UnsubscribeFromPlayerUnit()
+    {
+        if (subscribedPlayerUnit == null)
+        {
+            return;
+        }
+
+        FightUnitClickHandler clickHandler =
+            subscribedPlayerUnit.GetComponent<
+                FightUnitClickHandler>();
+
+        if (clickHandler != null)
+        {
+            clickHandler.Clicked -=
+                HandleUnitClicked;
+        }
+
+        subscribedPlayerUnit = null;
     }
 
     private void HandleUnitClicked(FightUnit unit)
@@ -142,25 +206,17 @@ public class FightTargetingManager : MonoBehaviour
     }
 
     public bool IsValidTarget(
-        FightUnit attacker,
-        FightUnit target)
+    FightUnit attacker,
+    FightUnit target)
     {
-        if (attacker == null || target == null)
+        if (attacker == null ||
+            target == null)
         {
             return false;
         }
 
-        if (!attacker.IsAlive || !target.IsAlive)
-        {
-            return false;
-        }
-
-        if (attacker == target)
-        {
-            return false;
-        }
-
-        if (attacker.Team == target.Team)
+        if (!attacker.IsAlive ||
+            !target.IsAlive)
         {
             return false;
         }

@@ -4,15 +4,11 @@
 public class DamageSkillEffectDefinition : SkillEffectDefinition
 {
     [Header("Base Damage")]
-    [SerializeField]
-    private DamageScalingSource scalingSource =
-        DamageScalingSource.CasterAttackPower;
+    [SerializeField] private DamageScalingSource scalingSource = DamageScalingSource.CasterAttackPower;
 
-    [SerializeField, Min(0)]
-    private int baseValue;
+    [SerializeField, Min(0)] private int baseValue;
 
-    [SerializeField, Min(0f)]
-    private float scalingMultiplier = 1f;
+    [SerializeField, Min(0f)] private float scalingMultiplier = 1f;
 
     public DamageScalingSource ScalingSource =>
         scalingSource;
