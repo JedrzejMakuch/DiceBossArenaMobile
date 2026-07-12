@@ -1,5 +1,8 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
+using System;
+using System.Collections.Generic;
+using UnityEngine;
 
 public class FightMovementManager : MonoBehaviour
 {
@@ -10,8 +13,8 @@ public class FightMovementManager : MonoBehaviour
 
     private readonly List<FightGridTile> highlightedTiles = new();
 
-    public IReadOnlyList<FightGridTile> HighlightedTiles =>
-        highlightedTiles;
+    public IReadOnlyList<FightGridTile> HighlightedTiles => highlightedTiles;
+    public event Action<FightUnit, FightGridTile, int> UnitMoved;
 
     private void OnEnable()
     {
@@ -196,5 +199,92 @@ public class FightMovementManager : MonoBehaviour
         }
 
         highlightedTiles.Clear();
+    }
+
+    public bool TryMoveUnit(
+    FightUnit unit,
+    FightGridTile targetTile)
+    {
+        if (unit == null ||
+            targetTile == null ||
+            unit.CurrentTile == null)
+        {
+            return false;
+        }
+
+        if (turnManager == null ||
+            !turnManager.CombatRunning ||
+            turnManager.ActiveUnit != unit)
+        {
+            Debug.LogWarning(
+                $"FightMovementManager: {unit.UnitName} " +
+                $"cannot move outside its active turn.",
+                unit);
+
+            return false;
+        }
+
+        FightUnitTurnResources resources =
+            unit.GetComponent<FightUnitTurnResources>();
+
+        if (resources == null)
+        {
+            Debug.LogError(
+                $"FightMovementManager: " +
+                $"{unit.UnitName} has no FightUnitTurnResources.",
+                unit);
+
+            return false;
+        }
+
+        int movementCost =
+            CalculateMovementCost(
+                unit.CurrentTile,
+                targetTile);
+
+        if (!CanUnitMoveToTile(
+                unit,
+                targetTile,
+                resources.CurrentMovementPoints))
+        {
+            Debug.LogWarning(
+                $"{unit.UnitName} cannot move to tile " +
+                $"({targetTile.GridX}, {targetTile.GridY}). " +
+                $"Cost: {movementCost}, " +
+                $"available MP: {resources.CurrentMovementPoints}.",
+                unit);
+
+            return false;
+        }
+
+        if (!unit.TryAssignToTile(targetTile))
+        {
+            return false;
+        }
+
+        if (!resources.TrySpendMovementPoints(movementCost))
+        {
+            Debug.LogError(
+                $"FightMovementManager: failed to spend " +
+                $"{movementCost} MP after moving {unit.UnitName}.",
+                unit);
+
+            return false;
+        }
+
+        UnitMoved?.Invoke(
+            unit,
+            targetTile,
+            movementCost);
+
+        Debug.Log(
+            $"{unit.UnitName} moved to tile " +
+            $"({targetTile.GridX}, {targetTile.GridY}). " +
+            $"Cost: {movementCost} MP. " +
+            $"Remaining: {resources.CurrentMovementPoints} MP.");
+
+        ShowMovementRange(unit);
+
+        return true;
     }
 }
