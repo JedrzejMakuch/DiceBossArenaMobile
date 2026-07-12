@@ -15,7 +15,7 @@ MonoBehaviour:
   skillId: basic_attack
   displayName: Basic Attack
   description: A basic attack that deals damage based on Attack Power.
-  icon: {fileID: 0}
+  icon: {fileID: 6731280722045065740, guid: d40ddba8fd0f3d04783806ae2a10e27b, type: 3}
   targetType: 2
   minRange: 1
   maxRange: 1

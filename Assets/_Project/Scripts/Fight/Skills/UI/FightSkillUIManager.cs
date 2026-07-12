@@ -23,11 +23,11 @@ public class FightSkillUIManager : MonoBehaviour
     [SerializeField] private TMP_Text selectedSkillText;
     [SerializeField] private FightSkillDetailsView skillDetailsView;
 
-    private readonly List<FightSkillButtonView>
-        skillButtonViews = new();
+    private readonly List<FightSkillButtonView> skillButtonViews = new();
 
     private FightUnit currentPlayer;
     private FightUnitSkills currentPlayerSkills;
+    private UnitSkillState inspectedSkill;
 
     private void OnEnable()
     {
@@ -194,7 +194,7 @@ public class FightSkillUIManager : MonoBehaviour
     }
 
     private void HandleSkillButtonClicked(
-        UnitSkillState clickedSkillState)
+    UnitSkillState clickedSkillState)
     {
         if (currentPlayer == null ||
             clickedSkillState == null ||
@@ -202,6 +202,23 @@ public class FightSkillUIManager : MonoBehaviour
         {
             return;
         }
+
+        bool canSelect =
+            CanSelectSkill(clickedSkillState);
+
+        if (!canSelect)
+        {
+            skillSelectionManager.ClearSelection();
+
+            inspectedSkill =
+                clickedSkillState;
+
+            RefreshUI();
+            return;
+        }
+
+        inspectedSkill =
+            clickedSkillState;
 
         skillSelectionManager.TrySelectSkill(
             currentPlayer,
@@ -212,8 +229,11 @@ public class FightSkillUIManager : MonoBehaviour
 
     private void HandleCancelSkillClicked()
     {
+        inspectedSkill = null;
+
         if (skillSelectionManager == null)
         {
+            RefreshUI();
             return;
         }
 
@@ -230,6 +250,7 @@ public class FightSkillUIManager : MonoBehaviour
 
     private void HandleSkillSelectionCleared()
     {
+        inspectedSkill = null;
         RefreshUI();
     }
 
@@ -259,10 +280,20 @@ public class FightSkillUIManager : MonoBehaviour
 
         if (skillDetailsView != null)
         {
-            if (hasSelection)
+            UnitSkillState skillToDisplay =
+                inspectedSkill;
+
+            if (skillToDisplay == null &&
+                hasSelection)
+            {
+                skillToDisplay =
+                    skillSelectionManager.SelectedSkill;
+            }
+
+            if (skillToDisplay != null)
             {
                 skillDetailsView.Show(
-                    skillSelectionManager.SelectedSkill);
+                    skillToDisplay);
             }
             else
             {
@@ -348,6 +379,7 @@ public class FightSkillUIManager : MonoBehaviour
     {
         currentPlayer = null;
         currentPlayerSkills = null;
+        inspectedSkill = null;
     }
 
     private void ShowPanel()

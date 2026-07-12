@@ -15,7 +15,7 @@ MonoBehaviour:
   skillId: power_strike
   displayName: Power Strike
   description: A powerful strike that deals increased damage.
-  icon: {fileID: 0}
+  icon: {fileID: 6452994326477828471, guid: d40ddba8fd0f3d04783806ae2a10e27b, type: 3}
   targetType: 2
   minRange: 1
   maxRange: 2

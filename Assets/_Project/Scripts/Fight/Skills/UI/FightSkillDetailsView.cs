@@ -138,15 +138,20 @@ public class FightSkillDetailsView : MonoBehaviour
     }
 
     private string BuildCooldownText(
-        UnitSkillState skillState,
-        SkillLevelData levelData)
+    UnitSkillState skillState,
+    SkillLevelData levelData)
     {
         if (skillState.CurrentCooldown > 0)
         {
+            string turnWord =
+                skillState.CurrentCooldown == 1
+                    ? "turn"
+                    : "turns";
+
             return
-                $"Cooldown: " +
+                $"Remaining cooldown: " +
                 $"{skillState.CurrentCooldown} " +
-                $"remaining / {levelData.Cooldown}";
+                $"{turnWord}";
         }
 
         if (levelData.Cooldown <= 0)
@@ -155,7 +160,7 @@ public class FightSkillDetailsView : MonoBehaviour
         }
 
         return
-            $"Cooldown: {levelData.Cooldown}";
+            $"Cooldown: {levelData.Cooldown} turns";
     }
 
     private string BuildPowerText(

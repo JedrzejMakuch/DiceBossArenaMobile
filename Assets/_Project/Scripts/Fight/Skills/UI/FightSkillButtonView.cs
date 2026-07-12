@@ -10,15 +10,22 @@ public class FightSkillButtonView : MonoBehaviour
     [SerializeField] private Image backgroundImage;
     [SerializeField] private Image iconImage;
     [SerializeField] private TMP_Text skillNameText;
-    [SerializeField] private TMP_Text costText;
-    [SerializeField] private TMP_Text statusText;
 
-    [Header("Selection Visual")]
-    [SerializeField] private Color normalColor = Color.white;
-    [SerializeField] private Color selectedColor = new Color(1f, 0.8f, 0.2f, 1f);
+    [Header("Background Visual")]
+    [SerializeField] private Color normalBackgroundColor = Color.white;
+    [SerializeField] private Color selectedBackgroundColor = new Color(1f, 0.8f, 0.2f, 1f);
+    [SerializeField] private Color unavailableBackgroundColor = new Color(0.35f, 0.35f, 0.35f, 1f);
+
+    [Header("Content Visual")]
+    [SerializeField] private Color availableIconColor = Color.white;
+    [SerializeField] private Color availableTextColor = Color.black;
+    [SerializeField] private Color unavailableContentColor = new Color(0.65f, 0.65f, 0.65f, 1f);
 
     private UnitSkillState skillState;
     private Action<UnitSkillState> clickedCallback;
+
+    private bool isAvailable;
+    private bool isSelected;
 
     public UnitSkillState SkillState => skillState;
 
@@ -28,6 +35,11 @@ public class FightSkillButtonView : MonoBehaviour
         {
             button.onClick.AddListener(
                 HandleButtonClicked);
+        }
+
+        if (iconImage != null)
+        {
+            iconImage.preserveAspect = true;
         }
     }
 
@@ -47,26 +59,74 @@ public class FightSkillButtonView : MonoBehaviour
         skillState = newSkillState;
         clickedCallback = newClickedCallback;
 
+        isAvailable = false;
+        isSelected = false;
+
         Refresh(false);
-        SetSelected(false);
     }
 
-    public void Refresh(bool interactable)
+    public void Refresh(bool available)
     {
         SkillDefinition definition =
             skillState?.Definition;
 
+        isAvailable = available;
+
         RefreshName(definition);
         RefreshIcon(definition);
-        RefreshCost(definition);
-        RefreshStatus(definition, interactable);
+        RefreshVisualState();
 
+        // Przycisk pozostaje klikalny, żeby można było
+        // obejrzeć details skilla na cooldownie.
         if (button != null)
         {
             button.interactable =
                 skillState != null &&
-                definition != null &&
-                interactable;
+                definition != null;
+        }
+    }
+
+    public void SetSelected(bool selected)
+    {
+        isSelected = selected;
+        RefreshVisualState();
+    }
+
+    private void RefreshVisualState()
+    {
+        if (backgroundImage != null)
+        {
+            if (!isAvailable)
+            {
+                backgroundImage.color =
+                    unavailableBackgroundColor;
+            }
+            else if (isSelected)
+            {
+                backgroundImage.color =
+                    selectedBackgroundColor;
+            }
+            else
+            {
+                backgroundImage.color =
+                    normalBackgroundColor;
+            }
+        }
+
+        if (iconImage != null)
+        {
+            iconImage.color =
+                isAvailable
+                    ? availableIconColor
+                    : unavailableContentColor;
+        }
+
+        if (skillNameText != null)
+        {
+            skillNameText.color =
+                isAvailable
+                    ? availableTextColor
+                    : unavailableContentColor;
         }
     }
 
@@ -81,7 +141,7 @@ public class FightSkillButtonView : MonoBehaviour
         skillNameText.text =
             definition != null
                 ? definition.DisplayName
-                : "EMPTY SKILL";
+                : string.Empty;
     }
 
     private void RefreshIcon(
@@ -98,86 +158,8 @@ public class FightSkillButtonView : MonoBehaviour
                 : null;
 
         iconImage.sprite = icon;
+        iconImage.preserveAspect = true;
         iconImage.enabled = icon != null;
-    }
-
-    private void RefreshCost(
-        SkillDefinition definition)
-    {
-        if (costText == null)
-        {
-            return;
-        }
-
-        if (definition == null)
-        {
-            costText.text = string.Empty;
-            return;
-        }
-
-        int actionPointCost =
-            definition.ActionPointCost;
-
-        int movementPointCost =
-            definition.MovementPointCost;
-
-        if (actionPointCost <= 0 &&
-            movementPointCost <= 0)
-        {
-            costText.text = "FREE";
-            return;
-        }
-
-        if (actionPointCost > 0 &&
-            movementPointCost > 0)
-        {
-            costText.text =
-                $"{actionPointCost} AP / " +
-                $"{movementPointCost} MP";
-
-            return;
-        }
-
-        if (actionPointCost > 0)
-        {
-            costText.text =
-                $"{actionPointCost} AP";
-
-            return;
-        }
-
-        costText.text =
-            $"{movementPointCost} MP";
-    }
-
-    private void RefreshStatus(
-        SkillDefinition definition,
-        bool interactable)
-    {
-        if (statusText == null)
-        {
-            return;
-        }
-
-        if (skillState == null ||
-            definition == null)
-        {
-            statusText.text = string.Empty;
-            return;
-        }
-
-        if (skillState.CurrentCooldown > 0)
-        {
-            statusText.text =
-                $"CD: {skillState.CurrentCooldown}";
-
-            return;
-        }
-
-        statusText.text =
-            interactable
-                ? "READY"
-                : "UNAVAILABLE";
     }
 
     private void HandleButtonClicked()
@@ -189,18 +171,5 @@ public class FightSkillButtonView : MonoBehaviour
         }
 
         clickedCallback?.Invoke(skillState);
-    }
-
-    public void SetSelected(bool selected)
-    {
-        if (backgroundImage == null)
-        {
-            return;
-        }
-
-        backgroundImage.color =
-            selected
-                ? selectedColor
-                : normalColor;
     }
 }
