@@ -1,4 +1,5 @@
-﻿using TMPro;
+﻿using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -13,41 +14,52 @@ public class FightSkillUIManager : MonoBehaviour
     [Header("Panel")]
     [SerializeField] private GameObject skillPanel;
 
-    [Header("Temporary Single Skill Slot")]
-    [SerializeField] private FightSkillButtonView basicAttackButtonView;
+    [Header("Dynamic Skill Buttons")]
+    [SerializeField] private Transform skillButtonsContainer;
+    [SerializeField]
+    private FightSkillButtonView skillButtonPrefab;
 
     [Header("Selection")]
     [SerializeField] private Button cancelSkillButton;
     [SerializeField] private TMP_Text selectedSkillText;
 
+    private readonly List<FightSkillButtonView>
+        skillButtonViews = new();
+
     private FightUnit currentPlayer;
-    private UnitSkillState basicAttackState;
+    private FightUnitSkills currentPlayerSkills;
 
     private void OnEnable()
     {
         if (skillTurnManager != null)
         {
-            skillTurnManager.SkillTurnReady += HandleSkillTurnReady;
+            skillTurnManager.SkillTurnReady +=
+                HandleSkillTurnReady;
         }
 
         if (turnManager != null)
         {
             turnManager.TurnEnded += HandleTurnEnded;
-            turnManager.CombatStopped += HandleCombatStopped;
+            turnManager.CombatStopped +=
+                HandleCombatStopped;
         }
 
         if (skillSelectionManager != null)
         {
-            skillSelectionManager.SkillSelected += HandleSkillSelected;
+            skillSelectionManager.SkillSelected +=
+                HandleSkillSelected;
 
-            skillSelectionManager.SkillSelectionCleared += HandleSkillSelectionCleared;
+            skillSelectionManager.SkillSelectionCleared +=
+                HandleSkillSelectionCleared;
         }
 
         if (cancelSkillButton != null)
         {
-            cancelSkillButton.onClick.AddListener(HandleCancelSkillClicked);
+            cancelSkillButton.onClick.AddListener(
+                HandleCancelSkillClicked);
         }
 
+        ClearSkillButtons();
         HidePanel();
     }
 
@@ -55,37 +67,40 @@ public class FightSkillUIManager : MonoBehaviour
     {
         if (skillTurnManager != null)
         {
-            skillTurnManager.SkillTurnReady -= HandleSkillTurnReady;
+            skillTurnManager.SkillTurnReady -=
+                HandleSkillTurnReady;
         }
 
         if (turnManager != null)
         {
             turnManager.TurnEnded -= HandleTurnEnded;
-            turnManager.CombatStopped -= HandleCombatStopped;
+            turnManager.CombatStopped -=
+                HandleCombatStopped;
         }
 
         if (skillSelectionManager != null)
         {
-            skillSelectionManager.SkillSelected -= HandleSkillSelected;
+            skillSelectionManager.SkillSelected -=
+                HandleSkillSelected;
 
-            skillSelectionManager.SkillSelectionCleared -= HandleSkillSelectionCleared;
+            skillSelectionManager.SkillSelectionCleared -=
+                HandleSkillSelectionCleared;
         }
 
         if (cancelSkillButton != null)
         {
-            cancelSkillButton.onClick.RemoveListener(HandleCancelSkillClicked);
+            cancelSkillButton.onClick.RemoveListener(
+                HandleCancelSkillClicked);
         }
 
-        if (basicAttackButtonView != null)
-        {
-            basicAttackButtonView.Bind(null, null);
-        }
+        ClearCurrentPlayer();
+        ClearSkillButtons();
     }
 
     private void HandleSkillTurnReady(FightUnit unit)
     {
-        currentPlayer = null;
-        basicAttackState = null;
+        ClearCurrentPlayer();
+        ClearSkillButtons();
 
         if (unit == null ||
             !unit.IsAlive ||
@@ -96,21 +111,21 @@ public class FightSkillUIManager : MonoBehaviour
         }
 
         currentPlayer = unit;
+        currentPlayerSkills =
+            unit.GetComponent<FightUnitSkills>();
 
-        FightUnitSkills unitSkills = unit.GetComponent<FightUnitSkills>();
-
-        if (unitSkills != null)
+        if (currentPlayerSkills == null)
         {
-            basicAttackState =
-                unitSkills.GetSkillById("basic_attack");
+            HidePanel();
+
+            Debug.LogWarning(
+                $"{unit.name} has no FightUnitSkills component.",
+                unit);
+
+            return;
         }
 
-        if (basicAttackButtonView != null)
-        {
-            basicAttackButtonView.Bind(
-                basicAttackState,
-                HandleBasicAttackClicked);
-        }
+        BuildSkillButtons();
 
         ShowPanel();
         RefreshUI();
@@ -118,22 +133,68 @@ public class FightSkillUIManager : MonoBehaviour
 
     private void HandleTurnEnded(FightUnit unit)
     {
-        currentPlayer = null;
-        basicAttackState = null;
-
+        ClearCurrentPlayer();
+        ClearSkillButtons();
         HidePanel();
     }
 
     private void HandleCombatStopped(string reason)
     {
-        currentPlayer = null;
-        basicAttackState = null;
-
+        ClearCurrentPlayer();
+        ClearSkillButtons();
         HidePanel();
     }
 
-    private void HandleBasicAttackClicked(
-    UnitSkillState clickedSkillState)
+    private void BuildSkillButtons()
+    {
+        if (currentPlayerSkills == null ||
+            skillButtonPrefab == null ||
+            skillButtonsContainer == null)
+        {
+            return;
+        }
+
+        foreach (UnitSkillState skillState
+                 in currentPlayerSkills.Skills)
+        {
+            if (skillState == null ||
+                skillState.Definition == null)
+            {
+                continue;
+            }
+
+            FightSkillButtonView buttonView =
+                Instantiate(
+                    skillButtonPrefab,
+                    skillButtonsContainer);
+
+            buttonView.Bind(
+                skillState,
+                HandleSkillButtonClicked);
+
+            skillButtonViews.Add(buttonView);
+        }
+    }
+
+    private void ClearSkillButtons()
+    {
+        foreach (FightSkillButtonView buttonView
+                 in skillButtonViews)
+        {
+            if (buttonView == null)
+            {
+                continue;
+            }
+
+            buttonView.Bind(null, null);
+            Destroy(buttonView.gameObject);
+        }
+
+        skillButtonViews.Clear();
+    }
+
+    private void HandleSkillButtonClicked(
+        UnitSkillState clickedSkillState)
     {
         if (currentPlayer == null ||
             clickedSkillState == null ||
@@ -174,12 +235,18 @@ public class FightSkillUIManager : MonoBehaviour
 
     private void RefreshUI()
     {
-        bool canSelectBasicAttack = CanSelectBasicAttack();
-
-        if (basicAttackButtonView != null)
+        foreach (FightSkillButtonView buttonView
+                 in skillButtonViews)
         {
-            basicAttackButtonView.Refresh(
-                canSelectBasicAttack);
+            if (buttonView == null)
+            {
+                continue;
+            }
+
+            bool canSelect =
+                CanSelectSkill(buttonView.SkillState);
+
+            buttonView.Refresh(canSelect);
         }
 
         bool hasSelection =
@@ -207,17 +274,19 @@ public class FightSkillUIManager : MonoBehaviour
                         .Definition;
 
                 selectedSkillText.text =
-                    $"Selected: {selectedDefinition.DisplayName}";
+                    $"Selected: " +
+                    $"{selectedDefinition.DisplayName}";
             }
         }
     }
 
-    private bool CanSelectBasicAttack()
+    private bool CanSelectSkill(
+        UnitSkillState skillState)
     {
         if (currentPlayer == null ||
-            basicAttackState == null ||
-            basicAttackState.Definition == null ||
-            !basicAttackState.IsReady)
+            skillState == null ||
+            skillState.Definition == null ||
+            !skillState.IsReady)
         {
             return false;
         }
@@ -239,7 +308,7 @@ public class FightSkillUIManager : MonoBehaviour
         }
 
         SkillDefinition definition =
-            basicAttackState.Definition;
+            skillState.Definition;
 
         if (definition.ActionPointCost > 0 &&
             !resources.CanSpendActionPoints(
@@ -256,6 +325,12 @@ public class FightSkillUIManager : MonoBehaviour
         }
 
         return true;
+    }
+
+    private void ClearCurrentPlayer()
+    {
+        currentPlayer = null;
+        currentPlayerSkills = null;
     }
 
     private void ShowPanel()
