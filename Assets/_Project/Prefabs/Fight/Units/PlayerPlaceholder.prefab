@@ -188,7 +188,10 @@ MonoBehaviour:
   skills:
   - definition: {fileID: 11400000, guid: cfbef989ed023a24f9de625c4d3f4080, type: 2}
     level: 1
-    currentCooldown: 2
+    currentCooldown: 0
+  - definition: {fileID: 11400000, guid: f8a60ffa83c63804280bd54490f6d2fa, type: 2}
+    level: 1
+    currentCooldown: 0
 --- !u!58 &8196561283728038159
 CircleCollider2D:
   m_ObjectHideFlags: 0
