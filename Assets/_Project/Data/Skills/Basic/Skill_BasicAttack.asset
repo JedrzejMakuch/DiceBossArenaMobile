@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SkillDefinition
   skillId: basic_attack
   displayName: Basic Attack
-  description: 
+  description: A basic attack that deals damage based on Attack Power.
   icon: {fileID: 0}
   targetType: 2
   minRange: 1

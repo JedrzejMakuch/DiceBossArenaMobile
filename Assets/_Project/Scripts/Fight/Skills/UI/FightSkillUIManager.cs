@@ -8,8 +8,7 @@ public class FightSkillUIManager : MonoBehaviour
     [Header("References")]
     [SerializeField] private FightTurnManager turnManager;
     [SerializeField] private FightSkillTurnManager skillTurnManager;
-    [SerializeField]
-    private PlayerSkillSelectionManager skillSelectionManager;
+    [SerializeField] private PlayerSkillSelectionManager skillSelectionManager;
 
     [Header("Panel")]
     [SerializeField] private GameObject skillPanel;
@@ -22,6 +21,7 @@ public class FightSkillUIManager : MonoBehaviour
     [Header("Selection")]
     [SerializeField] private Button cancelSkillButton;
     [SerializeField] private TMP_Text selectedSkillText;
+    [SerializeField] private FightSkillDetailsView skillDetailsView;
 
     private readonly List<FightSkillButtonView>
         skillButtonViews = new();
@@ -255,9 +255,20 @@ public class FightSkillUIManager : MonoBehaviour
             buttonView.SetSelected(isSelected);
         }
 
-        bool hasSelection =
-            skillSelectionManager != null &&
-            skillSelectionManager.HasSelectedSkill;
+        bool hasSelection = skillSelectionManager != null && skillSelectionManager.HasSelectedSkill;
+
+        if (skillDetailsView != null)
+        {
+            if (hasSelection)
+            {
+                skillDetailsView.Show(
+                    skillSelectionManager.SelectedSkill);
+            }
+            else
+            {
+                skillDetailsView.Hide();
+            }
+        }
 
         if (cancelSkillButton != null)
         {
@@ -349,6 +360,11 @@ public class FightSkillUIManager : MonoBehaviour
 
     private void HidePanel()
     {
+        if (skillDetailsView != null)
+        {
+            skillDetailsView.Hide();
+        }
+
         if (skillPanel != null)
         {
             skillPanel.SetActive(false);
