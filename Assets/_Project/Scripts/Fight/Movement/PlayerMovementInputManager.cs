@@ -67,6 +67,14 @@ public class PlayerMovementInputManager : MonoBehaviour
 
     private void HandleTileClicked(FightGridTile tile)
     {
+        if (!playerMovementEnabled ||
+            tile == null ||
+            turnManager == null ||
+            movementManager == null)
+        {
+            return;
+        }
+
         FightUnit activeUnit = turnManager.ActiveUnit;
 
         if (activeUnit == null ||
@@ -92,7 +100,7 @@ public class PlayerMovementInputManager : MonoBehaviour
         {
             Debug.Log(
                 $"Tile ({tile.GridX}, {tile.GridY}) " +
-                $"is outside the current movement range.");
+                "is outside the current movement range.");
 
             return;
         }
