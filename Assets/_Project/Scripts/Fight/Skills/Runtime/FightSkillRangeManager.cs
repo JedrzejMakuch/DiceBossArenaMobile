@@ -50,9 +50,26 @@ public class FightSkillRangeManager : MonoBehaviour
     }
 
     private void HandleSkillSelected(
-        FightUnit caster,
-        UnitSkillState skillState)
+    FightUnit caster,
+    UnitSkillState skillState)
     {
+        SkillDefinition definition =
+            skillState?.Definition;
+
+        if (definition == null)
+        {
+            ClearSkillRange();
+            return;
+        }
+
+        if (definition.RangeShape ==
+            SkillRangeShape.Cone)
+        {
+            // Stożek potrzebuje wyboru kierunku.
+            // Obsługuje go PlayerConePreviewManager.
+            return;
+        }
+
         ShowSkillRange(
             caster,
             skillState);

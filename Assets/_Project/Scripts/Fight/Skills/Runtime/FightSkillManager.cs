@@ -263,11 +263,24 @@ public class FightSkillManager : MonoBehaviour
                            skill);
 
             case SkillTargetType.Area:
-                return targetTile != null &&
-                       IsWithinRange(
-                           caster.CurrentTile,
-                           targetTile,
-                           skill);
+                if (targetTile == null)
+                {
+                    return false;
+                }
+
+                if (skill.RangeShape ==
+                    SkillRangeShape.Cone)
+                {
+                    return SkillRangeUtility
+                        .IsDirectionSelectorTile(
+                            caster.CurrentTile,
+                            targetTile);
+                }
+
+                return IsWithinRange(
+                    caster.CurrentTile,
+                    targetTile,
+                    skill);
 
             default:
                 return false;

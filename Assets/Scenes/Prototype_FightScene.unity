@@ -946,7 +946,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3488138166484422674, guid: d94f9f9b6be328b4a8df88af70a18470, type: 3}
       propertyPath: skills.Array.size
-      value: 4
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 3488138166484422674, guid: d94f9f9b6be328b4a8df88af70a18470, type: 3}
       propertyPath: skills.Array.data[2].level
@@ -957,6 +957,10 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3488138166484422674, guid: d94f9f9b6be328b4a8df88af70a18470, type: 3}
+      propertyPath: skills.Array.data[4].level
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3488138166484422674, guid: d94f9f9b6be328b4a8df88af70a18470, type: 3}
       propertyPath: skills.Array.data[2].definition
       value: 
       objectReference: {fileID: 11400000, guid: cb67290ab93cc1a488badac2c9ab0661, type: 2}
@@ -964,6 +968,10 @@ PrefabInstance:
       propertyPath: skills.Array.data[3].definition
       value: 
       objectReference: {fileID: 11400000, guid: 8364b3a167bf94d46bab0245b7728a94, type: 2}
+    - target: {fileID: 3488138166484422674, guid: d94f9f9b6be328b4a8df88af70a18470, type: 3}
+      propertyPath: skills.Array.data[4].definition
+      value: 
+      objectReference: {fileID: 11400000, guid: 57be1660f4bde144c8786eb9edf665b8, type: 2}
     - target: {fileID: 3488138166484422674, guid: d94f9f9b6be328b4a8df88af70a18470, type: 3}
       propertyPath: skills.Array.data[0].currentCooldown
       value: 0
@@ -3561,6 +3569,54 @@ MonoBehaviour:
   arenaGenerator: {fileID: 753130400}
   turnManager: {fileID: 1232197400}
   turnResourceManager: {fileID: 1780895774}
+--- !u!1 &1297674706
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1297674707}
+  - component: {fileID: 1297674708}
+  m_Layer: 0
+  m_Name: PlayerConeSkillExecutionManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1297674707
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1297674706}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2017946713}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1297674708
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1297674706}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 96ce21eb926151148893abff4269de93, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerConeSkillExecutionManager
+  conePreviewManager: {fileID: 1737157194}
+  skillManager: {fileID: 2020262388}
+  skillSelectionManager: {fileID: 1730101406}
+  turnManager: {fileID: 1232197400}
 --- !u!1 &1317062310
 GameObject:
   m_ObjectHideFlags: 0
@@ -5234,6 +5290,55 @@ MonoBehaviour:
   m_FlexibleWidth: 0
   m_FlexibleHeight: 0
   m_LayoutPriority: 1
+--- !u!1 &1737157192
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1737157193}
+  - component: {fileID: 1737157194}
+  m_Layer: 0
+  m_Name: PlayerConePreviewManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1737157193
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1737157192}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2017946713}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1737157194
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1737157192}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9d5915521faf5774d9c696455b025595, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerConePreviewManager
+  arenaGenerator: {fileID: 753130400}
+  turnManager: {fileID: 1232197400}
+  skillSelectionManager: {fileID: 1730101406}
+  skillRangeManager: {fileID: 1495035516}
+  movementManager: {fileID: 1247001238}
 --- !u!1 &1780895772
 GameObject:
   m_ObjectHideFlags: 0
@@ -6141,6 +6246,8 @@ Transform:
   - {fileID: 1730101405}
   - {fileID: 1495035515}
   - {fileID: 1323468692}
+  - {fileID: 1737157193}
+  - {fileID: 1297674707}
   - {fileID: 1168067940}
   m_Father: {fileID: 1431030727}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}

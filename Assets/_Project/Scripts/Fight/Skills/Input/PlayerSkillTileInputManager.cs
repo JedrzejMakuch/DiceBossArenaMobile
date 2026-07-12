@@ -100,8 +100,7 @@ public class PlayerSkillTileInputManager :
         SkillTargetType targetType =
             selectedSkill.Definition.TargetType;
 
-        if (targetType != SkillTargetType.Tile &&
-            targetType != SkillTargetType.Area)
+        if (targetType != SkillTargetType.Tile)
         {
             return;
         }
