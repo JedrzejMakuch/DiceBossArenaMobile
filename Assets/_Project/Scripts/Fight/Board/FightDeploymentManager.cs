@@ -165,24 +165,16 @@ public class FightDeploymentManager : MonoBehaviour
     public void LockDeployment()
     {
         isDeploymentLocked = true;
+        UnsubscribeFromTiles();
 
         foreach (FightGridTile tile in playerSpawnTiles)
         {
-            if (tile == null)
-            {
-                continue;
-            }
-
-            if (tile == selectedTile)
-            {
-                tile.SetSelectedVisual();
-            }
-            else
+            if (tile != null)
             {
                 tile.SetPlayerSpawn(false);
             }
         }
 
-        Debug.Log("Deployment locked.");
+        Debug.Log("Deployment locked and spawn visuals cleared.");
     }
 }

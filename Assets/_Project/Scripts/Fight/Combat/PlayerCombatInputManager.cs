@@ -44,8 +44,8 @@ public class PlayerCombatInputManager : MonoBehaviour
 
         bool attackExecuted =
             combatManager.TryExecuteBasicAttack(
-                attacker,
-                target);
+            attacker,
+            target);
 
         if (!attackExecuted)
         {
@@ -53,6 +53,5 @@ public class PlayerCombatInputManager : MonoBehaviour
         }
 
         targetingManager.ClearTarget();
-        turnManager.EndCurrentTurn();
     }
 }
