@@ -6,29 +6,48 @@ namespace DiceBossArena.Tests.EditMode
     public sealed class FightTestBuilderTests
     {
         [Test]
-        public void Build_CreatesMinimalFight()
+        public void Build_CreatesConfiguredMinimalFight()
         {
             using FightTestContext fight =
-                new FightTestBuilder().Build();
+                new FightTestBuilder()
+                    .WithPlayer(
+                        unitName: "Hero",
+                        maxHealth: 30,
+                        attackPower: 7,
+                        initiative: 12)
+                    .WithEnemy(
+                        unitName: "Goblin",
+                        maxHealth: 18,
+                        attackPower: 4,
+                        initiative: 8)
+                    .WithPlayerSkill(
+                        newSkillId: "power_strike",
+                        displayName: "Power Strike",
+                        minRange: 1,
+                        maxRange: 2,
+                        actionPointCost: 2)
+                    .Build();
 
-            Assert.That(fight.Player, Is.Not.Null);
-            Assert.That(fight.Enemy, Is.Not.Null);
-            Assert.That(fight.PlayerSkill, Is.Not.Null);
+            Assert.That(fight.Player.UnitName, Is.EqualTo("Hero"));
+            Assert.That(fight.Player.MaxHealth, Is.EqualTo(30));
+            Assert.That(fight.Player.AttackPower, Is.EqualTo(7));
+            Assert.That(fight.Player.Initiative, Is.EqualTo(12));
+
+            Assert.That(fight.Enemy.UnitName, Is.EqualTo("Goblin"));
+            Assert.That(fight.Enemy.MaxHealth, Is.EqualTo(18));
+            Assert.That(fight.Enemy.AttackPower, Is.EqualTo(4));
+            Assert.That(fight.Enemy.Initiative, Is.EqualTo(8));
 
             Assert.That(
-                fight.Player.Team,
-                Is.EqualTo(FightTeam.Player));
+                fight.PlayerSkill.SkillId,
+                Is.EqualTo("power_strike"));
 
             Assert.That(
-                fight.Enemy.Team,
-                Is.EqualTo(FightTeam.Enemy));
+                fight.PlayerSkill.DisplayName,
+                Is.EqualTo("Power Strike"));
 
-            Assert.That(fight.Player.IsAlive, Is.True);
-            Assert.That(fight.Enemy.IsAlive, Is.True);
-
-            Assert.That(
-                fight.PlayerSkill.TargetType,
-                Is.EqualTo(SkillTargetType.SingleEnemy));
+            Assert.That(fight.PlayerSkill.MaxRange, Is.EqualTo(2));
+            Assert.That(fight.PlayerSkill.ActionPointCost, Is.EqualTo(2));
         }
     }
 }
