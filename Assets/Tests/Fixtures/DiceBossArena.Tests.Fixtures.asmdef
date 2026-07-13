@@ -1,0 +1,17 @@
+{
+  "name": "DiceBossArena.Tests.Fixtures",
+  "rootNamespace": "DiceBossArena.Tests.Fixtures",
+  "references": [],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false,
+  "optionalUnityReferences": [
+    "TestAssemblies"
+  ]
+}

@@ -1,17 +1,20 @@
 {
-  "name": "DiceBossArena.Tests.EditMode",
-  "rootNamespace": "DiceBossArena.Tests.EditMode",
-  "includePlatforms": [
-    "Editor"
-  ],
-  "excludePlatforms": [],
-  "allowUnsafeCode": false,
-  "overrideReferences": false,
-  "precompiledReferences": [],
-  "autoReferenced": true,
-  "defineConstraints": [
-    "UNITY_INCLUDE_TESTS"
-  ],
-  "versionDefines": [],
-  "noEngineReferences": false
+    "name": "DiceBossArena.Tests.EditMode",
+    "rootNamespace": "DiceBossArena.Tests.EditMode",
+    "references": [
+        "GUID:f9c7e1f3db5c2e74890136d3fcf3dc93"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [
+        "UNITY_INCLUDE_TESTS"
+    ],
+    "versionDefines": [],
+    "noEngineReferences": false
 }
