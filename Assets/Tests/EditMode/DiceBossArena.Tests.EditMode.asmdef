@@ -2,17 +2,21 @@
     "name": "DiceBossArena.Tests.EditMode",
     "rootNamespace": "DiceBossArena.Tests.EditMode",
     "references": [
-        "GUID:f9c7e1f3db5c2e74890136d3fcf3dc93",
-        "GUID:151d078aa326eb047960ec63149b878e"
+        "DiceBossArena.Tests.Fixtures",
+        "UnityEngine.TestRunner",
+        "UnityEditor.TestRunner",
+        "DiceBossArena.Game"
     ],
     "includePlatforms": [
         "Editor"
     ],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
-    "overrideReferences": false,
-    "precompiledReferences": [],
-    "autoReferenced": true,
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "nunit.framework.dll"
+    ],
+    "autoReferenced": false,
     "defineConstraints": [
         "UNITY_INCLUDE_TESTS"
     ],
