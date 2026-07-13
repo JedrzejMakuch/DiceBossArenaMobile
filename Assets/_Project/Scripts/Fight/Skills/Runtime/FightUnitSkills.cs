@@ -15,6 +15,35 @@ public class FightUnitSkills : MonoBehaviour
         ValidateSkills();
     }
 
+    public void InitializeFromDefinition(
+    IReadOnlyList<UnitStartingSkill> startingSkills)
+    {
+        skills = new List<UnitSkillState>();
+
+        if (startingSkills != null)
+        {
+            foreach (UnitStartingSkill startingSkill in startingSkills)
+            {
+                if (startingSkill?.Definition == null)
+                {
+                    continue;
+                }
+
+                if (GetSkillState(startingSkill.Definition) != null)
+                {
+                    continue;
+                }
+
+                skills.Add(
+                    new UnitSkillState(
+                        startingSkill.Definition,
+                        startingSkill.Level));
+            }
+        }
+
+        SkillsChanged?.Invoke(this);
+    }
+
     public UnitSkillState GetSkillById(
         string skillId)
     {

@@ -189,10 +189,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 24274b8f9953294489f7b1eab291343a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FightUnitSkills
-  skills:
-  - definition: {fileID: 11400000, guid: cfbef989ed023a24f9de625c4d3f4080, type: 2}
-    level: 1
-    currentCooldown: 0
+  skills: []
 --- !u!58 &6944047117690747382
 CircleCollider2D:
   m_ObjectHideFlags: 0

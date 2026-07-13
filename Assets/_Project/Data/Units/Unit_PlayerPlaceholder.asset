@@ -17,3 +17,14 @@ MonoBehaviour:
   maxHealth: 10
   attackPower: 2
   initiative: 10
+  startingSkills:
+  - definition: {fileID: 11400000, guid: cfbef989ed023a24f9de625c4d3f4080, type: 2}
+    level: 1
+  - definition: {fileID: 11400000, guid: 8364b3a167bf94d46bab0245b7728a94, type: 2}
+    level: 1
+  - definition: {fileID: 11400000, guid: 57be1660f4bde144c8786eb9edf665b8, type: 2}
+    level: 1
+  - definition: {fileID: 11400000, guid: f8a60ffa83c63804280bd54490f6d2fa, type: 2}
+    level: 1
+  - definition: {fileID: 11400000, guid: cb67290ab93cc1a488badac2c9ab0661, type: 2}
+    level: 1

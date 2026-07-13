@@ -42,6 +42,7 @@ public class FightUnit : MonoBehaviour
     {
         CacheModules();
         InitializeRuntimeState();
+        InitializeSkillsFromDefinition();
     }
 
     public void Initialize(
@@ -66,6 +67,18 @@ public class FightUnit : MonoBehaviour
         HealthChanged?.Invoke(this);
     }
 
+    private void InitializeSkillsFromDefinition()
+    {
+        if (definition == null ||
+            skills == null)
+        {
+            return;
+        }
+
+        skills.InitializeFromDefinition(
+            definition.StartingSkills);
+    }
+
     public bool Initialize(
     FightUnitDefinition newDefinition)
     {
@@ -82,6 +95,7 @@ public class FightUnit : MonoBehaviour
 
         definition = newDefinition;
         InitializeRuntimeState();
+        InitializeSkillsFromDefinition();
 
         HealthChanged?.Invoke(this);
 

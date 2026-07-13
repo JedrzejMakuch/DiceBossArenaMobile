@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using System.Collections.Generic;
 
 [CreateAssetMenu(
     fileName = "Unit_",
@@ -14,6 +15,11 @@ public sealed class FightUnitDefinition : ScriptableObject
     [SerializeField, Min(0)] private int attackPower = 2;
     [SerializeField, Min(0)] private int initiative = 10;
 
+    [Header("Starting Skills")]
+    [SerializeField]
+    private List<UnitStartingSkill> startingSkills = new();
+
+    public IReadOnlyList<UnitStartingSkill> StartingSkills =>  startingSkills;
     public string UnitName => unitName;
     public FightTeam Team => team;
 
@@ -22,17 +28,23 @@ public sealed class FightUnitDefinition : ScriptableObject
     public int Initiative => initiative;
 
     public void InitializeForTests(
-        string newUnitName,
-        FightTeam newTeam,
-        int newMaxHealth,
-        int newAttackPower,
-        int newInitiative)
+    string newUnitName,
+    FightTeam newTeam,
+    int newMaxHealth,
+    int newAttackPower,
+    int newInitiative,
+    IReadOnlyList<UnitStartingSkill> newStartingSkills = null)
     {
         unitName = newUnitName;
         team = newTeam;
         maxHealth = Mathf.Max(1, newMaxHealth);
         attackPower = Mathf.Max(0, newAttackPower);
         initiative = Mathf.Max(0, newInitiative);
+
+        startingSkills =
+            newStartingSkills != null
+                ? new List<UnitStartingSkill>(newStartingSkills)
+                : new List<UnitStartingSkill>();
     }
 
     private void OnValidate()
@@ -40,5 +52,10 @@ public sealed class FightUnitDefinition : ScriptableObject
         maxHealth = Mathf.Max(1, maxHealth);
         attackPower = Mathf.Max(0, attackPower);
         initiative = Mathf.Max(0, initiative);
+
+        if (startingSkills == null)
+        {
+            startingSkills = new List<UnitStartingSkill>();
+        }
     }
 }
