@@ -3082,7 +3082,7 @@ MonoBehaviour:
   enemyUnitPrefab: {fileID: -7445895486324660339, guid: 741c160ef50f29d4a81b2315f7171479, type: 3}
   enemiesRoot: {fileID: 1158029570}
   unitRegistry: {fileID: 1359750538}
-  enemyCount: 1
+  enemyCount: 3
 --- !u!1 &1119951351
 GameObject:
   m_ObjectHideFlags: 0
