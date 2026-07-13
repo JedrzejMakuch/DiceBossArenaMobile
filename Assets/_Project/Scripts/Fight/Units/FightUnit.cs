@@ -16,6 +16,10 @@ public class FightUnit : MonoBehaviour
     [SerializeField] private int currentHealth;
     [SerializeField] private FightGridTile currentTile;
 
+    [Header("Cached Modules")]
+    [SerializeField] private FightUnitTurnResources turnResources;
+    [SerializeField] private FightUnitSkills skills;
+
     public string UnitName => unitName;
     public FightTeam Team => team;
 
@@ -25,6 +29,8 @@ public class FightUnit : MonoBehaviour
     public int Initiative => initiative;
 
     public FightGridTile CurrentTile => currentTile;
+    public FightUnitTurnResources TurnResources => turnResources;
+    public FightUnitSkills Skills => skills;
     public bool IsAlive => currentHealth > 0;
 
     public event Action<FightUnit> HealthChanged;
@@ -32,16 +38,19 @@ public class FightUnit : MonoBehaviour
 
     private void Awake()
     {
+        CacheModules();
         currentHealth = maxHealth;
     }
 
     public void Initialize(
-        string newUnitName,
-        FightTeam newTeam,
-        int newMaxHealth,
-        int newAttackPower,
-        int newInitiative)
+    string newUnitName,
+    FightTeam newTeam,
+    int newMaxHealth,
+    int newAttackPower,
+    int newInitiative)
     {
+        CacheModules();
+
         unitName = newUnitName;
         team = newTeam;
         maxHealth = Mathf.Max(1, newMaxHealth);
@@ -149,5 +158,18 @@ public class FightUnit : MonoBehaviour
 
         currentTile.TryRelease(this);
         currentTile = null;
+    }
+
+    private void CacheModules()
+    {
+        if (turnResources == null)
+        {
+            turnResources = GetComponent<FightUnitTurnResources>();
+        }
+
+        if (skills == null)
+        {
+            skills = GetComponent<FightUnitSkills>();
+        }
     }
 }
