@@ -9,6 +9,7 @@ public class EnemySpawnManager : MonoBehaviour
     [SerializeField] private FightArenaGenerator arenaGenerator;
     [SerializeField] private FightUnit enemyUnitPrefab;
     [SerializeField] private Transform enemiesRoot;
+    [SerializeField] private FightUnitRegistry unitRegistry;
 
     [Header("Spawn Settings")]
     [SerializeField, Min(1)] private int enemyCount = 3;
@@ -104,7 +105,18 @@ public class EnemySpawnManager : MonoBehaviour
                 enemy.Initiative);
         }
 
-        enemy.TryAssignToTile(tile);
+        if (!enemy.TryAssignToTile(tile))
+        {
+            Destroy(enemy.gameObject);
+            return;
+        }
+
+        if (!TryRegisterEnemy(enemy))
+        {
+            enemy.ReleaseCurrentTile();
+            Destroy(enemy.gameObject);
+            return;
+        }
 
         tile.SetEnemySpawn(true);
 
@@ -121,6 +133,11 @@ public class EnemySpawnManager : MonoBehaviour
                 continue;
             }
 
+            if (unitRegistry != null)
+            {
+                unitRegistry.Unregister(enemy);
+            }
+
             enemy.ReleaseCurrentTile();
             Destroy(enemy.gameObject);
         }
@@ -135,5 +152,17 @@ public class EnemySpawnManager : MonoBehaviour
 
         spawnedEnemies.Clear();
         enemySpawnTiles.Clear();
+    }
+
+    public bool TryRegisterEnemy(FightUnit enemy)
+    {
+        if (unitRegistry == null ||
+            enemy == null)
+        {
+            return false;
+        }
+
+        return unitRegistry.Register(enemy) ||
+               unitRegistry.Units.Contains(enemy);
     }
 }

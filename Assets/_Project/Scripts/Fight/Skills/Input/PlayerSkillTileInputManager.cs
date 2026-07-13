@@ -79,9 +79,6 @@ public class PlayerSkillTileInputManager :
         {
             return;
         }
-        {
-            return;
-        }
 
         if (skillSelectionManager.SelectedCaster !=
             caster)

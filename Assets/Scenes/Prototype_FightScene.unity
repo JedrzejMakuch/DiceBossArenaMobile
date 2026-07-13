@@ -1643,6 +1643,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::FightDeploymentManager
   arenaGenerator: {fileID: 753130400}
   fightStateManager: {fileID: 275612296}
+  unitRegistry: {fileID: 1359750538}
   playerUnit: {fileID: 1566049078}
   startFightButton: {fileID: 370174427}
   playerSpawnCount: 4
@@ -3080,6 +3081,7 @@ MonoBehaviour:
   arenaGenerator: {fileID: 753130400}
   enemyUnitPrefab: {fileID: -7445895486324660339, guid: 741c160ef50f29d4a81b2315f7171479, type: 3}
   enemiesRoot: {fileID: 1158029570}
+  unitRegistry: {fileID: 1359750538}
   enemyCount: 3
 --- !u!1 &1119951351
 GameObject:
@@ -3248,6 +3250,38 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 59994143}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1164438919
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1164438920}
+  m_Layer: 0
+  m_Name: --- UNIT
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1164438920
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1164438919}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 1359750537}
+  m_Father: {fileID: 1431030727}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1168067939
 GameObject:
@@ -3791,6 +3825,50 @@ MonoBehaviour:
   deploymentManager: {fileID: 451924744}
   skillManager: {fileID: 2020262388}
   enemyTurnDelay: 0.75
+--- !u!1 &1359750536
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1359750537}
+  - component: {fileID: 1359750538}
+  m_Layer: 0
+  m_Name: FightUnitRegistry
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1359750537
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1359750536}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1164438920}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1359750538
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1359750536}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e3594ee2a12eaea4889f93203938bcc1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DiceBossArena.Game::FightUnitRegistry
 --- !u!1 &1371341100
 GameObject:
   m_ObjectHideFlags: 0
@@ -4094,6 +4172,7 @@ Transform:
   - {fileID: 2053330073}
   - {fileID: 324545910}
   - {fileID: 2017946713}
+  - {fileID: 1164438920}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1454235569

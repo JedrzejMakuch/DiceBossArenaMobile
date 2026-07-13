@@ -8,6 +8,7 @@ public class FightDeploymentManager : MonoBehaviour
     [Header("References")]
     [SerializeField] private FightArenaGenerator arenaGenerator;
     [SerializeField] private FightStateManager fightStateManager;
+    [SerializeField] private FightUnitRegistry unitRegistry;
     [SerializeField] private FightUnit playerUnit;
     [SerializeField] private Button startFightButton;
 
@@ -150,6 +151,12 @@ public class FightDeploymentManager : MonoBehaviour
             return;
         }
 
+        if (!TryRegisterPlayerUnit())
+        {
+            startFightButton.interactable = false;
+            return;
+        }
+
         startFightButton.interactable = true;
 
         if (fightStateManager != null)
@@ -176,5 +183,17 @@ public class FightDeploymentManager : MonoBehaviour
         }
 
         Debug.Log("Deployment locked and spawn visuals cleared.");
+    }
+
+    public bool TryRegisterPlayerUnit()
+    {
+        if (unitRegistry == null ||
+            playerUnit == null)
+        {
+            return false;
+        }
+
+        return unitRegistry.Register(playerUnit) ||
+               unitRegistry.Units.Contains(playerUnit);
     }
 }
