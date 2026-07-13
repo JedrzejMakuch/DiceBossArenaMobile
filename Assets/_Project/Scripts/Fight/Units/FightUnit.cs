@@ -3,6 +3,10 @@ using UnityEngine;
 
 public class FightUnit : MonoBehaviour
 {
+    [Header("Definition")]
+    [SerializeField] private FightUnitDefinition definition;
+    public FightUnitDefinition Definition => definition;
+
     [Header("Identity")]
     [SerializeField] private string unitName = "Unit";
     [SerializeField] private FightTeam team;
@@ -13,25 +17,23 @@ public class FightUnit : MonoBehaviour
     [SerializeField, Min(0)] private int initiative = 10;
 
     [Header("Runtime")]
-    [SerializeField] private int currentHealth;
-    [SerializeField] private FightGridTile currentTile;
+    [SerializeField] private FightUnitRuntimeState runtimeState;
 
     [Header("Cached Modules")]
     [SerializeField] private FightUnitTurnResources turnResources;
     [SerializeField] private FightUnitSkills skills;
 
-    public string UnitName => unitName;
-    public FightTeam Team => team;
+    public string UnitName => definition != null ? definition.UnitName : unitName;
+    public FightTeam Team => definition != null ? definition.Team : team;
+    public int MaxHealth => definition != null ? definition.MaxHealth : maxHealth;
+    public int CurrentHealth => runtimeState != null ? runtimeState.CurrentHealth : 0;
+    public int AttackPower => definition != null ? definition.AttackPower : attackPower;
+    public int Initiative => definition != null ? definition.Initiative : initiative;
 
-    public int MaxHealth => maxHealth;
-    public int CurrentHealth => currentHealth;
-    public int AttackPower => attackPower;
-    public int Initiative => initiative;
-
-    public FightGridTile CurrentTile => currentTile;
+    public FightGridTile CurrentTile => runtimeState != null ? runtimeState.CurrentTile : null;
     public FightUnitTurnResources TurnResources => turnResources;
     public FightUnitSkills Skills => skills;
-    public bool IsAlive => currentHealth > 0;
+    public bool IsAlive => runtimeState != null && runtimeState.IsAlive;
 
     public event Action<FightUnit> HealthChanged;
     public event Action<FightUnit> Died;
@@ -39,7 +41,7 @@ public class FightUnit : MonoBehaviour
     private void Awake()
     {
         CacheModules();
-        currentHealth = maxHealth;
+        InitializeRuntimeState();
     }
 
     public void Initialize(
@@ -51,14 +53,39 @@ public class FightUnit : MonoBehaviour
     {
         CacheModules();
 
+        definition = null;
+
         unitName = newUnitName;
         team = newTeam;
         maxHealth = Mathf.Max(1, newMaxHealth);
         attackPower = Mathf.Max(0, newAttackPower);
         initiative = Mathf.Max(0, newInitiative);
-        currentHealth = maxHealth;
+
+        InitializeRuntimeState();
 
         HealthChanged?.Invoke(this);
+    }
+
+    public bool Initialize(
+    FightUnitDefinition newDefinition)
+    {
+        if (newDefinition == null)
+        {
+            Debug.LogError(
+                "FightUnit cannot initialize without a definition.",
+                this);
+
+            return false;
+        }
+
+        CacheModules();
+
+        definition = newDefinition;
+        InitializeRuntimeState();
+
+        HealthChanged?.Invoke(this);
+
+        return true;
     }
 
     public bool TryAssignToTile(FightGridTile tile)
@@ -68,7 +95,12 @@ public class FightUnit : MonoBehaviour
             return false;
         }
 
-        if (currentTile == tile)
+        if (runtimeState == null)
+        {
+            InitializeRuntimeState();
+        }
+
+        if (runtimeState.CurrentTile == tile)
         {
             return true;
         }
@@ -82,19 +114,23 @@ public class FightUnit : MonoBehaviour
             return false;
         }
 
-        FightGridTile previousTile = currentTile;
-        currentTile = tile;
+        FightGridTile previousTile =
+            runtimeState.CurrentTile;
+
+        runtimeState.AssignTile(tile);
 
         if (previousTile != null)
         {
             previousTile.TryRelease(this);
         }
 
-        transform.position = currentTile.GetStandPosition();
+        transform.position =
+            runtimeState.CurrentTile.GetStandPosition();
 
         Debug.Log(
             $"{UnitName} assigned to tile " +
-            $"({currentTile.GridX}, {currentTile.GridY}).");
+            $"({runtimeState.CurrentTile.GridX}, " +
+            $"{runtimeState.CurrentTile.GridY}).");
 
         return true;
     }
@@ -106,16 +142,16 @@ public class FightUnit : MonoBehaviour
             return;
         }
 
-        int damage = Mathf.Max(0, amount);
-        currentHealth = Mathf.Max(0, currentHealth - damage);
+        int damage =
+            runtimeState.ApplyDamage(amount);
 
         HealthChanged?.Invoke(this);
 
         Debug.Log(
-            $"{unitName} took {damage} damage. " +
-            $"HP: {currentHealth}/{maxHealth}");
+            $"{UnitName} took {damage} damage. " +
+            $"HP: {CurrentHealth}/{MaxHealth}");
 
-        if (currentHealth == 0)
+        if (!IsAlive)
         {
             Die();
         }
@@ -128,36 +164,52 @@ public class FightUnit : MonoBehaviour
             return;
         }
 
-        int healAmount = Mathf.Max(0, amount);
-        currentHealth = Mathf.Min(maxHealth, currentHealth + healAmount);
+        runtimeState.ApplyHealing(
+            amount,
+            MaxHealth);
 
         HealthChanged?.Invoke(this);
     }
 
     private void Die()
     {
-        if (currentTile != null)
+        if (runtimeState.CurrentTile != null)
         {
-            currentTile.TryRelease(this);
-            currentTile = null;
+            runtimeState.CurrentTile.TryRelease(this);
+            runtimeState.ClearTile();
         }
 
         Died?.Invoke(this);
 
-        Debug.Log($"{unitName} died.");
+        Debug.Log($"{UnitName} died.");
 
         gameObject.SetActive(false);
     }
 
     public void ReleaseCurrentTile()
     {
-        if (currentTile == null)
+        if (runtimeState == null ||
+            runtimeState.CurrentTile == null)
         {
             return;
         }
 
-        currentTile.TryRelease(this);
-        currentTile = null;
+        runtimeState.CurrentTile.TryRelease(this);
+        runtimeState.ClearTile();
+    }
+
+    private void InitializeRuntimeState()
+    {
+        if (runtimeState == null)
+        {
+            runtimeState =
+                new FightUnitRuntimeState(MaxHealth);
+
+            return;
+        }
+
+        runtimeState.ResetHealth(MaxHealth);
+        runtimeState.ClearTile();
     }
 
     private void CacheModules()
