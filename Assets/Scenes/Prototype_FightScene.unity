@@ -3082,7 +3082,7 @@ MonoBehaviour:
   enemyUnitPrefab: {fileID: -7445895486324660339, guid: 741c160ef50f29d4a81b2315f7171479, type: 3}
   enemiesRoot: {fileID: 1158029570}
   unitRegistry: {fileID: 1359750538}
-  enemyCount: 3
+  enemyCount: 1
 --- !u!1 &1119951351
 GameObject:
   m_ObjectHideFlags: 0
@@ -3510,8 +3510,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6115ed23c1f80e144ba7bdd2f35aa1e5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FightTurnManager
-  deploymentManager: {fileID: 451924744}
-  enemySpawnManager: {fileID: 1119193656}
+  unitRegistry: {fileID: 1359750538}
 --- !u!1 &1247001236
 GameObject:
   m_ObjectHideFlags: 0

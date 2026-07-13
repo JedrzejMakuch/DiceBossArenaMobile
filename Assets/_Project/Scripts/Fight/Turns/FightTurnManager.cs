@@ -1,13 +1,11 @@
-using System.Collections.Generic;
-using System.Linq;
-using UnityEngine;
 using System;
+using System.Collections.Generic;
+using UnityEngine;
 
 public class FightTurnManager : MonoBehaviour
 {
     [Header("Unit Sources")]
-    [SerializeField] private FightDeploymentManager deploymentManager;
-    [SerializeField] private EnemySpawnManager enemySpawnManager;
+    [SerializeField] private FightUnitRegistry unitRegistry;
 
     private readonly List<FightUnit> turnOrder = new();
 
@@ -94,54 +92,14 @@ public class FightTurnManager : MonoBehaviour
     {
         turnOrder.Clear();
 
-        FightUnit playerUnit = deploymentManager.PlayerUnit;
-
-        if (playerUnit != null && playerUnit.IsAlive)
+        if (unitRegistry == null)
         {
-            turnOrder.Add(playerUnit);
+            return;
         }
 
-        Debug.Log(
-            $"EnemySpawnManager reports " +
-            $"{enemySpawnManager.SpawnedEnemies.Count} spawned enemies.");
-
-        foreach (FightUnit enemy in enemySpawnManager.SpawnedEnemies)
-        {
-            if (enemy == null)
-            {
-                Debug.LogWarning(
-                    "FightTurnManager: SpawnedEnemies contains a null entry.");
-
-                continue;
-            }
-
-            if (!enemy.IsAlive)
-            {
-                continue;
-            }
-
-            turnOrder.Add(enemy);
-        }
-
-        turnOrder.Sort((first, second) =>
-        {
-            int initiativeComparison =
-                second.Initiative.CompareTo(first.Initiative);
-
-            if (initiativeComparison != 0)
-            {
-                return initiativeComparison;
-            }
-
-            return first.GetInstanceID().CompareTo(second.GetInstanceID());
-        });
-
-        string order = string.Join(
-            " -> ",
-            turnOrder.Select(unit =>
-                $"{unit.UnitName} ({unit.Initiative})"));
-
-        Debug.Log($"Turn order: {order}");
+        turnOrder.AddRange(
+            FightTurnOrderBuilder.Build(
+                unitRegistry.Units));
     }
 
     private void StartNextTurn()
@@ -281,26 +239,15 @@ public class FightTurnManager : MonoBehaviour
 
     private bool ValidateReferences()
     {
-        bool isValid = true;
-
-        if (deploymentManager == null)
+        if (unitRegistry != null)
         {
-            Debug.LogError(
-                "FightTurnManager: Deployment Manager is not assigned.",
-                this);
-
-            isValid = false;
+            return true;
         }
 
-        if (enemySpawnManager == null)
-        {
-            Debug.LogError(
-                "FightTurnManager: Enemy Spawn Manager is not assigned.",
-                this);
+        Debug.LogError(
+            "FightTurnManager: FightUnitRegistry is not assigned.",
+            this);
 
-            isValid = false;
-        }
-
-        return isValid;
+        return false;
     }
 }
