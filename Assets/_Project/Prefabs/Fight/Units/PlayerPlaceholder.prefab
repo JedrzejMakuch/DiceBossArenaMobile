@@ -140,13 +140,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 93ccf8ec5870edf4bb514e396f8fe8f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FightUnit
+  definition: {fileID: 11400000, guid: 5b3f58b81591e76439e543e495e7bb9f, type: 2}
   unitName: Player
   team: 0
   maxHealth: 10
   attackPower: 2
   initiative: 10
-  currentHealth: 5
-  currentTile: {fileID: 0}
+  runtimeState:
+    currentHealth: 0
+    currentTile: {fileID: 0}
+  turnResources: {fileID: 0}
+  skills: {fileID: 0}
 --- !u!114 &-8952087704369165467
 MonoBehaviour:
   m_ObjectHideFlags: 0

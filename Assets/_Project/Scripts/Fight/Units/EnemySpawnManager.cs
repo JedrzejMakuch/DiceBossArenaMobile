@@ -90,12 +90,19 @@ public class EnemySpawnManager : MonoBehaviour
 
         enemy.name = enemyName;
 
-        enemy.Initialize(
-            enemyName,
-            FightTeam.Enemy,
-            enemy.MaxHealth,
-            enemy.AttackPower,
-            enemy.Initiative);
+        if (enemy.Definition != null)
+        {
+            enemy.Initialize(enemy.Definition);
+        }
+        else
+        {
+            enemy.Initialize(
+                enemyName,
+                FightTeam.Enemy,
+                enemy.MaxHealth,
+                enemy.AttackPower,
+                enemy.Initiative);
+        }
 
         enemy.TryAssignToTile(tile);
 
