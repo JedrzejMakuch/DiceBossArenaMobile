@@ -111,8 +111,7 @@ public class FightSkillUIManager : MonoBehaviour
         }
 
         currentPlayer = unit;
-        currentPlayerSkills =
-            unit.GetComponent<FightUnitSkills>();
+        currentPlayerSkills = unit.Skills;
 
         if (currentPlayerSkills == null)
         {

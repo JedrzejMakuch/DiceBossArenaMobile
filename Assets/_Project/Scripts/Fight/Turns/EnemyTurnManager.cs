@@ -64,8 +64,7 @@ public class EnemyTurnManager : MonoBehaviour
         FightUnit player =
             deploymentManager.PlayerUnit;
 
-        FightUnitSkills enemySkills =
-            enemy.GetComponent<FightUnitSkills>();
+        FightUnitSkills enemySkills = enemy.Skills;
 
         UnitSkillState basicAttack =
             enemySkills != null

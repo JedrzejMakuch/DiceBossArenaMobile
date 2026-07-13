@@ -197,7 +197,7 @@ public class FightSkillRangeManager : MonoBehaviour
         }
 
         FightUnitTurnResources resources =
-            activeUnit.GetComponent<FightUnitTurnResources>();
+            activeUnit.TurnResources;
 
         if (resources == null ||
             resources.CurrentMovementPoints <= 0)

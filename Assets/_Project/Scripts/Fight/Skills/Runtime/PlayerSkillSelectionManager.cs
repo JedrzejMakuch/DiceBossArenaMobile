@@ -108,7 +108,7 @@ public class PlayerSkillSelectionManager : MonoBehaviour
         }
 
         FightUnitTurnResources resources =
-            caster.GetComponent<FightUnitTurnResources>();
+            caster.TurnResources;
 
         if (resources == null)
         {

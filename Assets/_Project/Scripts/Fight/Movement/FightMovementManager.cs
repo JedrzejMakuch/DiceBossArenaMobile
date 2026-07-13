@@ -75,8 +75,7 @@ public class FightMovementManager : MonoBehaviour
             return;
         }
 
-        FightUnitTurnResources resources =
-            unit.GetComponent<FightUnitTurnResources>();
+        FightUnitTurnResources resources = unit.TurnResources;
 
         if (resources == null)
         {
@@ -222,8 +221,7 @@ public class FightMovementManager : MonoBehaviour
             return false;
         }
 
-        FightUnitTurnResources resources =
-            unit.GetComponent<FightUnitTurnResources>();
+        FightUnitTurnResources resources = unit.TurnResources;
 
         if (resources == null)
         {
