@@ -83,7 +83,7 @@ public class PlayerSkillSelectionManager : MonoBehaviour
         }
 
         FightUnitSkills unitSkills =
-            caster.GetComponent<FightUnitSkills>();
+            caster.Skills;
 
         if (unitSkills == null ||
             unitSkills.GetSkillState(
@@ -164,7 +164,7 @@ public class PlayerSkillSelectionManager : MonoBehaviour
         }
 
         FightUnitSkills unitSkills =
-            caster.GetComponent<FightUnitSkills>();
+            caster.Skills;
 
         if (unitSkills == null)
         {

@@ -29,7 +29,8 @@ public class FightSkillManager : MonoBehaviour
 
         SkillDefinition skill = skillState.Definition;
 
-        FightUnitTurnResources resources = caster.GetComponent<FightUnitTurnResources>();
+        FightUnitTurnResources resources =
+            caster.TurnResources;
 
         if (!resources.TrySpendActionPoints(
                 skill.ActionPointCost))
@@ -108,7 +109,7 @@ public class FightSkillManager : MonoBehaviour
         }
 
         FightUnitSkills unitSkills =
-            caster.GetComponent<FightUnitSkills>();
+            caster.Skills;
 
         if (unitSkills == null ||
             unitSkills.GetSkillState(skillState.Definition) != skillState)
@@ -132,7 +133,7 @@ public class FightSkillManager : MonoBehaviour
         }
 
         FightUnitTurnResources resources =
-            caster.GetComponent<FightUnitTurnResources>();
+            caster.TurnResources;
 
         if (resources == null)
         {

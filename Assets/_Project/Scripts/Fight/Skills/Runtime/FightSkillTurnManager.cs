@@ -34,7 +34,7 @@ public class FightSkillTurnManager : MonoBehaviour
         }
 
         FightUnitSkills unitSkills =
-            unit.GetComponent<FightUnitSkills>();
+            unit.Skills;
 
         if (unitSkills == null)
         {
