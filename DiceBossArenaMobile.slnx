@@ -1,5 +1,5 @@
 ﻿<Solution>
-  <Project Path="Assembly-CSharp.csproj" />
-  <Project Path="DiceBossArena.Tests.PlayMode.csproj" />
+  <Project Path="DiceBossArena.Game.csproj" />
   <Project Path="DiceBossArena.Tests.EditMode.csproj" />
+  <Project Path="DiceBossArena.Tests.PlayMode.csproj" />
 </Solution>
