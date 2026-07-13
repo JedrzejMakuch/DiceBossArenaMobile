@@ -74,9 +74,11 @@ public class PlayerSkillTileInputManager :
         FightUnit caster =
             turnManager.ActiveUnit;
 
-        if (caster == null ||
-            !caster.IsAlive ||
-            caster.Team != FightTeam.Player)
+        if (!PlayerSkillSelectionManager
+        .CanUseLocalSkillSelection(caster))
+        {
+            return;
+        }
         {
             return;
         }

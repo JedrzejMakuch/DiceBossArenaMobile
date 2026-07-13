@@ -41,7 +41,8 @@ public class PlayerCombatInputManager : MonoBehaviour
         FightUnit attacker = turnManager.ActiveUnit;
 
         if (attacker == null ||
-            attacker.Team != FightTeam.Player)
+        !attacker.IsControlledBy(
+            FightControllerType.LocalPlayer))
         {
             return;
         }

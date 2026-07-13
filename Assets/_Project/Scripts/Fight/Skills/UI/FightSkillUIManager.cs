@@ -97,14 +97,20 @@ public class FightSkillUIManager : MonoBehaviour
         ClearSkillButtons();
     }
 
-    private void HandleSkillTurnReady(FightUnit unit)
+    public static bool CanShowLocalSkillUI(
+    FightUnit unit)
+    {
+        return PlayerSkillSelectionManager
+            .CanUseLocalSkillSelection(unit);
+    }
+
+    private void HandleSkillTurnReady(
+    FightUnit unit)
     {
         ClearCurrentPlayer();
         ClearSkillButtons();
 
-        if (unit == null ||
-            !unit.IsAlive ||
-            unit.Team != FightTeam.Player)
+        if (!CanShowLocalSkillUI(unit))
         {
             HidePanel();
             return;
@@ -330,7 +336,7 @@ public class FightSkillUIManager : MonoBehaviour
     private bool CanSelectSkill(
         UnitSkillState skillState)
     {
-        if (currentPlayer == null ||
+        if (!CanShowLocalSkillUI(currentPlayer) ||
             skillState == null ||
             skillState.Definition == null ||
             !skillState.IsReady)
@@ -346,8 +352,7 @@ public class FightSkillUIManager : MonoBehaviour
         }
 
         FightUnitTurnResources resources =
-            currentPlayer.GetComponent<
-                FightUnitTurnResources>();
+            currentPlayer.TurnResources;
 
         if (resources == null)
         {

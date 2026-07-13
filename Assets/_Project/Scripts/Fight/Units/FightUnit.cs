@@ -34,6 +34,30 @@ public class FightUnit : MonoBehaviour
     public FightUnitTurnResources TurnResources => turnResources;
     public FightUnitSkills Skills => skills;
     public bool IsAlive => runtimeState != null && runtimeState.IsAlive;
+    public FightUnitOwnership Ownership => runtimeState != null ? runtimeState.Ownership : null;
+    public FightTeamId TeamId => Ownership != null ? Ownership.TeamId : MapLegacyTeam(Team);
+    public FightParticipantId ParticipantId => Ownership != null ? Ownership.ParticipantId : default;
+    public FightControllerType ControllerType => Ownership != null ? Ownership.ControllerType : FightControllerType.None;
+
+    public bool IsControlledBy(
+    FightControllerType controller)
+    {
+        return ControllerType == controller;
+    }
+
+    public bool IsAlliedWith(
+        FightUnit other)
+    {
+        return other != null &&
+               TeamId == other.TeamId;
+    }
+
+    public bool IsHostileTo(
+        FightUnit other)
+    {
+        return other != null &&
+               TeamId != other.TeamId;
+    }
 
     public event Action<FightUnit> HealthChanged;
     public event Action<FightUnit> Died;
@@ -98,6 +122,24 @@ public class FightUnit : MonoBehaviour
         InitializeSkillsFromDefinition();
 
         HealthChanged?.Invoke(this);
+
+        return true;
+    }
+
+    public bool Initialize(
+    FightUnitDefinition newDefinition,
+    FightUnitOwnership newOwnership)
+    {
+        if (!Initialize(newDefinition))
+        {
+            return false;
+        }
+
+        if (newOwnership != null)
+        {
+            runtimeState.AssignOwnership(
+                newOwnership);
+        }
 
         return true;
     }
@@ -212,18 +254,45 @@ public class FightUnit : MonoBehaviour
         runtimeState.ClearTile();
     }
 
+    private static FightTeamId MapLegacyTeam(
+    FightTeam legacyTeam)
+    {
+        return legacyTeam == FightTeam.Player
+            ? FightTeamId.TeamA
+            : FightTeamId.TeamB;
+    }
+
+    private FightUnitOwnership CreateLegacyOwnership()
+    {
+        if (Team == FightTeam.Player)
+        {
+            return new FightUnitOwnership(
+                FightTeamId.TeamA,
+                new FightParticipantId("local-player"),
+                FightControllerType.LocalPlayer);
+        }
+
+        return new FightUnitOwnership(
+            FightTeamId.TeamB,
+            new FightParticipantId("enemy-ai"),
+            FightControllerType.AI);
+    }
+
     private void InitializeRuntimeState()
     {
         if (runtimeState == null)
         {
             runtimeState =
                 new FightUnitRuntimeState(MaxHealth);
-
-            return;
+        }
+        else
+        {
+            runtimeState.ResetHealth(MaxHealth);
+            runtimeState.ClearTile();
         }
 
-        runtimeState.ResetHealth(MaxHealth);
-        runtimeState.ClearTile();
+        runtimeState.AssignOwnership(
+            CreateLegacyOwnership());
     }
 
     private void CacheModules()

@@ -6,10 +6,13 @@ public sealed class FightUnitRuntimeState
 {
     [SerializeField] private int currentHealth;
     [SerializeField] private FightGridTile currentTile;
+    [SerializeField]
+    private FightUnitOwnership ownership;
 
     public int CurrentHealth => currentHealth;
     public FightGridTile CurrentTile => currentTile;
     public bool IsAlive => currentHealth > 0;
+    public FightUnitOwnership Ownership => ownership;
 
     public FightUnitRuntimeState(int maxHealth)
     {
@@ -49,5 +52,11 @@ public sealed class FightUnitRuntimeState
     public void ClearTile()
     {
         currentTile = null;
+    }
+
+    public void AssignOwnership(
+    FightUnitOwnership newOwnership)
+    {
+        ownership = newOwnership;
     }
 }

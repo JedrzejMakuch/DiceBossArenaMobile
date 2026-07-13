@@ -37,7 +37,7 @@ public class DamageSkillEffectDefinition : SkillEffectDefinition
             return false;
         }
 
-        return target.Team != context.Caster.Team;
+        return context.Caster.IsHostileTo(target);
     }
 
     public override void Apply(

@@ -189,9 +189,8 @@ public class FightSkillRangeManager : MonoBehaviour
         FightUnit activeUnit =
             turnManager.ActiveUnit;
 
-        if (activeUnit == null ||
-            !activeUnit.IsAlive ||
-            activeUnit.Team != FightTeam.Player)
+        if (!FightMovementManager
+        .CanShowLocalMovementRange(activeUnit))
         {
             return;
         }

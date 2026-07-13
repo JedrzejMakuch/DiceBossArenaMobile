@@ -63,8 +63,7 @@ public class AreaDamageSkillEffectDefinition :
         {
             if (unit == null ||
                 !unit.IsAlive ||
-                unit.Team ==
-                context.Caster.Team)
+                !context.Caster.IsHostileTo(unit))
             {
                 continue;
             }
@@ -81,7 +80,7 @@ public class AreaDamageSkillEffectDefinition :
 
         Debug.Log(
             $"{context.Skill.DisplayName} affected " +
-            $"{damagedUnits} enemy units.",
+            $"{damagedUnits} hostile units.",
             context.Caster);
     }
 

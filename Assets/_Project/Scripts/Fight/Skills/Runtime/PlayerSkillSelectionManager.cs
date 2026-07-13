@@ -58,6 +58,15 @@ public class PlayerSkillSelectionManager : MonoBehaviour
         ClearSelection();
     }
 
+    public static bool CanUseLocalSkillSelection(
+    FightUnit unit)
+    {
+        return unit != null &&
+               unit.IsAlive &&
+               unit.IsControlledBy(
+                   FightControllerType.LocalPlayer);
+    }
+
     public bool TrySelectSkill(
         FightUnit caster,
         UnitSkillState skill)
@@ -69,8 +78,7 @@ public class PlayerSkillSelectionManager : MonoBehaviour
             return false;
         }
 
-        if (!caster.IsAlive ||
-            caster.Team != FightTeam.Player)
+        if (!CanUseLocalSkillSelection(caster))
         {
             return false;
         }
@@ -192,13 +200,12 @@ public class PlayerSkillSelectionManager : MonoBehaviour
         }
     }
 
-    private void HandleSkillTurnReady(FightUnit unit)
+    private void HandleSkillTurnReady(
+    FightUnit unit)
     {
         ClearSelection();
 
-        if (unit == null ||
-            !unit.IsAlive ||
-            unit.Team != FightTeam.Player)
+        if (!CanUseLocalSkillSelection(unit))
         {
             return;
         }

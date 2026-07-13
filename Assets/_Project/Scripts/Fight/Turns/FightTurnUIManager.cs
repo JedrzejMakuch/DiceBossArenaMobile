@@ -55,6 +55,15 @@ public class FightTurnUIManager : MonoBehaviour
         }
     }
 
+    public static bool CanLocalPlayerEndTurn(
+    FightUnit unit)
+    {
+        return unit != null &&
+               unit.IsAlive &&
+               unit.IsControlledBy(
+                   FightControllerType.LocalPlayer);
+    }
+
     private void HandleTurnStarted(FightUnit unit, int roundNumber)
     {
         if (unit == null)
@@ -72,7 +81,7 @@ public class FightTurnUIManager : MonoBehaviour
         if (endTurnButton != null)
         {
             endTurnButton.interactable =
-                unit.Team == FightTeam.Player;
+                CanLocalPlayerEndTurn(unit);
         }
     }
 
@@ -83,10 +92,10 @@ public class FightTurnUIManager : MonoBehaviour
             return;
         }
 
-        FightUnit activeUnit = turnManager.ActiveUnit;
+        FightUnit activeUnit =
+            turnManager.ActiveUnit;
 
-        if (activeUnit == null ||
-            activeUnit.Team != FightTeam.Player)
+        if (!CanLocalPlayerEndTurn(activeUnit))
         {
             return;
         }

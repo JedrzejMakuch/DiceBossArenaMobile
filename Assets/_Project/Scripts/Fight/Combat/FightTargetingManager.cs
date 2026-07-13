@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class FightTargetingManager : MonoBehaviour
@@ -10,7 +11,9 @@ public class FightTargetingManager : MonoBehaviour
     private FightUnit selectedTarget;
     private bool targetingEnabled;
     private FightUnit subscribedPlayerUnit;
+    private readonly List<FightUnit> subscribedTargetUnits = new();
 
+    public IReadOnlyList<FightUnit> PotentialTargets => subscribedTargetUnits;
     public FightUnit SelectedTarget => selectedTarget;
     public bool TargetingEnabled => targetingEnabled;
     public event Action<FightUnit> TargetSelected;
@@ -30,7 +33,7 @@ public class FightTargetingManager : MonoBehaviour
             enemySpawnManager.EnemiesSpawned += HandleEnemiesSpawned;
         }
 
-        SubscribeToEnemies();
+        RefreshPotentialTargetsFromLegacySource();
     }
 
     private void OnDisable()
@@ -47,56 +50,60 @@ public class FightTargetingManager : MonoBehaviour
             enemySpawnManager.EnemiesSpawned -= HandleEnemiesSpawned;
         }
 
-        UnsubscribeFromEnemies();
+        ClearPotentialTargets();
         UnsubscribeFromPlayerUnit();
     }
 
-    private void SubscribeToEnemies()
+    public void SetPotentialTargets(
+    IEnumerable<FightUnit> units)
     {
-        if (enemySpawnManager == null)
+        ClearPotentialTargets();
+
+        if (units == null)
         {
             return;
         }
 
-        foreach (FightUnit enemy in enemySpawnManager.SpawnedEnemies)
+        foreach (FightUnit unit in units)
         {
-            if (enemy == null)
+            if (unit == null ||
+                subscribedTargetUnits.Contains(unit))
             {
                 continue;
             }
 
             FightUnitClickHandler clickHandler =
-                enemy.GetComponent<FightUnitClickHandler>();
+                unit.GetComponent<FightUnitClickHandler>();
 
-            if (clickHandler != null)
+            if (clickHandler == null)
             {
-                clickHandler.Clicked += HandleUnitClicked;
+                continue;
             }
+
+            clickHandler.Clicked += HandleUnitClicked;
+            subscribedTargetUnits.Add(unit);
         }
     }
 
-    private void UnsubscribeFromEnemies()
+    private void ClearPotentialTargets()
     {
-        if (enemySpawnManager == null)
+        foreach (FightUnit unit in subscribedTargetUnits)
         {
-            return;
-        }
-
-        foreach (FightUnit enemy in enemySpawnManager.SpawnedEnemies)
-        {
-            if (enemy == null)
+            if (unit == null)
             {
                 continue;
             }
 
             FightUnitClickHandler clickHandler =
-                enemy.GetComponent<FightUnitClickHandler>();
+                unit.GetComponent<FightUnitClickHandler>();
 
             if (clickHandler != null)
             {
                 clickHandler.Clicked -= HandleUnitClicked;
             }
         }
+
+        subscribedTargetUnits.Clear();
     }
 
     private void HandleTurnStarted(
@@ -106,8 +113,9 @@ public class FightTargetingManager : MonoBehaviour
         UnsubscribeFromPlayerUnit();
 
         targetingEnabled =
-            unit != null &&
-            unit.Team == FightTeam.Player;
+        unit != null &&
+        unit.IsControlledBy(
+            FightControllerType.LocalPlayer);
 
         if (targetingEnabled)
         {
@@ -221,6 +229,11 @@ public class FightTargetingManager : MonoBehaviour
             return false;
         }
 
+        if (!attacker.IsHostileTo(target))
+        {
+            return false;
+        }
+
         return true;
     }
 
@@ -234,9 +247,21 @@ public class FightTargetingManager : MonoBehaviour
         selectedTarget = null;
         TargetCleared?.Invoke();
     }
+
     private void HandleEnemiesSpawned()
     {
-        UnsubscribeFromEnemies();
-        SubscribeToEnemies();
+        RefreshPotentialTargetsFromLegacySource();
+    }
+
+    private void RefreshPotentialTargetsFromLegacySource()
+    {
+        if (enemySpawnManager == null)
+        {
+            ClearPotentialTargets();
+            return;
+        }
+
+        SetPotentialTargets(
+            enemySpawnManager.SpawnedEnemies);
     }
 }

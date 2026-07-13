@@ -142,10 +142,11 @@ public class PlayerConePreviewManager :
         SkillDefinition definition =
             skillState?.Definition;
 
-        if (caster == null ||
-            caster.CurrentTile == null ||
-            definition == null ||
-            definition.RangeShape !=
+        if (!PlayerSkillSelectionManager
+        .CanUseLocalSkillSelection(caster) ||
+        caster.CurrentTile == null ||
+        definition == null ||
+        definition.RangeShape !=
             SkillRangeShape.Cone)
         {
             return;
@@ -202,10 +203,9 @@ public class PlayerConePreviewManager :
         FightUnit caster =
             turnManager.ActiveUnit;
 
-        if (caster == null ||
-            caster.CurrentTile == null ||
-            !caster.IsAlive ||
-            caster.Team != FightTeam.Player)
+        if (!PlayerSkillSelectionManager
+        .CanUseLocalSkillSelection(caster) ||
+            caster.CurrentTile == null)
         {
             return;
         }

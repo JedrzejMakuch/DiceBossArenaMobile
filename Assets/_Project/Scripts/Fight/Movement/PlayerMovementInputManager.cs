@@ -50,9 +50,10 @@ public class PlayerMovementInputManager : MonoBehaviour
         EnsureTileSubscriptions();
 
         playerMovementEnabled =
-            unit != null &&
-            unit.IsAlive &&
-            unit.Team == FightTeam.Player;
+        unit != null &&
+        unit.IsAlive &&
+        unit.IsControlledBy(
+            FightControllerType.LocalPlayer);
     }
 
     private void HandleTurnEnded(FightUnit unit)
@@ -78,7 +79,8 @@ public class PlayerMovementInputManager : MonoBehaviour
         FightUnit activeUnit = turnManager.ActiveUnit;
 
         if (activeUnit == null ||
-            activeUnit.Team != FightTeam.Player)
+        !activeUnit.IsControlledBy(
+            FightControllerType.LocalPlayer))
         {
             return;
         }

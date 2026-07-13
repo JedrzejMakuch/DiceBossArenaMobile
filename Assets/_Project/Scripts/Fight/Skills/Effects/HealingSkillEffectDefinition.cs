@@ -26,8 +26,8 @@ public class HealingSkillEffectDefinition : SkillEffectDefinition
             return false;
         }
 
-        return target.Team ==
-               context.Caster.Team;
+        return context.Caster
+            .IsAlliedWith(target);
     }
 
     public override void Apply(

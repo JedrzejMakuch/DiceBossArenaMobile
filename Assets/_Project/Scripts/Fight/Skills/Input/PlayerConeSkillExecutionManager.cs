@@ -61,8 +61,9 @@ public class PlayerConeSkillExecutionManager :
         }
 
         if (!turnManager.CombatRunning ||
-            turnManager.ActiveUnit != caster ||
-            caster.Team != FightTeam.Player)
+        turnManager.ActiveUnit != caster ||
+        !PlayerSkillSelectionManager
+            .CanUseLocalSkillSelection(caster))
         {
             return;
         }
@@ -88,7 +89,7 @@ public class PlayerConeSkillExecutionManager :
         }
 
         List<FightUnit> affectedUnits =
-            CollectAffectedEnemies(
+            CollectAffectedHostileUnits(
                 caster,
                 coneTiles);
 
@@ -114,15 +115,14 @@ public class PlayerConeSkillExecutionManager :
         Debug.Log(
             $"{definition.DisplayName} executed " +
             $"in direction {direction}. " +
-            $"Enemies hit: " +
+            $"Units hit: " +
             $"{affectedUnits.Count}.",
             caster);
 
         StartCoroutine(ClearSelectionNextFrame());
     }
 
-    private List<FightUnit>
-        CollectAffectedEnemies(
+    private List<FightUnit> CollectAffectedHostileUnits(
             FightUnit caster,
             IReadOnlyList<FightGridTile>
                 coneTiles)
@@ -144,7 +144,7 @@ public class PlayerConeSkillExecutionManager :
 
             if (unit == null ||
                 !unit.IsAlive ||
-                unit.Team == caster.Team ||
+                !caster.IsHostileTo(unit) ||
                 affectedUnits.Contains(unit))
             {
                 continue;

@@ -233,7 +233,7 @@ public class FightSkillManager : MonoBehaviour
             case SkillTargetType.SingleEnemy:
                 return primaryTarget != null &&
                        primaryTarget.IsAlive &&
-                       primaryTarget.Team != caster.Team &&
+                       caster.IsHostileTo(primaryTarget) &&
                        IsWithinRange(
                            caster.CurrentTile,
                            primaryTarget.CurrentTile,
@@ -242,7 +242,7 @@ public class FightSkillManager : MonoBehaviour
             case SkillTargetType.SingleAlly:
                 return primaryTarget != null &&
                        primaryTarget.IsAlive &&
-                       primaryTarget.Team == caster.Team &&
+                       caster.IsAlliedWith(primaryTarget) &&
                        IsWithinRange(
                            caster.CurrentTile,
                            primaryTarget.CurrentTile,

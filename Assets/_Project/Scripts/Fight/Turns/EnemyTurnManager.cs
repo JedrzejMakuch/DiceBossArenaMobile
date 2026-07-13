@@ -36,7 +36,8 @@ public class EnemyTurnManager : MonoBehaviour
         int roundNumber)
     {
         if (unit == null ||
-            unit.Team != FightTeam.Enemy)
+        !unit.IsControlledBy(
+            FightControllerType.AI))
         {
             return;
         }
@@ -206,6 +207,20 @@ public class EnemyTurnManager : MonoBehaviour
             {
                 Debug.LogWarning(
                     $"EnemyTurnManager: {enemy.UnitName} is no longer alive.",
+                    enemy);
+            }
+
+            return false;
+        }
+
+        if (!enemy.IsControlledBy(
+        FightControllerType.AI))
+        {
+            if (logReason)
+            {
+                Debug.LogWarning(
+                    $"EnemyTurnManager: {enemy.UnitName} " +
+                    "is no longer controlled by AI.",
                     enemy);
             }
 

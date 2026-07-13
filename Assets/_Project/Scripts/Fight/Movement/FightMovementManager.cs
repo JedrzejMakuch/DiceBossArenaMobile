@@ -42,13 +42,20 @@ public class FightMovementManager : MonoBehaviour
         }
     }
 
+    public static bool CanShowLocalMovementRange(
+    FightUnit unit)
+    {
+        return unit != null &&
+               unit.IsAlive &&
+               unit.IsControlledBy(
+                   FightControllerType.LocalPlayer);
+    }
+
     private void HandleTurnResourcesReady(FightUnit unit)
     {
         ClearMovementRange();
 
-        if (unit == null ||
-            !unit.IsAlive ||
-            unit.Team != FightTeam.Player)
+        if (!CanShowLocalMovementRange(unit))
         {
             return;
         }

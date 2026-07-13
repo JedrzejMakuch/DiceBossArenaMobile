@@ -20,7 +20,7 @@ public class FightCombatManager : MonoBehaviour
         }
 
         FightUnitTurnResources resources =
-            attacker.GetComponent<FightUnitTurnResources>();
+            attacker.TurnResources;
 
         if (resources == null)
         {
@@ -83,13 +83,12 @@ public class FightCombatManager : MonoBehaviour
             return false;
         }
 
-        if (attacker.Team == target.Team)
+        if (!attacker.IsHostileTo(target))
         {
             return false;
         }
 
-        FightUnitTurnResources resources =
-            attacker.GetComponent<FightUnitTurnResources>();
+        FightUnitTurnResources resources = attacker.TurnResources;
 
         if (resources == null)
         {
