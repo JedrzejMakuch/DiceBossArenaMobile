@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace DiceBossArena.Tests.Fixtures
@@ -15,7 +16,10 @@ namespace DiceBossArena.Tests.Fixtures
             int maxRange = 1,
             int actionPointCost = 1,
             int movementPointCost = 0,
-            int maxLevel = 1)
+            int maxLevel = 1,
+            float powerMultiplier = 1f,
+            int flatValueBonus = 0,
+            int cooldown = 0)
         {
             SkillDefinition skill =
                 ScriptableObject.CreateInstance<SkillDefinition>();
@@ -24,6 +28,7 @@ namespace DiceBossArena.Tests.Fixtures
 
             var serializedData = new SerializedSkillData
             {
+                levels = new List<SerializedSkillLevelData>(),
                 skillId = skillId,
                 displayName = displayName,
                 description = description,
@@ -35,6 +40,17 @@ namespace DiceBossArena.Tests.Fixtures
                 movementPointCost = Mathf.Max(0, movementPointCost),
                 maxLevel = Mathf.Max(1, maxLevel)
             };
+
+            for (int i = 0; i < serializedData.maxLevel; i++)
+            {
+                serializedData.levels.Add(
+                    new SerializedSkillLevelData
+                    {
+                        powerMultiplier = Mathf.Max(0f, powerMultiplier),
+                        flatValueBonus = flatValueBonus,
+                        cooldown = Mathf.Max(0, cooldown)
+                    });
+            }
 
             string json = JsonUtility.ToJson(serializedData);
             JsonUtility.FromJsonOverwrite(json, skill);
@@ -55,6 +71,15 @@ namespace DiceBossArena.Tests.Fixtures
             public int actionPointCost;
             public int movementPointCost;
             public int maxLevel;
+            public List<SerializedSkillLevelData> levels;
+        }
+
+        [Serializable]
+        private sealed class SerializedSkillLevelData
+        {
+            public float powerMultiplier;
+            public int flatValueBonus;
+            public int cooldown;
         }
     }
 }
