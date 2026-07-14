@@ -24,6 +24,20 @@ public sealed class FightUnitRuntimeState
         currentHealth = Mathf.Max(1, maxHealth);
     }
 
+    public void RestoreCurrentHealth(
+        int restoredHealth,
+        int maxHealth)
+    {
+        int clampedMaximum =
+            Mathf.Max(1, maxHealth);
+
+        currentHealth =
+            Mathf.Clamp(
+                restoredHealth,
+                0,
+                clampedMaximum);
+    }
+
     public int ApplyDamage(int amount)
     {
         int damage = Mathf.Max(0, amount);

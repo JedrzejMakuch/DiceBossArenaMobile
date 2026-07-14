@@ -1,3 +1,4 @@
+using DiceBossArena.Game;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,7 +21,33 @@ public class EnemySpawnManager : MonoBehaviour
     public IReadOnlyList<FightUnit> SpawnedEnemies => spawnedEnemies;
     public IReadOnlyList<FightGridTile> EnemySpawnTiles => enemySpawnTiles;
 
+    private CharacterBuildSnapshot enemyBuildSnapshot =
+    CharacterBuildSnapshot.Empty;
+
+    private FightUnitRuntimeSnapshot enemyRuntimeSnapshot =
+        FightUnitRuntimeSnapshot.Fresh;
+
+    public CharacterBuildSnapshot EnemyBuildSnapshot =>
+    enemyBuildSnapshot;
+
+    public FightUnitRuntimeSnapshot EnemyRuntimeSnapshot =>
+        enemyRuntimeSnapshot;
+
     public event Action EnemiesSpawned;
+
+    public void ConfigureSpawnData(
+    CharacterBuildSnapshot buildSnapshot,
+    FightUnitRuntimeSnapshot runtimeSnapshot)
+    {
+        enemyBuildSnapshot =
+            (buildSnapshot ??
+             CharacterBuildSnapshot.Empty)
+            .Copy();
+
+        enemyRuntimeSnapshot =
+            runtimeSnapshot ??
+            FightUnitRuntimeSnapshot.Fresh;
+    }
 
     public void SpawnEnemies()
     {
@@ -116,12 +143,22 @@ public class EnemySpawnManager : MonoBehaviour
 
         FightUnitSpawnRequest request =
             new FightUnitSpawnRequest(
-                enemyUnitPrefab,
-                definition,
-                ownership,
-                tile,
-                parent,
-                enemyName);
+                prefab:
+                    enemyUnitPrefab,
+                definition:
+                    definition,
+                ownership:
+                    ownership,
+                tile:
+                    tile,
+                parent:
+                    parent,
+                objectName:
+                    enemyName,
+                runtimeSnapshot:
+                    enemyRuntimeSnapshot,
+                buildSnapshot:
+                    enemyBuildSnapshot);
 
         FightUnit enemy =
             unitSpawner.Spawn(request);

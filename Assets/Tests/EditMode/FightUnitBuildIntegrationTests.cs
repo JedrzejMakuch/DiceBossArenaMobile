@@ -90,6 +90,136 @@ public class FightUnitBuildIntegrationTests
     }
 
     [Test]
+    public void ApplyRuntimeSnapshot_RestoresCurrentHealth()
+    {
+        GameObject unitObject =
+            new GameObject("Unit");
+
+        FightUnit unit =
+            unitObject.AddComponent<FightUnit>();
+
+        unit.Initialize(
+            newUnitName: "Unit",
+            newTeam: FightTeam.Player,
+            newMaxHealth: 20,
+            newAttackPower: 4,
+            newInitiative: 5);
+
+        bool applied =
+            unit.ApplyRuntimeSnapshot(
+                new FightUnitRuntimeSnapshot(7));
+
+        Assert.That(
+            applied,
+            Is.True);
+
+        Assert.That(
+            unit.CurrentHealth,
+            Is.EqualTo(7));
+
+        Object.DestroyImmediate(unitObject);
+    }
+
+    [Test]
+    public void ApplyRuntimeSnapshot_FreshKeepsFullHealth()
+    {
+        GameObject unitObject =
+            new GameObject("Unit");
+
+        FightUnit unit =
+            unitObject.AddComponent<FightUnit>();
+
+        unit.Initialize(
+            newUnitName: "Unit",
+            newTeam: FightTeam.Player,
+            newMaxHealth: 20,
+            newAttackPower: 4,
+            newInitiative: 5);
+
+        Assert.That(
+            unit.ApplyRuntimeSnapshot(
+                FightUnitRuntimeSnapshot.Fresh),
+            Is.True);
+
+        Assert.That(
+            unit.CurrentHealth,
+            Is.EqualTo(20));
+
+        Object.DestroyImmediate(unitObject);
+    }
+
+    [Test]
+    public void ApplyRuntimeSnapshot_ClampsHealthToFinalMaximum()
+    {
+        GameObject unitObject =
+            new GameObject("Unit");
+
+        FightUnit unit =
+            unitObject.AddComponent<FightUnit>();
+
+        unit.Initialize(
+            newUnitName: "Unit",
+            newTeam: FightTeam.Player,
+            newMaxHealth: 20,
+            newAttackPower: 4,
+            newInitiative: 5);
+
+        ResolvedCharacterBuild build =
+            new ResolvedCharacterBuild(
+                new CharacterClassId("warrior"),
+                new CharacterSpecializationId(
+                    "guardian"),
+                null,
+                new[]
+                {
+                new FightStatModifier(
+                    FightStatType.MaxHealth,
+                    FightStatModifierType.Flat,
+                    10)
+                },
+                null,
+                null);
+
+        unit.ApplyBuild(build);
+
+        Assert.That(
+            unit.MaxHealth,
+            Is.EqualTo(30));
+
+        unit.ApplyRuntimeSnapshot(
+            new FightUnitRuntimeSnapshot(50));
+
+        Assert.That(
+            unit.CurrentHealth,
+            Is.EqualTo(30));
+
+        Object.DestroyImmediate(unitObject);
+    }
+
+    [Test]
+    public void ApplyRuntimeSnapshot_NullReturnsFalse()
+    {
+        GameObject unitObject =
+            new GameObject("Unit");
+
+        FightUnit unit =
+            unitObject.AddComponent<FightUnit>();
+
+        unit.Initialize(
+            newUnitName: "Unit",
+            newTeam: FightTeam.Player,
+            newMaxHealth: 20,
+            newAttackPower: 4,
+            newInitiative: 5);
+
+        Assert.That(
+            unit.ApplyRuntimeSnapshot(null),
+            Is.False);
+
+        Object.DestroyImmediate(unitObject);
+    }
+
+    [Test]
     public void ApplyBuild_CopiesPassiveCollection()
     {
         GameObject unitObject =

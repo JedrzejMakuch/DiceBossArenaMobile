@@ -524,4 +524,36 @@ public class FightUnit : MonoBehaviour
                 modifiers[i]);
         }
     }
+
+    public bool ApplyRuntimeSnapshot(
+    FightUnitRuntimeSnapshot snapshot)
+    {
+        if (snapshot == null)
+        {
+            return false;
+        }
+
+        if (runtimeState == null)
+        {
+            InitializeRuntimeState();
+        }
+
+        if (!snapshot.HasCurrentHealth)
+        {
+            runtimeState.ResetHealth(
+                MaxHealth);
+
+            HealthChanged?.Invoke(this);
+
+            return true;
+        }
+
+        runtimeState.RestoreCurrentHealth(
+            snapshot.CurrentHealth,
+            MaxHealth);
+
+        HealthChanged?.Invoke(this);
+
+        return true;
+    }
 }

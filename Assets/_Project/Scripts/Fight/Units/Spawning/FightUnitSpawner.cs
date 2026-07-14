@@ -1,8 +1,20 @@
-﻿using UnityEngine;
+﻿using DiceBossArena.Game;
+using System;
+using System.Collections.Generic;
+using UnityEngine;
 
 public sealed class FightUnitSpawner : MonoBehaviour
 {
     [SerializeField] private FightUnitRegistry unitRegistry;
+    [SerializeField]
+    private List<SkillDefinition> skillDefinitions =
+    new();
+
+    private CharacterBuildResolver buildResolver;
+    private void Awake()
+    {
+        RebuildBuildResolver();
+    }
 
     public FightUnit Spawn(FightUnitSpawnRequest request)
     {
@@ -23,6 +35,21 @@ public sealed class FightUnitSpawner : MonoBehaviour
         if (!unit.Initialize(
                 request.Definition,
                 request.Ownership))
+        {
+            DestroySpawnedUnit(unit);
+            return null;
+        }
+
+        if (!TryApplyBuild(
+        unit,
+        request.BuildSnapshot))
+        {
+            DestroySpawnedUnit(unit);
+            return null;
+        }
+
+        if (!unit.ApplyRuntimeSnapshot(
+        request.RuntimeSnapshot))
         {
             DestroySpawnedUnit(unit);
             return null;
@@ -135,4 +162,68 @@ public sealed class FightUnitSpawner : MonoBehaviour
         unit.ReleaseCurrentTile();
         DestroySpawnedUnit(unit);
     }
+
+    private void RebuildBuildResolver()
+    {
+        SkillDefinitionCatalog catalog =
+            new SkillDefinitionCatalog(
+                skillDefinitions);
+
+        buildResolver =
+            new CharacterBuildResolver(
+                catalog);
+    }
+
+    private bool TryApplyBuild(
+    FightUnit unit,
+    CharacterBuildSnapshot snapshot)
+    {
+        if (unit == null)
+        {
+            return false;
+        }
+
+        if (snapshot == null)
+        {
+            snapshot =
+                CharacterBuildSnapshot.Empty;
+        }
+
+        if (buildResolver == null)
+        {
+            RebuildBuildResolver();
+        }
+
+        try
+        {
+            ResolvedCharacterBuild resolvedBuild =
+                buildResolver.Resolve(snapshot);
+
+            return unit.ApplyBuild(
+                resolvedBuild);
+        }
+        catch (InvalidOperationException exception)
+        {
+            Debug.LogError(
+                $"FightUnitSpawner could not resolve build. " +
+                $"{exception.Message}",
+                this);
+
+            return false;
+        }
+    }
+
+#if UNITY_EDITOR
+    public void InitializeBuildResolverForTests(
+        IReadOnlyList<SkillDefinition> definitions)
+    {
+        skillDefinitions =
+            definitions != null
+                ? new List<SkillDefinition>(
+                    definitions)
+                : new List<SkillDefinition>();
+
+        RebuildBuildResolver();
+    }
+#endif
 }

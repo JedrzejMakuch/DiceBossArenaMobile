@@ -1,3 +1,4 @@
+using DiceBossArena.Game;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -22,7 +23,19 @@ public class FightDeploymentManager : MonoBehaviour
     private FightUnit playerUnit;
     private bool isDeploymentLocked = false;
 
+    private CharacterBuildSnapshot playerBuildSnapshot =
+    CharacterBuildSnapshot.Empty;
+
+    private FightUnitRuntimeSnapshot playerRuntimeSnapshot =
+        FightUnitRuntimeSnapshot.Fresh;
+
     public FightUnit PlayerUnit => playerUnit;
+
+    public CharacterBuildSnapshot PlayerBuildSnapshot =>
+    playerBuildSnapshot;
+
+    public FightUnitRuntimeSnapshot PlayerRuntimeSnapshot =>
+        playerRuntimeSnapshot;
 
     private void OnDestroy()
     {
@@ -230,16 +243,40 @@ public class FightDeploymentManager : MonoBehaviour
 
         FightUnitSpawnRequest request =
             new FightUnitSpawnRequest(
-                playerUnitPrefab,
-                playerUnitPrefab.Definition,
-                ownership,
-                tile,
-                parent,
-                "Player");
+                prefab:
+                    playerUnitPrefab,
+                definition:
+                    playerUnitPrefab.Definition,
+                ownership:
+                    ownership,
+                tile:
+                    tile,
+                parent:
+                    parent,
+                objectName:
+                    "Player",
+                runtimeSnapshot:
+                    playerRuntimeSnapshot,
+                buildSnapshot:
+                    playerBuildSnapshot);
 
         playerUnit =
             unitSpawner.Spawn(request);
 
         return playerUnit != null;
+    }
+
+    public void ConfigurePlayerSpawnData(
+    CharacterBuildSnapshot buildSnapshot,
+    FightUnitRuntimeSnapshot runtimeSnapshot)
+    {
+        playerBuildSnapshot =
+            (buildSnapshot ??
+             CharacterBuildSnapshot.Empty)
+            .Copy();
+
+        playerRuntimeSnapshot =
+            runtimeSnapshot ??
+            FightUnitRuntimeSnapshot.Fresh;
     }
 }

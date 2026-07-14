@@ -32,5 +32,69 @@ namespace DiceBossArena.Tests.EditMode
 
             Object.DestroyImmediate(definition);
         }
+
+        [Test]
+        public void RestoreCurrentHealth_PreservesValueWithinMaximum()
+        {
+            FightUnitRuntimeState state =
+                new FightUnitRuntimeState(20);
+
+            state.RestoreCurrentHealth(
+                restoredHealth: 7,
+                maxHealth: 20);
+
+            Assert.That(
+                state.CurrentHealth,
+                Is.EqualTo(7));
+        }
+
+        [Test]
+        public void RestoreCurrentHealth_ClampsValueToMaximum()
+        {
+            FightUnitRuntimeState state =
+                new FightUnitRuntimeState(20);
+
+            state.RestoreCurrentHealth(
+                restoredHealth: 50,
+                maxHealth: 20);
+
+            Assert.That(
+                state.CurrentHealth,
+                Is.EqualTo(20));
+        }
+
+        [Test]
+        public void RestoreCurrentHealth_AllowsZero()
+        {
+            FightUnitRuntimeState state =
+                new FightUnitRuntimeState(20);
+
+            state.RestoreCurrentHealth(
+                restoredHealth: 0,
+                maxHealth: 20);
+
+            Assert.That(
+                state.CurrentHealth,
+                Is.EqualTo(0));
+
+            Assert.That(
+                state.IsAlive,
+                Is.False);
+        }
+
+        [Test]
+        public void RestoreCurrentHealth_ClampsNegativeValueToZero()
+        {
+            FightUnitRuntimeState state =
+                new FightUnitRuntimeState(20);
+
+            state.RestoreCurrentHealth(
+                restoredHealth: -5,
+                maxHealth: 20);
+
+            Assert.That(
+                state.CurrentHealth,
+                Is.EqualTo(0));
+        }
     }
 }
