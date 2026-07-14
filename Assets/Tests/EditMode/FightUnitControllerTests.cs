@@ -204,5 +204,135 @@ namespace DiceBossArena.Tests.EditMode
 
             Object.DestroyImmediate(unitObject);
         }
+
+        [Test]
+        public void MaxHealth_WithoutModifiers_ReturnsBaseValue()
+        {
+            GameObject unitObject =
+                new GameObject("Unit");
+
+            FightUnit unit =
+                unitObject.AddComponent<FightUnit>();
+
+            unit.Initialize(
+                newUnitName: "Unit",
+                newTeam: FightTeam.Player,
+                newMaxHealth: 10,
+                newAttackPower: 2,
+                newInitiative: 5);
+
+            Assert.That(
+                unit.MaxHealth,
+                Is.EqualTo(10));
+
+            Assert.That(
+                unit.CurrentHealth,
+                Is.EqualTo(10));
+
+            Object.DestroyImmediate(unitObject);
+        }
+
+        [Test]
+        public void MaxHealth_IncreaseDoesNotHealCurrentHealth()
+        {
+            GameObject unitObject =
+                new GameObject("Unit");
+
+            FightUnit unit =
+                unitObject.AddComponent<FightUnit>();
+
+            unit.Initialize(
+                newUnitName: "Unit",
+                newTeam: FightTeam.Player,
+                newMaxHealth: 10,
+                newAttackPower: 2,
+                newInitiative: 5);
+
+            unit.TakeDamage(4);
+
+            unit.Stats.AddModifier(
+                new FightStatModifier(
+                    FightStatType.MaxHealth,
+                    FightStatModifierType.Flat,
+                    10));
+
+            Assert.That(
+                unit.MaxHealth,
+                Is.EqualTo(20));
+
+            Assert.That(
+                unit.CurrentHealth,
+                Is.EqualTo(6));
+
+            Object.DestroyImmediate(unitObject);
+        }
+
+        [Test]
+        public void MaxHealth_DecreaseClampsCurrentHealth()
+        {
+            GameObject unitObject =
+                new GameObject("Unit");
+
+            FightUnit unit =
+                unitObject.AddComponent<FightUnit>();
+
+            unit.Initialize(
+                newUnitName: "Unit",
+                newTeam: FightTeam.Player,
+                newMaxHealth: 20,
+                newAttackPower: 2,
+                newInitiative: 5);
+
+            unit.TakeDamage(2);
+
+            unit.Stats.AddModifier(
+                new FightStatModifier(
+                    FightStatType.MaxHealth,
+                    FightStatModifierType.Flat,
+                    -10));
+
+            Assert.That(
+                unit.MaxHealth,
+                Is.EqualTo(10));
+
+            Assert.That(
+                unit.CurrentHealth,
+                Is.EqualTo(10));
+
+            Object.DestroyImmediate(unitObject);
+        }
+
+        [Test]
+        public void MaxHealth_CannotDropBelowOne()
+        {
+            GameObject unitObject =
+                new GameObject("Unit");
+
+            FightUnit unit =
+                unitObject.AddComponent<FightUnit>();
+
+            unit.Initialize(
+                newUnitName: "Unit",
+                newTeam: FightTeam.Player,
+                newMaxHealth: 10,
+                newAttackPower: 2,
+                newInitiative: 5);
+
+            unit.Stats.AddModifier(
+                new FightStatModifier(
+                    FightStatType.MaxHealth,
+                    FightStatModifierType.Flat,
+                    -100));
+
+            Assert.That(
+                unit.MaxHealth,
+                Is.EqualTo(1));
+
+            Assert.That(
+                unit.CurrentHealth,
+                Is.EqualTo(1));
+
+            Object.DestroyImmediate(unitObject);
+        }
     }
 }

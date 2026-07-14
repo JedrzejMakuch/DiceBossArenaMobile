@@ -28,7 +28,13 @@ public class FightUnit : MonoBehaviour
 
     public string UnitName => definition != null ? definition.UnitName : unitName;
     public FightTeam Team => definition != null ? definition.Team : team;
-    public int MaxHealth => definition != null ? definition.MaxHealth : maxHealth;
+    public int MaxHealth =>
+    stats != null
+        ? Mathf.Max(
+            1,
+            stats.GetFinalValue(
+                FightStatType.MaxHealth))
+        : GetBaseMaxHealth();
     public int CurrentHealth => runtimeState != null ? runtimeState.CurrentHealth : 0;
     public int AttackPower => stats != null ? stats.GetFinalValue(FightStatType.AttackPower) : GetBaseAttackPower();
     public int Initiative =>
@@ -291,9 +297,18 @@ public class FightUnit : MonoBehaviour
 
     private void InitializeStats()
     {
+        if (stats != null)
+        {
+            stats.StatChanged -= HandleStatChanged;
+        }
+
         Dictionary<FightStatType, int> baseValues =
             new()
             {
+            {
+                FightStatType.MaxHealth,
+                GetBaseMaxHealth()
+            },
             {
                 FightStatType.AttackPower,
                 GetBaseAttackPower()
@@ -306,6 +321,27 @@ public class FightUnit : MonoBehaviour
 
         stats =
             new FightUnitStats(baseValues);
+
+        stats.StatChanged += HandleStatChanged;
+    }
+
+    private void HandleStatChanged(
+    FightStatType statType)
+    {
+        if (statType != FightStatType.MaxHealth ||
+            runtimeState == null)
+        {
+            return;
+        }
+
+        bool healthChanged =
+            runtimeState.ClampHealthToMaximum(
+                MaxHealth);
+
+        if (healthChanged)
+        {
+            HealthChanged?.Invoke(this);
+        }
     }
 
     private void InitializeRuntimeState()
@@ -350,5 +386,20 @@ public class FightUnit : MonoBehaviour
         return definition != null
             ? definition.Initiative
             : initiative;
+    }
+
+    private int GetBaseMaxHealth()
+    {
+        return definition != null
+            ? definition.MaxHealth
+            : maxHealth;
+    }
+
+    private void OnDestroy()
+    {
+        if (stats != null)
+        {
+            stats.StatChanged -= HandleStatChanged;
+        }
     }
 }

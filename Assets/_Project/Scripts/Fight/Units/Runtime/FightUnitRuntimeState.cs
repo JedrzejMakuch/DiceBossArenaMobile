@@ -59,4 +59,22 @@ public sealed class FightUnitRuntimeState
     {
         ownership = newOwnership;
     }
+
+    public bool ClampHealthToMaximum(
+    int maxHealth)
+    {
+        int clampedMaximum =
+            Mathf.Max(1, maxHealth);
+
+        int previousHealth =
+            currentHealth;
+
+        currentHealth =
+            Mathf.Clamp(
+                currentHealth,
+                0,
+                clampedMaximum);
+
+        return currentHealth != previousHealth;
+    }
 }

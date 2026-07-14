@@ -37,6 +37,189 @@ namespace DiceBossArena.Tests.EditMode
         }
 
         [Test]
+        public void AddModifier_RaisesStatChangedForAffectedStat()
+        {
+            Dictionary<FightStatType, int> baseValues =
+                new()
+                {
+            {
+                FightStatType.MaxHealth,
+                10
+            }
+                };
+
+            FightUnitStats stats =
+                new FightUnitStats(baseValues);
+
+            FightStatType? changedStat =
+                null;
+
+            stats.StatChanged +=
+                statType =>
+                {
+                    changedStat = statType;
+                };
+
+            stats.AddModifier(
+                new FightStatModifier(
+                    FightStatType.MaxHealth,
+                    FightStatModifierType.Flat,
+                    5));
+
+            Assert.That(
+                changedStat,
+                Is.EqualTo(
+                    FightStatType.MaxHealth));
+        }
+
+        [Test]
+        public void RemoveModifier_RaisesStatChangedForAffectedStat()
+        {
+            Dictionary<FightStatType, int> baseValues =
+                new()
+                {
+            {
+                FightStatType.MaxHealth,
+                10
+            }
+                };
+
+            FightUnitStats stats =
+                new FightUnitStats(baseValues);
+
+            FightStatModifier modifier =
+                new FightStatModifier(
+                    FightStatType.MaxHealth,
+                    FightStatModifierType.Flat,
+                    5);
+
+            stats.AddModifier(modifier);
+
+            FightStatType? changedStat =
+                null;
+
+            stats.StatChanged +=
+                statType =>
+                {
+                    changedStat = statType;
+                };
+
+            bool removed =
+                stats.RemoveModifier(modifier);
+
+            Assert.That(
+                removed,
+                Is.True);
+
+            Assert.That(
+                changedStat,
+                Is.EqualTo(
+                    FightStatType.MaxHealth));
+        }
+
+        [Test]
+        public void RemoveModifier_WhenModifierDoesNotExist_DoesNotRaiseStatChanged()
+        {
+            Dictionary<FightStatType, int> baseValues =
+                new()
+                {
+            {
+                FightStatType.MaxHealth,
+                10
+            }
+                };
+
+            FightUnitStats stats =
+                new FightUnitStats(baseValues);
+
+            int changedCount =
+                0;
+
+            stats.StatChanged +=
+                statType =>
+                {
+                    changedCount++;
+                };
+
+            bool removed =
+                stats.RemoveModifier(
+                    new FightStatModifier(
+                        FightStatType.MaxHealth,
+                        FightStatModifierType.Flat,
+                        5));
+
+            Assert.That(
+                removed,
+                Is.False);
+
+            Assert.That(
+                changedCount,
+                Is.Zero);
+        }
+
+        [Test]
+        public void ClearModifiers_RaisesStatChangedOncePerAffectedStat()
+        {
+            Dictionary<FightStatType, int> baseValues =
+                new()
+                {
+            {
+                FightStatType.MaxHealth,
+                10
+            },
+            {
+                FightStatType.AttackPower,
+                2
+            }
+                };
+
+            FightUnitStats stats =
+                new FightUnitStats(baseValues);
+
+            stats.AddModifier(
+                new FightStatModifier(
+                    FightStatType.MaxHealth,
+                    FightStatModifierType.Flat,
+                    5));
+
+            stats.AddModifier(
+                new FightStatModifier(
+                    FightStatType.MaxHealth,
+                    FightStatModifierType.Percent,
+                    20));
+
+            stats.AddModifier(
+                new FightStatModifier(
+                    FightStatType.AttackPower,
+                    FightStatModifierType.Flat,
+                    3));
+
+            Dictionary<FightStatType, int> changedCounts =
+                new();
+
+            stats.StatChanged +=
+                statType =>
+                {
+                    changedCounts.TryGetValue(
+                        statType,
+                        out int currentCount);
+
+                    changedCounts[statType] =
+                        currentCount + 1;
+                };
+
+            stats.ClearModifiers();
+
+            Assert.That(
+                changedCounts[FightStatType.MaxHealth],
+                Is.EqualTo(1));
+
+            Assert.That(
+                changedCounts[FightStatType.AttackPower],
+                Is.EqualTo(1));
+        }
+
+        [Test]
         public void GetBaseValue_ForMissingStat_ReturnsZero()
         {
             Dictionary<FightStatType, int> baseValues =

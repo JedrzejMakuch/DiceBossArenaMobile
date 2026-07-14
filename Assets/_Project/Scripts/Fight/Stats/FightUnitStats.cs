@@ -11,6 +11,8 @@ namespace DiceBossArena.Game
         private readonly List<FightStatModifier> modifiers =
             new();
 
+        public event Action<FightStatType> StatChanged;
+
         public FightUnitStats(
             IReadOnlyDictionary<FightStatType, int> initialBaseValues)
         {
@@ -48,20 +50,52 @@ namespace DiceBossArena.Game
         }
 
         public void AddModifier(
-            FightStatModifier modifier)
+    FightStatModifier modifier)
         {
             modifiers.Add(modifier);
+
+            StatChanged?.Invoke(
+                modifier.StatType);
         }
 
         public bool RemoveModifier(
-            FightStatModifier modifier)
+    FightStatModifier modifier)
         {
-            return modifiers.Remove(modifier);
+            bool removed =
+                modifiers.Remove(modifier);
+
+            if (removed)
+            {
+                StatChanged?.Invoke(
+                    modifier.StatType);
+            }
+
+            return removed;
         }
 
         public void ClearModifiers()
         {
+            if (modifiers.Count == 0)
+            {
+                return;
+            }
+
+            HashSet<FightStatType> changedStats =
+                new();
+
+            foreach (FightStatModifier modifier in modifiers)
+            {
+                changedStats.Add(
+                    modifier.StatType);
+            }
+
             modifiers.Clear();
+
+            foreach (FightStatType statType in changedStats)
+            {
+                StatChanged?.Invoke(
+                    statType);
+            }
         }
     }
 }
