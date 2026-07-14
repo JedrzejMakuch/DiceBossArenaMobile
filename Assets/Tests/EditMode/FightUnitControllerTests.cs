@@ -152,5 +152,57 @@ namespace DiceBossArena.Tests.EditMode
 
             Object.DestroyImmediate(unitObject);
         }
+
+        [Test]
+        public void Initiative_WithoutModifiers_ReturnsBaseValue()
+        {
+            GameObject unitObject =
+                new GameObject("Unit");
+
+            FightUnit unit =
+                unitObject.AddComponent<FightUnit>();
+
+            unit.Initialize(
+                newUnitName: "Unit",
+                newTeam: FightTeam.Player,
+                newMaxHealth: 10,
+                newAttackPower: 2,
+                newInitiative: 7);
+
+            Assert.That(
+                unit.Initiative,
+                Is.EqualTo(7));
+
+            Object.DestroyImmediate(unitObject);
+        }
+
+        [Test]
+        public void Initiative_WithModifier_ReturnsModifiedValue()
+        {
+            GameObject unitObject =
+                new GameObject("Unit");
+
+            FightUnit unit =
+                unitObject.AddComponent<FightUnit>();
+
+            unit.Initialize(
+                newUnitName: "Unit",
+                newTeam: FightTeam.Player,
+                newMaxHealth: 10,
+                newAttackPower: 2,
+                newInitiative: 7);
+
+            unit.Stats.AddModifier(
+                new FightStatModifier(
+                    FightStatType.Initiative,
+                    FightStatModifierType.Flat,
+                    5));
+
+            Assert.That(
+                unit.Initiative,
+                Is.EqualTo(12));
+
+            Object.DestroyImmediate(unitObject);
+        }
     }
 }

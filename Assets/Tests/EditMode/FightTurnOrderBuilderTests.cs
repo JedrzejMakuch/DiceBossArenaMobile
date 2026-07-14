@@ -1,5 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using DiceBossArena.Game;
 using NUnit.Framework;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace DiceBossArena.Tests.EditMode
@@ -99,6 +100,50 @@ namespace DiceBossArena.Tests.EditMode
                 FightTurnOrderBuilder.Build(null);
 
             Assert.That(result, Is.Empty);
+        }
+
+        [Test]
+        public void Build_UsesFinalInitiativeAfterModifiers()
+        {
+            FightUnit normallySlowUnit =
+                CreateUnit(
+                    "Normally Slow",
+                    4);
+
+            FightUnit normallyFastUnit =
+                CreateUnit(
+                    "Normally Fast",
+                    10);
+
+            normallySlowUnit.Stats.AddModifier(
+                new FightStatModifier(
+                    FightStatType.Initiative,
+                    FightStatModifierType.Flat,
+                    10));
+
+            List<FightUnit> result =
+                FightTurnOrderBuilder.Build(
+                    new[]
+                    {
+                normallyFastUnit,
+                normallySlowUnit
+                    });
+
+            Assert.That(
+                normallySlowUnit.Initiative,
+                Is.EqualTo(14));
+
+            Assert.That(
+                result,
+                Has.Count.EqualTo(2));
+
+            Assert.That(
+                result[0],
+                Is.SameAs(normallySlowUnit));
+
+            Assert.That(
+                result[1],
+                Is.SameAs(normallyFastUnit));
         }
 
         private FightUnit CreateUnit(

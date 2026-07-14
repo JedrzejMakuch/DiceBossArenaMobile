@@ -31,7 +31,11 @@ public class FightUnit : MonoBehaviour
     public int MaxHealth => definition != null ? definition.MaxHealth : maxHealth;
     public int CurrentHealth => runtimeState != null ? runtimeState.CurrentHealth : 0;
     public int AttackPower => stats != null ? stats.GetFinalValue(FightStatType.AttackPower) : GetBaseAttackPower();
-    public int Initiative => definition != null ? definition.Initiative : initiative;
+    public int Initiative =>
+    stats != null
+        ? stats.GetFinalValue(
+            FightStatType.Initiative)
+        : GetBaseInitiative();
     public FightUnitStats Stats => stats;
 
     public FightGridTile CurrentTile => runtimeState != null ? runtimeState.CurrentTile : null;
@@ -293,6 +297,10 @@ public class FightUnit : MonoBehaviour
             {
                 FightStatType.AttackPower,
                 GetBaseAttackPower()
+            },
+            {
+                FightStatType.Initiative,
+                GetBaseInitiative()
             }
             };
 
@@ -335,5 +343,12 @@ public class FightUnit : MonoBehaviour
         return definition != null
             ? definition.AttackPower
             : attackPower;
+    }
+
+    private int GetBaseInitiative()
+    {
+        return definition != null
+            ? definition.Initiative
+            : initiative;
     }
 }
