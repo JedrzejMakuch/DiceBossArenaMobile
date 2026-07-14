@@ -1,109 +1,230 @@
-﻿using System.Reflection;
+﻿using System.Collections.Generic;
+using System.Reflection;
 using NUnit.Framework;
 using UnityEngine;
+using UnityEngine.TestTools;
 
 namespace DiceBossArena.Tests.EditMode
 {
-    public sealed class EnemySpawnRegistryTests
+    public sealed class EnemySpawnManagerTests
     {
-        private GameObject managerObject;
-        private GameObject registryObject;
-        private GameObject enemyObject;
-
+        private readonly List<Object> createdObjects = new();
         private EnemySpawnManager spawnManager;
+        private FightUnitSpawner unitSpawner;
         private FightUnitRegistry registry;
-        private FightUnit enemy;
+        private FightArenaGenerator arenaGenerator;
+        private FightUnit enemyPrefab;
+        private FightUnitDefinition enemyDefinition;
+        private FightGridTile spawnTile;
 
         [SetUp]
         public void SetUp()
         {
-            managerObject =
-                new GameObject("EnemySpawnManager");
-
             spawnManager =
-                managerObject.AddComponent<EnemySpawnManager>();
+                CreateComponent<EnemySpawnManager>(
+                    "EnemySpawnManager");
 
-            registryObject =
-                new GameObject("FightUnitRegistry");
+            unitSpawner =
+                CreateComponent<FightUnitSpawner>(
+                    "FightUnitSpawner");
 
             registry =
-                registryObject.AddComponent<FightUnitRegistry>();
+                CreateComponent<FightUnitRegistry>(
+                    "FightUnitRegistry");
 
-            enemyObject =
-                new GameObject("Enemy");
+            arenaGenerator =
+                CreateComponent<FightArenaGenerator>(
+                    "FightArenaGenerator");
 
-            enemy =
-                enemyObject.AddComponent<FightUnit>();
+            enemyPrefab =
+                CreateComponent<FightUnit>(
+                    "EnemyPrefab");
 
-            enemy.Initialize(
-                "Test Enemy",
-                FightTeam.Enemy,
-                10,
-                2,
-                10);
+            enemyDefinition =
+                ScriptableObject.CreateInstance<FightUnitDefinition>();
+
+            createdObjects.Add(enemyDefinition);
+
+            enemyDefinition.InitializeForTests(
+                newUnitName: "Test Enemy",
+                newTeam: FightTeam.Enemy,
+                newMaxHealth: 10,
+                newAttackPower: 2,
+                newInitiative: 10,
+                newStartingSkills: null);
+
+            enemyPrefab.Initialize(enemyDefinition);
+
+            spawnTile =
+                CreateComponent<FightGridTile>(
+                    "EnemySpawnTile");
+
+            spawnTile.Initialize(3, 4);
+
+            SetPrivateField(
+                unitSpawner,
+                "unitRegistry",
+                registry);
 
             SetPrivateField(
                 spawnManager,
-                "unitRegistry",
-                registry);
+                "arenaGenerator",
+                arenaGenerator);
+
+            SetPrivateField(
+                spawnManager,
+                "enemyUnitPrefab",
+                enemyPrefab);
+
+            SetPrivateField(
+                spawnManager,
+                "unitSpawner",
+                unitSpawner);
+
+            SetPrivateField(
+                spawnManager,
+                "enemyCount",
+                1);
+
+            SetGeneratedTiles(
+                arenaGenerator,
+                spawnTile);
         }
 
         [TearDown]
         public void TearDown()
         {
-            if (enemyObject != null)
+            for (int i = createdObjects.Count - 1; i >= 0; i--)
             {
-                Object.DestroyImmediate(enemyObject);
+                Object createdObject = createdObjects[i];
+
+                if (createdObject != null)
+                {
+                    Object.DestroyImmediate(createdObject);
+                }
             }
 
-            if (registryObject != null)
-            {
-                Object.DestroyImmediate(registryObject);
-            }
-
-            if (managerObject != null)
-            {
-                Object.DestroyImmediate(managerObject);
-            }
+            createdObjects.Clear();
         }
 
         [Test]
-        public void TryRegisterEnemy_RegistersConfiguredEnemy()
+        public void SpawnEnemies_UsesSharedSpawnerAndRegistersEnemy()
         {
-            bool result =
-                spawnManager.TryRegisterEnemy(enemy);
+            spawnManager.SpawnEnemies();
 
-            Assert.That(result, Is.True);
-            Assert.That(registry.Units, Has.Count.EqualTo(1));
-            Assert.That(registry.Units[0], Is.SameAs(enemy));
+            Assert.That(
+                spawnManager.SpawnedEnemies,
+                Has.Count.EqualTo(1));
+
+            FightUnit spawnedEnemy =
+                spawnManager.SpawnedEnemies[0];
+
+            TrackSpawnedUnit(spawnedEnemy);
+
+            Assert.That(spawnedEnemy, Is.Not.Null);
+            Assert.That(
+                spawnedEnemy.Definition,
+                Is.SameAs(enemyDefinition));
+
+            Assert.That(
+                spawnedEnemy.TeamId,
+                Is.EqualTo(FightTeamId.TeamB));
+
+            Assert.That(
+                spawnedEnemy.ParticipantId,
+                Is.EqualTo(
+                    new FightParticipantId("enemy-ai")));
+
+            Assert.That(
+                spawnedEnemy.ControllerType,
+                Is.EqualTo(FightControllerType.AI));
+
+            Assert.That(
+                spawnedEnemy.CurrentTile,
+                Is.SameAs(spawnTile));
+
+            Assert.That(
+                registry.Units,
+                Has.Count.EqualTo(1));
+
+            Assert.That(
+                registry.Units[0],
+                Is.SameAs(spawnedEnemy));
         }
 
         [Test]
-        public void TryRegisterEnemy_CalledTwice_DoesNotDuplicateEnemy()
+        public void SpawnEnemies_CalledAgain_DespawnsPreviousEnemy()
         {
-            bool firstResult =
-                spawnManager.TryRegisterEnemy(enemy);
+            spawnManager.SpawnEnemies();
 
-            bool secondResult =
-                spawnManager.TryRegisterEnemy(enemy);
+            FightUnit firstEnemy =
+                spawnManager.SpawnedEnemies[0];
 
-            Assert.That(firstResult, Is.True);
-            Assert.That(secondResult, Is.True);
-            Assert.That(registry.Units, Has.Count.EqualTo(1));
+            spawnManager.SpawnEnemies();
+
+            FightUnit secondEnemy =
+                spawnManager.SpawnedEnemies[0];
+
+            TrackSpawnedUnit(secondEnemy);
+
+            Assert.That(firstEnemy == null, Is.True);
+            Assert.That(secondEnemy, Is.Not.Null);
+
+            Assert.That(
+                registry.Units,
+                Has.Count.EqualTo(1));
+
+            Assert.That(
+                registry.Units[0],
+                Is.SameAs(secondEnemy));
+
+            Assert.That(
+                spawnTile.OccupyingUnit,
+                Is.SameAs(secondEnemy));
         }
 
         [Test]
-        public void TryRegisterEnemy_WithoutRegistry_ReturnsFalse()
+        public void SpawnEnemies_WithoutSpawner_DoesNotCreateEnemy()
         {
-            SetPrivateField<FightUnitRegistry>(
+            SetPrivateField<FightUnitSpawner>(
                 spawnManager,
-                "unitRegistry",
+                "unitSpawner",
                 null);
 
-            bool result =
-                spawnManager.TryRegisterEnemy(enemy);
+            LogAssert.Expect(
+                LogType.Error,
+                "EnemySpawnManager: FightUnitSpawner is not assigned.");
 
-            Assert.That(result, Is.False);
+            spawnManager.SpawnEnemies();
+
+            Assert.That(
+                spawnManager.SpawnedEnemies,
+                Is.Empty);
+
+            Assert.That(
+                registry.Units,
+                Is.Empty);
+        }
+
+        private T CreateComponent<T>(
+            string objectName)
+            where T : Component
+        {
+            GameObject gameObject =
+                new GameObject(objectName);
+
+            createdObjects.Add(gameObject);
+
+            return gameObject.AddComponent<T>();
+        }
+
+        private void TrackSpawnedUnit(
+            FightUnit unit)
+        {
+            if (unit != null)
+            {
+                createdObjects.Add(unit.gameObject);
+            }
         }
 
         private static void SetPrivateField<T>(
@@ -125,45 +246,31 @@ namespace DiceBossArena.Tests.EditMode
             field.SetValue(target, value);
         }
 
-        [Test]
-        public void RegisteredEnemy_WhenUnregistered_CanBeReplacedWithoutStaleReference()
+        private static void SetGeneratedTiles(
+    FightArenaGenerator generator,
+    params FightGridTile[] tiles)
         {
-            GameObject secondEnemyObject =
-                new GameObject("SecondEnemy");
+            FieldInfo field =
+                typeof(FightArenaGenerator).GetField(
+                    "generatedTiles",
+                    BindingFlags.Instance |
+                    BindingFlags.NonPublic);
 
-            FightUnit secondEnemy =
-                secondEnemyObject.AddComponent<FightUnit>();
+            Assert.That(
+                field,
+                Is.Not.Null,
+                "Field 'generatedTiles' was not found.");
 
-            secondEnemy.Initialize(
-                "Second Test Enemy",
-                FightTeam.Enemy,
-                10,
-                2,
-                10);
+            List<FightGridTile> generatedTiles =
+                field.GetValue(generator)
+                    as List<FightGridTile>;
 
-            try
-            {
-                bool firstRegisterResult =
-                    spawnManager.TryRegisterEnemy(enemy);
+            Assert.That(
+                generatedTiles,
+                Is.Not.Null);
 
-                bool unregisterResult =
-                    registry.Unregister(enemy);
-
-                bool secondRegisterResult =
-                    spawnManager.TryRegisterEnemy(secondEnemy);
-
-                Assert.That(firstRegisterResult, Is.True);
-                Assert.That(unregisterResult, Is.True);
-                Assert.That(secondRegisterResult, Is.True);
-
-                Assert.That(registry.Units, Has.Count.EqualTo(1));
-                Assert.That(registry.Units[0], Is.SameAs(secondEnemy));
-                CollectionAssert.DoesNotContain(registry.Units, enemy);
-            }
-            finally
-            {
-                Object.DestroyImmediate(secondEnemyObject);
-            }
+            generatedTiles.Clear();
+            generatedTiles.AddRange(tiles);
         }
     }
 }

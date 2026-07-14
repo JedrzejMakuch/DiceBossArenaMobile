@@ -9,7 +9,7 @@ public class EnemySpawnManager : MonoBehaviour
     [SerializeField] private FightArenaGenerator arenaGenerator;
     [SerializeField] private FightUnit enemyUnitPrefab;
     [SerializeField] private Transform enemiesRoot;
-    [SerializeField] private FightUnitRegistry unitRegistry;
+    [SerializeField] private FightUnitSpawner unitSpawner;
 
     [Header("Spawn Settings")]
     [SerializeField, Min(1)] private int enemyCount = 3;
@@ -37,6 +37,15 @@ public class EnemySpawnManager : MonoBehaviour
         {
             Debug.LogError(
                 "EnemySpawnManager: Enemy Unit Prefab is not assigned.",
+                this);
+
+            return;
+        }
+
+        if (unitSpawner == null)
+        {
+            Debug.LogError(
+                "EnemySpawnManager: FightUnitSpawner is not assigned.",
                 this);
 
             return;
@@ -79,42 +88,46 @@ public class EnemySpawnManager : MonoBehaviour
 
     private void SpawnEnemy(FightGridTile tile)
     {
-        Transform parent = enemiesRoot != null
-            ? enemiesRoot
-            : transform;
+        string enemyName =
+            $"Enemy_{tile.GridX}_{tile.GridY}";
 
-        FightUnit enemy = Instantiate(
-            enemyUnitPrefab,
-            parent);
+        FightUnitDefinition definition =
+            enemyUnitPrefab.Definition;
 
-        string enemyName = $"Enemy_{tile.GridX}_{tile.GridY}";
-
-        enemy.name = enemyName;
-
-        if (enemy.Definition != null)
+        if (definition == null)
         {
-            enemy.Initialize(enemy.Definition);
-        }
-        else
-        {
-            enemy.Initialize(
-                enemyName,
-                FightTeam.Enemy,
-                enemy.MaxHealth,
-                enemy.AttackPower,
-                enemy.Initiative);
-        }
+            Debug.LogError(
+                "EnemySpawnManager: Enemy prefab has no definition.",
+                enemyUnitPrefab);
 
-        if (!enemy.TryAssignToTile(tile))
-        {
-            Destroy(enemy.gameObject);
             return;
         }
 
-        if (!TryRegisterEnemy(enemy))
+        FightUnitOwnership ownership =
+            new FightUnitOwnership(
+                FightTeamId.TeamB,
+                new FightParticipantId("enemy-ai"),
+                FightControllerType.AI);
+
+        Transform parent =
+            enemiesRoot != null
+                ? enemiesRoot
+                : transform;
+
+        FightUnitSpawnRequest request =
+            new FightUnitSpawnRequest(
+                enemyUnitPrefab,
+                definition,
+                ownership,
+                tile,
+                parent,
+                enemyName);
+
+        FightUnit enemy =
+            unitSpawner.Spawn(request);
+
+        if (enemy == null)
         {
-            enemy.ReleaseCurrentTile();
-            Destroy(enemy.gameObject);
             return;
         }
 
@@ -133,13 +146,7 @@ public class EnemySpawnManager : MonoBehaviour
                 continue;
             }
 
-            if (unitRegistry != null)
-            {
-                unitRegistry.Unregister(enemy);
-            }
-
-            enemy.ReleaseCurrentTile();
-            Destroy(enemy.gameObject);
+            unitSpawner.Despawn(enemy);
         }
 
         foreach (FightGridTile tile in enemySpawnTiles)
@@ -152,17 +159,5 @@ public class EnemySpawnManager : MonoBehaviour
 
         spawnedEnemies.Clear();
         enemySpawnTiles.Clear();
-    }
-
-    public bool TryRegisterEnemy(FightUnit enemy)
-    {
-        if (unitRegistry == null ||
-            enemy == null)
-        {
-            return false;
-        }
-
-        return unitRegistry.Register(enemy) ||
-               unitRegistry.Units.Contains(enemy);
     }
 }
