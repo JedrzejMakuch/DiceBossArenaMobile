@@ -314,6 +314,18 @@ public class FightUnit : MonoBehaviour
                 GetBaseAttackPower()
             },
             {
+                FightStatType.MaxActionPoints,
+                turnResources != null
+                    ? turnResources.ConfiguredMaxActionPoints
+                    : 0
+            },
+            {
+                FightStatType.MaxMovementPoints,
+                turnResources != null
+                    ? turnResources.ConfiguredMaxMovementPoints
+                    : 0
+            },
+            {
                 FightStatType.Initiative,
                 GetBaseInitiative()
             }
@@ -323,6 +335,11 @@ public class FightUnit : MonoBehaviour
             new FightUnitStats(baseValues);
 
         stats.StatChanged += HandleStatChanged;
+
+        if (turnResources != null)
+        {
+            turnResources.RefreshStatsSubscription();
+        }
     }
 
     private void HandleStatChanged(

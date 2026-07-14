@@ -334,5 +334,247 @@ namespace DiceBossArena.Tests.EditMode
 
             Object.DestroyImmediate(unitObject);
         }
+
+        [Test]
+        public void TurnResources_ResetForTurn_UsesFinalActionAndMovementPoints()
+        {
+            GameObject unitObject =
+                new GameObject("Unit");
+
+            FightUnit unit =
+                unitObject.AddComponent<FightUnit>();
+
+            FightUnitTurnResources resources =
+                unitObject.AddComponent<FightUnitTurnResources>();
+
+            unit.Initialize(
+                newUnitName: "Unit",
+                newTeam: FightTeam.Player,
+                newMaxHealth: 10,
+                newAttackPower: 2,
+                newInitiative: 5);
+
+            unit.Stats.AddModifier(
+                new FightStatModifier(
+                    FightStatType.MaxActionPoints,
+                    FightStatModifierType.Flat,
+                    2));
+
+            unit.Stats.AddModifier(
+                new FightStatModifier(
+                    FightStatType.MaxMovementPoints,
+                    FightStatModifierType.Flat,
+                    3));
+
+            resources.ResetForTurn();
+
+            Assert.That(
+                resources.MaxActionPoints,
+                Is.EqualTo(
+                    resources.ConfiguredMaxActionPoints + 2));
+
+            Assert.That(
+                resources.CurrentActionPoints,
+                Is.EqualTo(
+                    resources.MaxActionPoints));
+
+            Assert.That(
+                resources.MaxMovementPoints,
+                Is.EqualTo(
+                    resources.ConfiguredMaxMovementPoints + 3));
+
+            Assert.That(
+                resources.CurrentMovementPoints,
+                Is.EqualTo(
+                    resources.MaxMovementPoints));
+
+            Object.DestroyImmediate(unitObject);
+        }
+
+        [Test]
+        public void TurnResources_IncreaseDuringTurn_DoesNotRestoreSpentPoints()
+        {
+            GameObject unitObject =
+                new GameObject("Unit");
+
+            FightUnit unit =
+                unitObject.AddComponent<FightUnit>();
+
+            FightUnitTurnResources resources =
+                unitObject.AddComponent<FightUnitTurnResources>();
+
+            unit.Initialize(
+                newUnitName: "Unit",
+                newTeam: FightTeam.Player,
+                newMaxHealth: 10,
+                newAttackPower: 2,
+                newInitiative: 5);
+
+            resources.ResetForTurn();
+
+            Assert.That(
+                resources.TrySpendMovementPoints(2),
+                Is.True);
+
+            int currentBeforeBonus =
+                resources.CurrentMovementPoints;
+
+            unit.Stats.AddModifier(
+                new FightStatModifier(
+                    FightStatType.MaxMovementPoints,
+                    FightStatModifierType.Flat,
+                    3));
+
+            Assert.That(
+                resources.CurrentMovementPoints,
+                Is.EqualTo(currentBeforeBonus));
+
+            Assert.That(
+                resources.MaxMovementPoints,
+                Is.EqualTo(
+                    resources.ConfiguredMaxMovementPoints + 3));
+
+            Object.DestroyImmediate(unitObject);
+        }
+
+        [Test]
+        public void TurnResources_DecreaseDuringTurn_ClampsCurrentPoints()
+        {
+            GameObject unitObject =
+                new GameObject("Unit");
+
+            FightUnit unit =
+                unitObject.AddComponent<FightUnit>();
+
+            FightUnitTurnResources resources =
+                unitObject.AddComponent<FightUnitTurnResources>();
+
+            unit.Initialize(
+                newUnitName: "Unit",
+                newTeam: FightTeam.Player,
+                newMaxHealth: 10,
+                newAttackPower: 2,
+                newInitiative: 5);
+
+            resources.ResetForTurn();
+
+            unit.Stats.AddModifier(
+                new FightStatModifier(
+                    FightStatType.MaxMovementPoints,
+                    FightStatModifierType.Flat,
+                    -3));
+
+            Assert.That(
+                resources.MaxMovementPoints,
+                Is.EqualTo(1));
+
+            Assert.That(
+                resources.CurrentMovementPoints,
+                Is.EqualTo(1));
+
+            Object.DestroyImmediate(unitObject);
+        }
+
+        [Test]
+        public void TurnResources_RemovingBuff_ClampsCurrentPointsToNewMaximum()
+        {
+            GameObject unitObject =
+                new GameObject("Unit");
+
+            FightUnit unit =
+                unitObject.AddComponent<FightUnit>();
+
+            FightUnitTurnResources resources =
+                unitObject.AddComponent<FightUnitTurnResources>();
+
+            unit.Initialize(
+                newUnitName: "Unit",
+                newTeam: FightTeam.Player,
+                newMaxHealth: 10,
+                newAttackPower: 2,
+                newInitiative: 5);
+
+            FightStatModifier modifier =
+                new FightStatModifier(
+                    FightStatType.MaxMovementPoints,
+                    FightStatModifierType.Flat,
+                    3);
+
+            unit.Stats.AddModifier(modifier);
+
+            resources.ResetForTurn();
+
+            Assert.That(
+                resources.CurrentMovementPoints,
+                Is.EqualTo(7));
+
+            Assert.That(
+                unit.Stats.RemoveModifier(modifier),
+                Is.True);
+
+            Assert.That(
+                resources.MaxMovementPoints,
+                Is.EqualTo(
+                    resources.ConfiguredMaxMovementPoints));
+
+            Assert.That(
+                resources.CurrentMovementPoints,
+                Is.EqualTo(
+                    resources.ConfiguredMaxMovementPoints));
+
+            Object.DestroyImmediate(unitObject);
+        }
+
+        [Test]
+        public void TurnResources_MaximumCannotDropBelowZero()
+        {
+            GameObject unitObject =
+                new GameObject("Unit");
+
+            FightUnit unit =
+                unitObject.AddComponent<FightUnit>();
+
+            FightUnitTurnResources resources =
+                unitObject.AddComponent<FightUnitTurnResources>();
+
+            unit.Initialize(
+                newUnitName: "Unit",
+                newTeam: FightTeam.Player,
+                newMaxHealth: 10,
+                newAttackPower: 2,
+                newInitiative: 5);
+
+            resources.ResetForTurn();
+
+            unit.Stats.AddModifier(
+                new FightStatModifier(
+                    FightStatType.MaxActionPoints,
+                    FightStatModifierType.Flat,
+                    -100));
+
+            unit.Stats.AddModifier(
+                new FightStatModifier(
+                    FightStatType.MaxMovementPoints,
+                    FightStatModifierType.Flat,
+                    -100));
+
+            Assert.That(
+                resources.MaxActionPoints,
+                Is.Zero);
+
+            Assert.That(
+                resources.CurrentActionPoints,
+                Is.Zero);
+
+            Assert.That(
+                resources.MaxMovementPoints,
+                Is.Zero);
+
+            Assert.That(
+                resources.CurrentMovementPoints,
+                Is.Zero);
+
+            Object.DestroyImmediate(unitObject);
+        }
     }
 }
