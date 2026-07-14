@@ -1,4 +1,5 @@
-﻿using NUnit.Framework;
+﻿using DiceBossArena.Game;
+using NUnit.Framework;
 using UnityEngine;
 
 namespace DiceBossArena.Tests.EditMode
@@ -99,5 +100,57 @@ namespace DiceBossArena.Tests.EditMode
 			Object.DestroyImmediate(unitObject);
 			Object.DestroyImmediate(definition);
 		}
-	}
+
+        [Test]
+        public void AttackPower_WithoutModifiers_ReturnsBaseValue()
+        {
+            GameObject unitObject =
+                new GameObject("Unit");
+
+            FightUnit unit =
+                unitObject.AddComponent<FightUnit>();
+
+            unit.Initialize(
+                newUnitName: "Unit",
+                newTeam: FightTeam.Player,
+                newMaxHealth: 10,
+                newAttackPower: 7,
+                newInitiative: 5);
+
+            Assert.That(
+                unit.AttackPower,
+                Is.EqualTo(7));
+
+            Object.DestroyImmediate(unitObject);
+        }
+
+        [Test]
+        public void AttackPower_WithModifier_ReturnsModifiedValue()
+        {
+            GameObject unitObject =
+                new GameObject("Unit");
+
+            FightUnit unit =
+                unitObject.AddComponent<FightUnit>();
+
+            unit.Initialize(
+                newUnitName: "Unit",
+                newTeam: FightTeam.Player,
+                newMaxHealth: 10,
+                newAttackPower: 7,
+                newInitiative: 5);
+
+            unit.Stats.AddModifier(
+                new FightStatModifier(
+                    FightStatType.AttackPower,
+                    FightStatModifierType.Flat,
+                    3));
+
+            Assert.That(
+                unit.AttackPower,
+                Is.EqualTo(10));
+
+            Object.DestroyImmediate(unitObject);
+        }
+    }
 }

@@ -1,4 +1,6 @@
+using DiceBossArena.Game;
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class FightUnit : MonoBehaviour
@@ -18,6 +20,7 @@ public class FightUnit : MonoBehaviour
 
     [Header("Runtime")]
     [SerializeField] private FightUnitRuntimeState runtimeState;
+    private FightUnitStats stats;
 
     [Header("Cached Modules")]
     [SerializeField] private FightUnitTurnResources turnResources;
@@ -27,8 +30,9 @@ public class FightUnit : MonoBehaviour
     public FightTeam Team => definition != null ? definition.Team : team;
     public int MaxHealth => definition != null ? definition.MaxHealth : maxHealth;
     public int CurrentHealth => runtimeState != null ? runtimeState.CurrentHealth : 0;
-    public int AttackPower => definition != null ? definition.AttackPower : attackPower;
+    public int AttackPower => stats != null ? stats.GetFinalValue(FightStatType.AttackPower) : GetBaseAttackPower();
     public int Initiative => definition != null ? definition.Initiative : initiative;
+    public FightUnitStats Stats => stats;
 
     public FightGridTile CurrentTile => runtimeState != null ? runtimeState.CurrentTile : null;
     public FightUnitTurnResources TurnResources => turnResources;
@@ -65,6 +69,7 @@ public class FightUnit : MonoBehaviour
     private void Awake()
     {
         CacheModules();
+        InitializeStats();
         InitializeRuntimeState();
         InitializeSkillsFromDefinition();
     }
@@ -86,6 +91,7 @@ public class FightUnit : MonoBehaviour
         attackPower = Mathf.Max(0, newAttackPower);
         initiative = Mathf.Max(0, newInitiative);
 
+        InitializeStats();
         InitializeRuntimeState();
 
         HealthChanged?.Invoke(this);
@@ -118,6 +124,7 @@ public class FightUnit : MonoBehaviour
         CacheModules();
 
         definition = newDefinition;
+        InitializeStats();
         InitializeRuntimeState();
         InitializeSkillsFromDefinition();
 
@@ -278,6 +285,21 @@ public class FightUnit : MonoBehaviour
             FightControllerType.AI);
     }
 
+    private void InitializeStats()
+    {
+        Dictionary<FightStatType, int> baseValues =
+            new()
+            {
+            {
+                FightStatType.AttackPower,
+                GetBaseAttackPower()
+            }
+            };
+
+        stats =
+            new FightUnitStats(baseValues);
+    }
+
     private void InitializeRuntimeState()
     {
         if (runtimeState == null)
@@ -306,5 +328,12 @@ public class FightUnit : MonoBehaviour
         {
             skills = GetComponent<FightUnitSkills>();
         }
+    }
+
+    private int GetBaseAttackPower()
+    {
+        return definition != null
+            ? definition.AttackPower
+            : attackPower;
     }
 }
