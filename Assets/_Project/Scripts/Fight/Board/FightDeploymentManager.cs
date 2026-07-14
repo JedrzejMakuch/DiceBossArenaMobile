@@ -8,15 +8,18 @@ public class FightDeploymentManager : MonoBehaviour
     [Header("References")]
     [SerializeField] private FightArenaGenerator arenaGenerator;
     [SerializeField] private FightStateManager fightStateManager;
-    [SerializeField] private FightUnitRegistry unitRegistry;
-    [SerializeField] private FightUnit playerUnit;
     [SerializeField] private Button startFightButton;
+    [SerializeField] private FightUnitSpawner unitSpawner;
+    [SerializeField] private FightUnit playerUnitPrefab;
+    [SerializeField] private Transform playerRoot;
 
     [Header("Deployment Settings")]
     [SerializeField] private int playerSpawnCount = 4;
 
     private readonly List<FightGridTile> playerSpawnTiles = new();
+
     private FightGridTile selectedTile;
+    private FightUnit playerUnit;
     private bool isDeploymentLocked = false;
 
     public FightUnit PlayerUnit => playerUnit;
@@ -29,6 +32,13 @@ public class FightDeploymentManager : MonoBehaviour
     public void PrepareDeployment()
     {
         UnsubscribeFromTiles();
+
+        if (playerUnit != null &&
+            unitSpawner != null)
+        {
+            unitSpawner.Despawn(playerUnit);
+            playerUnit = null;
+        }
 
         playerSpawnTiles.Clear();
         selectedTile = null;
@@ -43,11 +53,29 @@ public class FightDeploymentManager : MonoBehaviour
             return;
         }
 
-        if (playerUnit == null)
+        if (unitSpawner == null)
         {
             Debug.LogError(
-                "FightDeploymentManager: Player Unit is not assigned.",
+                "FightDeploymentManager: FightUnitSpawner is not assigned.",
                 this);
+
+            return;
+        }
+
+        if (playerUnitPrefab == null)
+        {
+            Debug.LogError(
+                "FightDeploymentManager: Player Unit Prefab is not assigned.",
+                this);
+
+            return;
+        }
+
+        if (playerUnitPrefab.Definition == null)
+        {
+            Debug.LogError(
+                "FightDeploymentManager: Player prefab has no definition.",
+                playerUnitPrefab);
 
             return;
         }
@@ -128,34 +156,35 @@ public class FightDeploymentManager : MonoBehaviour
         SelectPlayerSpawnTile(clickedTile);
     }
 
-    private void SelectPlayerSpawnTile(FightGridTile tile)
+    private void SelectPlayerSpawnTile(
+    FightGridTile tile)
     {
         if (selectedTile != null)
         {
             selectedTile.SetPlayerSpawn(true);
         }
 
-        selectedTile = tile;
-        selectedTile.SetSelectedVisual();
-
-        playerUnit.gameObject.SetActive(true);
-
-        if (!playerUnit.TryAssignToTile(selectedTile))
+        if (playerUnit == null)
+        {
+            if (!TrySpawnPlayer(tile))
+            {
+                startFightButton.interactable = false;
+                return;
+            }
+        }
+        else if (!playerUnit.TryAssignToTile(tile))
         {
             Debug.LogError(
-                $"Failed to deploy player on tile: " +
-                $"{selectedTile.GridX}, {selectedTile.GridY}",
+                $"Failed to move player to tile: " +
+                $"{tile.GridX}, {tile.GridY}",
                 playerUnit);
 
             startFightButton.interactable = false;
             return;
         }
 
-        if (!TryRegisterPlayerUnit())
-        {
-            startFightButton.interactable = false;
-            return;
-        }
+        selectedTile = tile;
+        selectedTile.SetSelectedVisual();
 
         startFightButton.interactable = true;
 
@@ -185,15 +214,32 @@ public class FightDeploymentManager : MonoBehaviour
         Debug.Log("Deployment locked and spawn visuals cleared.");
     }
 
-    public bool TryRegisterPlayerUnit()
+    private bool TrySpawnPlayer(
+    FightGridTile tile)
     {
-        if (unitRegistry == null ||
-            playerUnit == null)
-        {
-            return false;
-        }
+        FightUnitOwnership ownership =
+            new FightUnitOwnership(
+                FightTeamId.TeamA,
+                new FightParticipantId("local-player"),
+                FightControllerType.LocalPlayer);
 
-        return unitRegistry.Register(playerUnit) ||
-               unitRegistry.Units.Contains(playerUnit);
+        Transform parent =
+            playerRoot != null
+                ? playerRoot
+                : transform;
+
+        FightUnitSpawnRequest request =
+            new FightUnitSpawnRequest(
+                playerUnitPrefab,
+                playerUnitPrefab.Definition,
+                ownership,
+                tile,
+                parent,
+                "Player");
+
+        playerUnit =
+            unitSpawner.Spawn(request);
+
+        return playerUnit != null;
     }
 }
