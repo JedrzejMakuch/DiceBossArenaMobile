@@ -439,6 +439,185 @@ namespace DiceBossArena.Tests.EditMode
                 Is.Empty);
         }
 
+        [Test]
+        public void UnitRegisteredDuringRound_StartsTurnInNextRound()
+        {
+            FightUnit fastUnit =
+                CreateUnit(
+                    "Fast Unit",
+                    FightTeam.Player,
+                    12);
+
+            FightUnit slowUnit =
+                CreateUnit(
+                    "Slow Unit",
+                    FightTeam.Enemy,
+                    4);
+
+            FightUnit reinforcement =
+                CreateUnit(
+                    "Reinforcement",
+                    FightTeam.Enemy,
+                    20);
+
+            FightUnitRegistry registry =
+                CreateComponent<FightUnitRegistry>(
+                    "FightUnitRegistry");
+
+            FightTurnManager turnManager =
+                CreateComponent<FightTurnManager>(
+                    "FightTurnManager");
+
+            registry.Register(fastUnit);
+            registry.Register(slowUnit);
+
+            SetPrivateField(
+                turnManager,
+                "unitRegistry",
+                registry);
+
+            List<FightUnit> startedUnits = new();
+            List<int> startedRounds = new();
+
+            turnManager.TurnStarted +=
+                (unit, round) =>
+                {
+                    startedUnits.Add(unit);
+                    startedRounds.Add(round);
+                };
+
+            turnManager.StartCombat();
+
+            Assert.That(
+                turnManager.ActiveUnit,
+                Is.SameAs(fastUnit));
+
+            registry.Register(reinforcement);
+
+            turnManager.EndCurrentTurn();
+
+            Assert.That(
+                turnManager.ActiveUnit,
+                Is.SameAs(slowUnit));
+
+            CollectionAssert.DoesNotContain(
+    startedUnits,
+    reinforcement);
+
+            turnManager.EndCurrentTurn();
+
+            Assert.That(
+                turnManager.RoundNumber,
+                Is.EqualTo(2));
+
+            Assert.That(
+                turnManager.ActiveUnit,
+                Is.SameAs(reinforcement));
+
+            Assert.That(
+                startedUnits,
+                Is.EqualTo(
+                    new[]
+                    {
+                fastUnit,
+                slowUnit,
+                reinforcement
+                    }));
+
+            Assert.That(
+                startedRounds,
+                Is.EqualTo(
+                    new[]
+                    {
+                1,
+                1,
+                2
+                    }));
+        }
+
+        [Test]
+        public void UnitRegisteredAndRemovedDuringRound_NeverStartsTurn()
+        {
+            FightUnit fastUnit =
+                CreateUnit(
+                    "Fast Unit",
+                    FightTeam.Player,
+                    12);
+
+            FightUnit slowUnit =
+                CreateUnit(
+                    "Slow Unit",
+                    FightTeam.Enemy,
+                    4);
+
+            FightUnit temporaryUnit =
+                CreateUnit(
+                    "Temporary Unit",
+                    FightTeam.Enemy,
+                    20);
+
+            FightUnitRegistry registry =
+                CreateComponent<FightUnitRegistry>(
+                    "FightUnitRegistry");
+
+            FightTurnManager turnManager =
+                CreateComponent<FightTurnManager>(
+                    "FightTurnManager");
+
+            registry.Register(fastUnit);
+            registry.Register(slowUnit);
+
+            SetPrivateField(
+                turnManager,
+                "unitRegistry",
+                registry);
+
+            List<FightUnit> startedUnits = new();
+
+            turnManager.TurnStarted +=
+                (unit, round) =>
+                {
+                    startedUnits.Add(unit);
+                };
+
+            turnManager.StartCombat();
+
+            registry.Register(temporaryUnit);
+
+            Assert.That(
+                registry.Unregister(temporaryUnit),
+                Is.True);
+
+            Assert.DoesNotThrow(
+                () =>
+                {
+                    turnManager.EndCurrentTurn();
+                    turnManager.EndCurrentTurn();
+                });
+
+            Assert.That(
+                turnManager.RoundNumber,
+                Is.EqualTo(2));
+
+            Assert.That(
+                turnManager.ActiveUnit,
+                Is.SameAs(fastUnit));
+
+            CollectionAssert.DoesNotContain(
+                startedUnits,
+                temporaryUnit);
+
+            Assert.That(
+                startedUnits,
+                Is.EqualTo(
+                    new[]
+                    {
+                fastUnit,
+                slowUnit,
+                fastUnit
+                    }));
+        }
+
         private FightUnit CreateUnit(
             string unitName,
             FightTeam team,

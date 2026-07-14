@@ -125,8 +125,17 @@ public class FightTurnManager : MonoBehaviour
 
             if (activeUnitIndex >= turnOrder.Count)
             {
-                activeUnitIndex = 0;
                 roundNumber++;
+
+                RebuildTurnOrderForNextRound();
+
+                if (turnOrder.Count == 0)
+                {
+                    EndCombat("No units remaining.");
+                    return;
+                }
+
+                activeUnitIndex = 0;
 
                 Debug.Log($"Round {roundNumber} started.");
             }
@@ -249,5 +258,15 @@ public class FightTurnManager : MonoBehaviour
             this);
 
         return false;
+    }
+
+    private void RebuildTurnOrderForNextRound()
+    {
+        UnsubscribeFromUnits();
+
+        BuildTurnOrder();
+        RemoveInvalidUnits();
+
+        SubscribeToUnits();
     }
 }
