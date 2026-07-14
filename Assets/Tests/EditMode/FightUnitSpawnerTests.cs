@@ -331,8 +331,8 @@ namespace DiceBossArena.Tests.EditMode
 
             LogAssert.Expect(
                 LogType.Error,
-                new Regex(
-                    "FightUnitSpawner could not resolve build.*"));
+                "FightUnitSpawner could not resolve build. " +
+                "Could not resolve skill id: missing_skill.");
 
             FightUnit result =
                 spawner.Spawn(request);
@@ -343,7 +343,7 @@ namespace DiceBossArena.Tests.EditMode
 
             Assert.That(
                 tile.IsOccupied,
-                Is.EqualTo(false));
+                Is.False);
 
             Assert.That(
                 tile.OccupyingUnit,

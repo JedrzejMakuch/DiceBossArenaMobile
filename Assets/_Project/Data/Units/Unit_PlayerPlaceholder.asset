@@ -12,7 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dc140d803f6429e47beacd66171c5100, type: 3}
   m_Name: Unit_PlayerPlaceholder
   m_EditorClassIdentifier: DiceBossArena.Game::FightUnitDefinition
+  unitId: player_placeholder
+  nameLocalizationKey: units.player_placeholder.name
+  descriptionLocalizationKey: units.player_placeholder.description
   unitName: Player
+  description: The player's current character.
   team: 0
   maxHealth: 10
   attackPower: 2

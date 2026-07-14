@@ -13,6 +13,8 @@ MonoBehaviour:
   m_Name: Skill_GroundSlam
   m_EditorClassIdentifier: Assembly-CSharp::SkillDefinition
   skillId: ground_slam
+  nameLocalizationKey: skills.ground_slam.name
+  descriptionLocalizationKey: skills.ground_slam.description
   displayName: Ground Slam
   description: Strike the ground and hit enemies in a cone.
   icon: {fileID: 0}

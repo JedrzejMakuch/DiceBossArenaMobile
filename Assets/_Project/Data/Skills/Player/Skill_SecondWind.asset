@@ -13,10 +13,13 @@ MonoBehaviour:
   m_Name: Skill_SecondWind
   m_EditorClassIdentifier: Assembly-CSharp::SkillDefinition
   skillId: second_wind
+  nameLocalizationKey: skills.second_wind.name
+  descriptionLocalizationKey: skills.second_wind.description
   displayName: Second Wind
   description: Restore health by drawing on your remaining strength.
   icon: {fileID: 0}
   targetType: 0
+  rangeShape: 0
   minRange: 0
   maxRange: 0
   actionPointCost: 1

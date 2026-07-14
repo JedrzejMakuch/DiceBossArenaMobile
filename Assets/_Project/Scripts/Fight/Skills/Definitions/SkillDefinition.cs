@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using DiceBossArena.Game;
+using System.Collections.Generic;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "Skill_", menuName = "Dice Boss Arena/Skills/Skill Definition")]
@@ -6,10 +7,21 @@ public class SkillDefinition : ScriptableObject
 {
     [Header("Identity")]
     [SerializeField] private string skillId;
-    [SerializeField] private string displayName;
+
+    [SerializeField]
+    private string nameLocalizationKey;
+
+    [SerializeField]
+    private string descriptionLocalizationKey;
+
+    [SerializeField]
+    private string displayName;
+
     [SerializeField, TextArea]
     private string description;
-    [SerializeField] private Sprite icon;
+
+    [SerializeField]
+    private Sprite icon;
 
     [Header("Targeting")]
     [SerializeField] private SkillTargetType targetType;
@@ -26,8 +38,13 @@ public class SkillDefinition : ScriptableObject
     [SerializeField] private List<SkillLevelData> levels = new();
 
     [Header("Effects")]
-    [SerializeField]
-    private List<SkillEffectDefinition> effects = new();
+    [SerializeField] private List<SkillEffectDefinition> effects = new();
+
+    public LocalizationKey NameLocalizationKey =>
+    new LocalizationKey(nameLocalizationKey);
+
+    public LocalizationKey DescriptionLocalizationKey =>
+        new LocalizationKey(descriptionLocalizationKey);
 
     public string SkillId => skillId;
     public string DisplayName => displayName;
@@ -64,7 +81,32 @@ public class SkillDefinition : ScriptableObject
 
     private void OnValidate()
     {
-        minRange = Mathf.Max(0, minRange);
+        skillId =
+            skillId?.Trim() ??
+            string.Empty;
+
+        nameLocalizationKey =
+            nameLocalizationKey?.Trim() ??
+            string.Empty;
+
+        descriptionLocalizationKey =
+            descriptionLocalizationKey?.Trim() ??
+            string.Empty;
+
+        displayName =
+            string.IsNullOrWhiteSpace(
+                displayName)
+                ? skillId
+                : displayName.Trim();
+
+        description =
+            description?.Trim() ??
+            string.Empty;
+
+        minRange =
+            Mathf.Max(
+                0,
+                minRange);
         maxRange = Mathf.Max(minRange, maxRange);
         maxLevel = Mathf.Max(1, maxLevel);
 
@@ -90,18 +132,35 @@ public class SkillDefinition : ScriptableObject
     public void InitializeForTests(
         string newSkillId,
         string newDisplayName = null,
-        int newMaxLevel = 1)
+        int newMaxLevel = 1,
+        string newNameLocalizationKey = null,
+        string newDescriptionLocalizationKey = null,
+        string newDescription = null)
     {
         skillId =
             newSkillId?.Trim() ??
+            string.Empty;
+
+        nameLocalizationKey =
+            newNameLocalizationKey?.Trim() ??
+            string.Empty;
+
+        descriptionLocalizationKey =
+            newDescriptionLocalizationKey?.Trim() ??
             string.Empty;
 
         displayName =
             newDisplayName?.Trim() ??
             skillId;
 
+        description =
+            newDescription?.Trim() ??
+            string.Empty;
+
         maxLevel =
-            Mathf.Max(1, newMaxLevel);
+            Mathf.Max(
+                1,
+                newMaxLevel);
 
         levels =
             new List<SkillLevelData>();

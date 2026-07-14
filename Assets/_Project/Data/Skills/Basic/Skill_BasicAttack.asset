@@ -13,10 +13,13 @@ MonoBehaviour:
   m_Name: Skill_BasicAttack
   m_EditorClassIdentifier: Assembly-CSharp::SkillDefinition
   skillId: basic_attack
+  nameLocalizationKey: skills.basic_attack.name
+  descriptionLocalizationKey: skills.basic_attack.description
   displayName: Basic Attack
   description: A basic attack that deals damage based on Attack Power.
   icon: {fileID: 6731280722045065740, guid: d40ddba8fd0f3d04783806ae2a10e27b, type: 3}
   targetType: 2
+  rangeShape: 0
   minRange: 1
   maxRange: 1
   actionPointCost: 1

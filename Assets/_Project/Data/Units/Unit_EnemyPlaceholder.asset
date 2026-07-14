@@ -12,7 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dc140d803f6429e47beacd66171c5100, type: 3}
   m_Name: Unit_EnemyPlaceholder
   m_EditorClassIdentifier: DiceBossArena.Game::FightUnitDefinition
+  unitId: enemy_placeholder
+  nameLocalizationKey: units.enemy_placeholder.name
+  descriptionLocalizationKey: units.enemy_placeholder.description
   unitName: Enemy
+  description: A basic enemy encountered during combat.
   team: 1
   maxHealth: 10
   attackPower: 2

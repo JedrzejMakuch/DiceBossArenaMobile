@@ -13,10 +13,13 @@ MonoBehaviour:
   m_Name: Skill_PowerStrike
   m_EditorClassIdentifier: Assembly-CSharp::SkillDefinition
   skillId: power_strike
+  nameLocalizationKey: skills.power_strike.name
+  descriptionLocalizationKey: skills.power_strike.description
   displayName: Power Strike
   description: A powerful strike that deals increased damage.
   icon: {fileID: 6452994326477828471, guid: d40ddba8fd0f3d04783806ae2a10e27b, type: 3}
   targetType: 2
+  rangeShape: 0
   minRange: 1
   maxRange: 2
   actionPointCost: 1
