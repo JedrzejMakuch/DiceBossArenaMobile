@@ -6,6 +6,7 @@ public class FightTurnUIManager : MonoBehaviour
 {
     [Header("References")]
     [SerializeField] private FightTurnManager turnManager;
+    [SerializeField] private FightActionExecutor actionExecutor;
 
     [Header("UI")]
     [SerializeField] private TMP_Text turnInfoText;
@@ -27,7 +28,8 @@ public class FightTurnUIManager : MonoBehaviour
 
     private void OnEnable()
     {
-        if (turnManager == null)
+        if (turnManager == null ||
+    actionExecutor == null)
         {
             return;
         }
@@ -38,7 +40,8 @@ public class FightTurnUIManager : MonoBehaviour
 
     private void OnDisable()
     {
-        if (turnManager == null)
+        if (turnManager == null ||
+    actionExecutor == null)
         {
             return;
         }
@@ -87,7 +90,8 @@ public class FightTurnUIManager : MonoBehaviour
 
     private void HandleEndTurnClicked()
     {
-        if (turnManager == null)
+        if (turnManager == null ||
+            actionExecutor == null)
         {
             return;
         }
@@ -100,7 +104,11 @@ public class FightTurnUIManager : MonoBehaviour
             return;
         }
 
-        turnManager.EndCurrentTurn();
+        FightEndTurnActionRequest request =
+            new FightEndTurnActionRequest(
+                activeUnit);
+
+        actionExecutor.TryExecute(request);
     }
 
     private void HandleCombatStopped(string reason)

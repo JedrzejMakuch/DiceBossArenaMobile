@@ -7,7 +7,7 @@ public class PlayerSkillTileInputManager :
     [Header("References")]
     [SerializeField] private FightArenaGenerator arenaGenerator;
     [SerializeField] private FightTurnManager turnManager;
-    [SerializeField] private FightSkillManager skillManager;
+    [SerializeField] private FightActionExecutor actionExecutor;
     [SerializeField] private PlayerSkillSelectionManager skillSelectionManager;
     [SerializeField] private FightSkillRangeManager skillRangeManager;
 
@@ -59,7 +59,7 @@ public class PlayerSkillTileInputManager :
     {
         if (tile == null ||
             turnManager == null ||
-            skillManager == null ||
+            actionExecutor == null ||
             skillSelectionManager == null ||
             skillRangeManager == null)
         {
@@ -116,12 +116,15 @@ public class PlayerSkillTileInputManager :
             return;
         }
 
-        bool executed =
-            skillManager.TryExecuteSkill(
-                caster,
-                selectedSkill,
-                primaryTarget: null,
-                targetTile: tile);
+        FightSkillActionRequest request =
+        new FightSkillActionRequest(
+            caster,
+            selectedSkill,
+            primaryTarget: null,
+            targetTile: tile);
+
+            bool executed =
+                actionExecutor.TryExecute(request);
 
         if (!executed)
         {

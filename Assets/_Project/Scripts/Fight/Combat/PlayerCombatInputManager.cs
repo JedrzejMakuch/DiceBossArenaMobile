@@ -5,7 +5,7 @@ public class PlayerCombatInputManager : MonoBehaviour
     [Header("References")]
     [SerializeField] private FightTurnManager turnManager;
     [SerializeField] private FightTargetingManager targetingManager;
-    [SerializeField] private FightSkillManager skillManager;
+    [SerializeField] private FightActionExecutor actionExecutor;
     [SerializeField] private PlayerSkillSelectionManager skillSelectionManager;
     [SerializeField] private FightSkillRangeManager skillRangeManager;
 
@@ -32,7 +32,7 @@ public class PlayerCombatInputManager : MonoBehaviour
     {
         if (turnManager == null ||
             targetingManager == null ||
-            skillManager == null ||
+            actionExecutor == null ||
             skillSelectionManager == null)
         {
             return;
@@ -83,11 +83,15 @@ public class PlayerCombatInputManager : MonoBehaviour
             return;
         }
 
-        bool skillExecuted =
-            skillManager.TryExecuteSkill(
+        FightSkillActionRequest request =
+            new FightSkillActionRequest(
                 attacker,
                 selectedSkill,
-                target);
+                primaryTarget: target,
+                targetTile: target.CurrentTile);
+
+        bool skillExecuted =
+            actionExecutor.TryExecute(request);
 
         if (!skillExecuted)
         {

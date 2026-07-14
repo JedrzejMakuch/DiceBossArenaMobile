@@ -11,8 +11,8 @@ public class PlayerConeSkillExecutionManager :
         conePreviewManager;
 
     [SerializeField]
-    private FightSkillManager
-        skillManager;
+    private FightActionExecutor
+    actionExecutor;
 
     [SerializeField]
     private PlayerSkillSelectionManager
@@ -53,7 +53,7 @@ public class PlayerConeSkillExecutionManager :
             skillState == null ||
             skillState.Definition == null ||
             coneTiles == null ||
-            skillManager == null ||
+            actionExecutor == null ||
             skillSelectionManager == null ||
             turnManager == null)
         {
@@ -93,13 +93,16 @@ public class PlayerConeSkillExecutionManager :
                 caster,
                 coneTiles);
 
-        bool executed =
-            skillManager.TryExecuteSkill(
+        FightSkillActionRequest request =
+            new FightSkillActionRequest(
                 caster,
                 skillState,
                 primaryTarget: null,
                 targetTile: directionTile,
                 affectedUnits: affectedUnits);
+
+        bool executed =
+            actionExecutor.TryExecute(request);
 
         if (!executed)
         {

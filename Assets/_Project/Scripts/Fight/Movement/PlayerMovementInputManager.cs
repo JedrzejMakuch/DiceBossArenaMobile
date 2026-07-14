@@ -10,6 +10,7 @@ public class PlayerMovementInputManager : MonoBehaviour
     [SerializeField] private FightTurnResourceManager turnResourceManager;
     [SerializeField] private FightMovementManager movementManager;
     [SerializeField] private PlayerSkillSelectionManager skillSelectionManager;
+    [SerializeField] private FightActionExecutor actionExecutor;
 
     private readonly HashSet<FightGridTile> subscribedTiles = new();
 
@@ -71,7 +72,8 @@ public class PlayerMovementInputManager : MonoBehaviour
         if (!playerMovementEnabled ||
             tile == null ||
             turnManager == null ||
-            movementManager == null)
+            movementManager == null ||
+            actionExecutor == null)
         {
             return;
         }
@@ -121,9 +123,12 @@ public class PlayerMovementInputManager : MonoBehaviour
             return;
         }
 
-        movementManager.TryMoveUnit(
-            activeUnit,
-            tile);
+        FightMoveActionRequest request =
+    new FightMoveActionRequest(
+        activeUnit,
+        tile);
+
+        actionExecutor.TryExecute(request);
     }
 
     private void EnsureTileSubscriptions()

@@ -6,7 +6,7 @@ public class EnemyTurnManager : MonoBehaviour
     [Header("References")]
     [SerializeField] private FightTurnManager turnManager;
     [SerializeField] private FightDeploymentManager deploymentManager;
-    [SerializeField] private FightSkillManager skillManager;
+    [SerializeField] private FightActionExecutor actionExecutor;
 
     [Header("Turn Settings")]
     [SerializeField, Min(0f)] private float enemyTurnDelay = 0.75f;
@@ -76,11 +76,16 @@ public class EnemyTurnManager : MonoBehaviour
             player.IsAlive &&
             basicAttack != null)
         {
+            FightSkillActionRequest skillRequest =
+            new FightSkillActionRequest(
+                enemy,
+                basicAttack,
+                primaryTarget: player,
+                targetTile: player.CurrentTile);
+
             bool skillExecuted =
-                skillManager.TryExecuteSkill(
-                    enemy,
-                    basicAttack,
-                    player);
+                actionExecutor.TryExecute(
+                    skillRequest);
 
             if (skillExecuted)
             {
@@ -119,9 +124,14 @@ public class EnemyTurnManager : MonoBehaviour
         enemyTurnCoroutine = null;
 
         if (turnManager.CombatRunning &&
-            turnManager.ActiveUnit == enemy)
+    turnManager.ActiveUnit == enemy)
         {
-            turnManager.EndCurrentTurn();
+            FightEndTurnActionRequest endTurnRequest =
+                new FightEndTurnActionRequest(
+                    enemy);
+
+            actionExecutor.TryExecute(
+                endTurnRequest);
         }
     }
 
@@ -176,12 +186,12 @@ public class EnemyTurnManager : MonoBehaviour
             return false;
         }
 
-        if (skillManager == null)
+        if (actionExecutor == null)
         {
             if (logReason)
             {
                 Debug.LogWarning(
-                    "EnemyTurnManager: Skill Manager is not assigned.",
+                    "EnemyTurnManager: Action Executor is not assigned.",
                     this);
             }
 
