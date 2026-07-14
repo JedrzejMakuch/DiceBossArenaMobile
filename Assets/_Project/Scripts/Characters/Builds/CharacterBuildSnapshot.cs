@@ -25,6 +25,14 @@ namespace DiceBossArena.Game
         public IReadOnlyList<CharacterPassiveId> PassiveIds =>
             passiveIds;
 
+        public bool IsEmpty =>
+            !ClassId.IsValid &&
+            !SpecializationId.IsValid &&
+            skills.Count == 0 &&
+            statModifiers.Count == 0 &&
+            EquipmentLoadout.Items.Count == 0 &&
+            passiveIds.Count == 0;
+
         public static CharacterBuildSnapshot Empty =>
         new CharacterBuildSnapshot(
             new CharacterClassId(string.Empty),

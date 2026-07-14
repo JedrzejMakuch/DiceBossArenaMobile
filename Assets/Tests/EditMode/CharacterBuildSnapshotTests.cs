@@ -5,6 +5,55 @@ using NUnit.Framework;
 public class CharacterBuildSnapshotTests
 {
     [Test]
+    public void Snapshot_WithSkillIsNotEmpty()
+    {
+        CharacterBuildSnapshot snapshot =
+            new CharacterBuildSnapshot(
+                new CharacterClassId(
+                    string.Empty),
+                new CharacterSpecializationId(
+                    string.Empty),
+                new[]
+                {
+                new CharacterBuildSkill(
+                    "shield_bash",
+                    1)
+                },
+                null);
+
+        Assert.That(
+            snapshot.IsEmpty,
+            Is.False);
+    }
+
+    [Test]
+    public void Snapshot_WithClassIsNotEmpty()
+    {
+        CharacterBuildSnapshot snapshot =
+            new CharacterBuildSnapshot(
+                new CharacterClassId("warrior"),
+                new CharacterSpecializationId(
+                    string.Empty),
+                null,
+                null);
+
+        Assert.That(
+            snapshot.IsEmpty,
+            Is.False);
+    }
+
+    [Test]
+    public void Empty_IsEmptyReturnsTrue()
+    {
+        CharacterBuildSnapshot snapshot =
+            CharacterBuildSnapshot.Empty;
+
+        Assert.That(
+            snapshot.IsEmpty,
+            Is.True);
+    }
+
+    [Test]
     public void Constructor_CopiesClassAndSpecializationIds()
     {
         CharacterBuildSnapshot snapshot =

@@ -521,6 +521,120 @@ namespace DiceBossArena.Tests.EditMode
         }
 
         [Test]
+        public void Spawn_ExplicitBuildReplacesDefinitionStartingSkills()
+        {
+            SkillDefinition definitionSkill =
+                ScriptableObject.CreateInstance<
+                    SkillDefinition>();
+
+            createdObjects.Add(definitionSkill);
+
+            definitionSkill.InitializeForTests(
+                "basic_attack",
+                "Basic Attack",
+                0);
+
+            SkillDefinition buildSkill =
+                ScriptableObject.CreateInstance<
+                    SkillDefinition>();
+
+            createdObjects.Add(buildSkill);
+
+            buildSkill.InitializeForTests(
+                "shield_bash",
+                "Shield Bash",
+                3);
+
+            spawner.InitializeBuildResolverForTests(
+                new[]
+                {
+            definitionSkill,
+            buildSkill
+                });
+
+            FightUnitDefinition definitionWithSkill =
+                ScriptableObject.CreateInstance<
+                    FightUnitDefinition>();
+
+            createdObjects.Add(
+                definitionWithSkill);
+
+            definitionWithSkill.InitializeForTests(
+                newUnitName:
+                    "Skilled Warrior",
+                newTeam:
+                    FightTeam.Player,
+                newMaxHealth:
+                    20,
+                newAttackPower:
+                    5,
+                newInitiative:
+                    8,
+                newStartingSkills:
+                    new[]
+                    {
+                new UnitStartingSkill(
+                    definitionSkill,
+                    1)
+                    });
+
+            CharacterBuildSnapshot build =
+                new CharacterBuildSnapshot(
+                    new CharacterClassId(
+                        "warrior"),
+                    new CharacterSpecializationId(
+                        "guardian"),
+                    new[]
+                    {
+                new CharacterBuildSkill(
+                    "shield_bash",
+                    2)
+                    },
+                    null);
+
+            FightUnitSpawnRequest request =
+                new FightUnitSpawnRequest(
+                    prefab:
+                        prefab,
+                    definition:
+                        definitionWithSkill,
+                    ownership:
+                        ownership,
+                    tile:
+                        tile,
+                    buildSnapshot:
+                        build);
+
+            FightUnit unit =
+                spawner.Spawn(request);
+
+            TrackSpawnedUnit(unit);
+
+            Assert.That(
+                unit,
+                Is.Not.Null);
+
+            Assert.That(
+                unit.Skills.Skills,
+                Has.Count.EqualTo(1));
+
+            Assert.That(
+                unit.Skills.Skills[0]
+                    .Definition,
+                Is.SameAs(buildSkill));
+
+            Assert.That(
+                unit.Skills.Skills[0]
+                    .Level,
+                Is.EqualTo(2));
+
+            Assert.That(
+                unit.Skills.GetSkillById(
+                    "basic_attack"),
+                Is.Null);
+        }
+
+        [Test]
         public void Spawn_SameSnapshotsCreateIndependentDeterministicUnits()
         {
             FightGridTile secondTile =
@@ -709,6 +823,87 @@ namespace DiceBossArena.Tests.EditMode
             Assert.That(
                 secondUnit.IsAlive,
                 Is.True);
+        }
+
+        [Test]
+        public void Spawn_EmptyBuildPreservesDefinitionStartingSkills()
+        {
+            SkillDefinition startingSkill =
+                ScriptableObject.CreateInstance<
+                    SkillDefinition>();
+
+            createdObjects.Add(startingSkill);
+
+            startingSkill.InitializeForTests(
+                "basic_attack",
+                "Basic Attack",
+                0);
+
+            FightUnitDefinition definitionWithSkill =
+                ScriptableObject.CreateInstance<
+                    FightUnitDefinition>();
+
+            createdObjects.Add(
+                definitionWithSkill);
+
+            definitionWithSkill.InitializeForTests(
+                newUnitName:
+                    "Skilled Warrior",
+                newTeam:
+                    FightTeam.Player,
+                newMaxHealth:
+                    20,
+                newAttackPower:
+                    5,
+                newInitiative:
+                    8,
+                newStartingSkills:
+                    new[]
+                    {
+                new UnitStartingSkill(
+                    startingSkill,
+                    1)
+                    });
+
+            FightUnitSpawnRequest request =
+                new FightUnitSpawnRequest(
+                    prefab:
+                        prefab,
+                    definition:
+                        definitionWithSkill,
+                    ownership:
+                        ownership,
+                    tile:
+                        tile,
+                    buildSnapshot:
+                        CharacterBuildSnapshot.Empty);
+
+            FightUnit unit =
+                spawner.Spawn(request);
+
+            TrackSpawnedUnit(unit);
+
+            Assert.That(
+                unit,
+                Is.Not.Null);
+
+            Assert.That(
+                unit.Skills,
+                Is.Not.Null);
+
+            Assert.That(
+                unit.Skills.Skills,
+                Has.Count.EqualTo(1));
+
+            Assert.That(
+                unit.Skills.Skills[0]
+                    .Definition,
+                Is.SameAs(startingSkill));
+
+            Assert.That(
+                unit.Skills.Skills[0]
+                    .Level,
+                Is.EqualTo(1));
         }
 
         private FightUnitSpawnRequest CreateRequest(

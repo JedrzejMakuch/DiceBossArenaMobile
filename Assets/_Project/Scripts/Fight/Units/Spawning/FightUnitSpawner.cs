@@ -183,10 +183,10 @@ public sealed class FightUnitSpawner : MonoBehaviour
             return false;
         }
 
-        if (snapshot == null)
+        if (snapshot == null ||
+            snapshot.IsEmpty)
         {
-            snapshot =
-                CharacterBuildSnapshot.Empty;
+            return true;
         }
 
         if (buildResolver == null)
