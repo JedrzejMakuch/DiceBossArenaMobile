@@ -382,12 +382,19 @@ public class FightUnit : MonoBehaviour
     {
         if (turnResources == null)
         {
-            turnResources = GetComponent<FightUnitTurnResources>();
+            turnResources =
+                GetComponent<FightUnitTurnResources>();
+        }
+
+        if (turnResources != null)
+        {
+            turnResources.Initialize(this);
         }
 
         if (skills == null)
         {
-            skills = GetComponent<FightUnitSkills>();
+            skills =
+                GetComponent<FightUnitSkills>();
         }
     }
 

@@ -51,13 +51,22 @@ public class FightUnitTurnResources : MonoBehaviour
 
     private void Awake()
     {
-        if (owner == null)
+        ClearResources();
+    }
+
+    public void Initialize(
+    FightUnit newOwner)
+    {
+        if (owner != null &&
+            owner.Stats != null)
         {
-            owner =
-                GetComponent<FightUnit>();
+            owner.Stats.StatChanged -=
+                HandleStatChanged;
         }
 
-        ClearResources();
+        owner = newOwner;
+
+        RefreshStatsSubscription();
     }
 
     public void ResetForTurn()
@@ -140,12 +149,6 @@ public class FightUnitTurnResources : MonoBehaviour
 
     private void SubscribeToStats()
     {
-        if (owner == null)
-        {
-            owner =
-                GetComponent<FightUnit>();
-        }
-
         if (owner != null &&
             owner.Stats != null)
         {
