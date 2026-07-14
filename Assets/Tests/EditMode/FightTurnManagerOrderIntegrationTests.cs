@@ -618,6 +618,120 @@ namespace DiceBossArena.Tests.EditMode
                     }));
         }
 
+        [Test]
+        public void EndCurrentTurn_RaisesTurnEndedExactlyOnceForActiveUnit()
+        {
+            FightUnit fastUnit =
+                CreateUnit(
+                    "Fast Unit",
+                    FightTeam.Player,
+                    12);
+
+            FightUnit slowUnit =
+                CreateUnit(
+                    "Slow Unit",
+                    FightTeam.Enemy,
+                    4);
+
+            FightUnitRegistry registry =
+                CreateComponent<FightUnitRegistry>(
+                    "FightUnitRegistry");
+
+            FightTurnManager turnManager =
+                CreateComponent<FightTurnManager>(
+                    "FightTurnManager");
+
+            registry.Register(fastUnit);
+            registry.Register(slowUnit);
+
+            SetPrivateField(
+                turnManager,
+                "unitRegistry",
+                registry);
+
+            int turnEndedCount = 0;
+            FightUnit endedUnit = null;
+
+            turnManager.TurnEnded +=
+                unit =>
+                {
+                    turnEndedCount++;
+                    endedUnit = unit;
+                };
+
+            turnManager.StartCombat();
+            turnManager.EndCurrentTurn();
+
+            Assert.That(
+                turnEndedCount,
+                Is.EqualTo(1));
+
+            Assert.That(
+                endedUnit,
+                Is.SameAs(fastUnit));
+
+            Assert.That(
+                turnManager.ActiveUnit,
+                Is.SameAs(slowUnit));
+        }
+
+        [Test]
+        public void EndCombat_CalledMultipleTimes_RaisesCombatStoppedOnlyOnce()
+        {
+            FightUnit unit =
+                CreateUnit(
+                    "Test Unit",
+                    FightTeam.Player,
+                    10);
+
+            FightUnitRegistry registry =
+                CreateComponent<FightUnitRegistry>(
+                    "FightUnitRegistry");
+
+            FightTurnManager turnManager =
+                CreateComponent<FightTurnManager>(
+                    "FightTurnManager");
+
+            registry.Register(unit);
+
+            SetPrivateField(
+                turnManager,
+                "unitRegistry",
+                registry);
+
+            int combatStoppedCount = 0;
+            string stopReason = null;
+
+            turnManager.CombatStopped +=
+                reason =>
+                {
+                    combatStoppedCount++;
+                    stopReason = reason;
+                };
+
+            turnManager.StartCombat();
+
+            turnManager.EndCombat("First reason");
+            turnManager.EndCombat("Second reason");
+            turnManager.EndCombat("Third reason");
+
+            Assert.That(
+                turnManager.CombatRunning,
+                Is.False);
+
+            Assert.That(
+                turnManager.ActiveUnit,
+                Is.Null);
+
+            Assert.That(
+                combatStoppedCount,
+                Is.EqualTo(1));
+
+            Assert.That(
+                stopReason,
+                Is.EqualTo("First reason"));
+        }
+
         private FightUnit CreateUnit(
             string unitName,
             FightTeam team,
