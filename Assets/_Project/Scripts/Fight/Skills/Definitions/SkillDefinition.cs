@@ -85,4 +85,32 @@ public class SkillDefinition : ScriptableObject
                 levels.Count - maxLevel);
         }
     }
+
+#if UNITY_EDITOR
+    public void InitializeForTests(
+        string newSkillId,
+        string newDisplayName = null,
+        int newMaxLevel = 1)
+    {
+        skillId =
+            newSkillId?.Trim() ??
+            string.Empty;
+
+        displayName =
+            newDisplayName?.Trim() ??
+            skillId;
+
+        maxLevel =
+            Mathf.Max(1, newMaxLevel);
+
+        levels =
+            new List<SkillLevelData>();
+
+        for (int i = 0; i < maxLevel; i++)
+        {
+            levels.Add(
+                SkillLevelData.Default);
+        }
+    }
+#endif
 }

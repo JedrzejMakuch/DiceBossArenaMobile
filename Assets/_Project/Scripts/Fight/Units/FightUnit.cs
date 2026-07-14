@@ -26,6 +26,16 @@ public class FightUnit : MonoBehaviour
     [SerializeField] private FightUnitTurnResources turnResources;
     [SerializeField] private FightUnitSkills skills;
 
+    private CharacterClassId classId;
+
+    private CharacterSpecializationId specializationId;
+
+    private EquipmentLoadoutSnapshot equipmentLoadout =
+        new EquipmentLoadoutSnapshot(null);
+
+    private IReadOnlyList<CharacterPassiveId> passiveIds =
+        Array.Empty<CharacterPassiveId>();
+
     public string UnitName => definition != null ? definition.UnitName : unitName;
     public FightTeam Team => definition != null ? definition.Team : team;
     public int MaxHealth =>
@@ -52,6 +62,18 @@ public class FightUnit : MonoBehaviour
     public FightTeamId TeamId => Ownership != null ? Ownership.TeamId : MapLegacyTeam(Team);
     public FightParticipantId ParticipantId => Ownership != null ? Ownership.ParticipantId : default;
     public FightControllerType ControllerType => Ownership != null ? Ownership.ControllerType : FightControllerType.None;
+
+    public CharacterClassId ClassId =>
+    classId;
+
+    public CharacterSpecializationId SpecializationId =>
+        specializationId;
+
+    public EquipmentLoadoutSnapshot EquipmentLoadout =>
+        equipmentLoadout;
+
+    public IReadOnlyList<CharacterPassiveId> PassiveIds =>
+        passiveIds;
 
     public bool IsControlledBy(
     FightControllerType controller)
@@ -424,6 +446,82 @@ public class FightUnit : MonoBehaviour
         if (stats != null)
         {
             stats.StatChanged -= HandleStatChanged;
+        }
+    }
+
+    public bool ApplyBuild(
+    ResolvedCharacterBuild build)
+    {
+        if (build == null)
+        {
+            return false;
+        }
+
+        CacheModules();
+
+        classId =
+            build.ClassId;
+
+        specializationId =
+            build.SpecializationId;
+
+        equipmentLoadout =
+            build.EquipmentLoadout ??
+            new EquipmentLoadoutSnapshot(null);
+
+        passiveIds =
+            CopyPassiveIds(
+                build.PassiveIds);
+
+        if (skills != null)
+        {
+            skills.InitializeFromDefinition(
+                build.Skills);
+        }
+
+        if (stats != null)
+        {
+            ApplyStatModifiers(
+                build.StatModifiers);
+        }
+
+        return true;
+    }
+
+    private static IReadOnlyList<CharacterPassiveId>
+    CopyPassiveIds(
+        IReadOnlyList<CharacterPassiveId> source)
+    {
+        if (source == null ||
+            source.Count == 0)
+        {
+            return Array.Empty<CharacterPassiveId>();
+        }
+
+        CharacterPassiveId[] result =
+            new CharacterPassiveId[source.Count];
+
+        for (int i = 0; i < source.Count; i++)
+        {
+            result[i] = source[i];
+        }
+
+        return Array.AsReadOnly(result);
+    }
+
+    private void ApplyStatModifiers(
+        IReadOnlyList<FightStatModifier> modifiers)
+    {
+        if (stats == null ||
+            modifiers == null)
+        {
+            return;
+        }
+
+        for (int i = 0; i < modifiers.Count; i++)
+        {
+            stats.AddModifier(
+                modifiers[i]);
         }
     }
 }
