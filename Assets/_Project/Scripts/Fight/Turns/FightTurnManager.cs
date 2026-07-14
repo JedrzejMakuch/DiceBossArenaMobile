@@ -13,6 +13,7 @@ public class FightTurnManager : MonoBehaviour
     private int activeUnitIndex = -1;
     private int roundNumber = 0;
     private bool combatRunning;
+    private bool isProcessingStatusEffects;
 
     public FightUnit ActiveUnit => activeUnit;
     public int RoundNumber => roundNumber;
@@ -28,6 +29,7 @@ public class FightTurnManager : MonoBehaviour
         activeUnit = null;
         activeUnitIndex = -1;
         roundNumber = 0;
+        isProcessingStatusEffects = false;
     }
 
     private void OnDestroy()
@@ -74,16 +76,42 @@ public class FightTurnManager : MonoBehaviour
 
     public void EndCurrentTurn()
     {
-        if (!combatRunning || activeUnit == null)
+        if (!combatRunning ||
+            activeUnit == null)
         {
             return;
         }
 
-        FightUnit endedUnit = activeUnit;
+        FightUnit endedUnit =
+            activeUnit;
 
-        Debug.Log($"{endedUnit.UnitName} ended turn.");
+        isProcessingStatusEffects = true;
 
-        TurnEnded?.Invoke(endedUnit);
+        try
+        {
+            endedUnit
+                .ProcessStatusEffectsAtEndOfTurn();
+        }
+        finally
+        {
+            isProcessingStatusEffects = false;
+        }
+
+        Debug.Log(
+            $"{endedUnit.UnitName} ended turn.");
+
+        TurnEnded?.Invoke(
+            endedUnit);
+
+        if (!combatRunning)
+        {
+            return;
+        }
+
+        if (activeUnit == endedUnit)
+        {
+            activeUnit = null;
+        }
 
         StartNextTurn();
     }
@@ -154,9 +182,39 @@ public class FightTurnManager : MonoBehaviour
         EndCombat("No living units remaining.");
     }
 
-    private void BeginTurn(FightUnit unit)
+    private void BeginTurn(
+    FightUnit unit)
     {
-        TurnStarted?.Invoke(unit, roundNumber);
+        if (unit == null ||
+            !unit.IsAlive)
+        {
+            activeUnit = null;
+            StartNextTurn();
+            return;
+        }
+
+        isProcessingStatusEffects = true;
+
+        try
+        {
+            unit.ProcessStatusEffectsAtStartOfTurn();
+        }
+        finally
+        {
+            isProcessingStatusEffects = false;
+        }
+
+        if (!unit.IsAlive ||
+            activeUnit != unit)
+        {
+            activeUnit = null;
+            StartNextTurn();
+            return;
+        }
+
+        TurnStarted?.Invoke(
+            unit,
+            roundNumber);
 
         Debug.Log(
             $"Round {roundNumber}: {unit.UnitName}'s turn. " +
@@ -185,7 +243,11 @@ public class FightTurnManager : MonoBehaviour
         if (unit == activeUnit)
         {
             activeUnit = null;
-            StartNextTurn();
+
+            if (!isProcessingStatusEffects)
+            {
+                StartNextTurn();
+            }
         }
     }
 
@@ -269,4 +331,13 @@ public class FightTurnManager : MonoBehaviour
 
         SubscribeToUnits();
     }
+
+#if UNITY_EDITOR
+    public void InitializeForTests(
+        FightUnitRegistry newUnitRegistry)
+    {
+        unitRegistry =
+            newUnitRegistry;
+    }
+#endif
 }

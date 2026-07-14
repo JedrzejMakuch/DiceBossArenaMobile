@@ -58,5 +58,23 @@ namespace DiceBossArena.Game
             return new LocalizationKey(
                 $"{category}.{normalizedId}.{field}");
         }
+
+        public static LocalizationKey StatusEffectName(
+    StatusEffectId statusEffectId)
+        {
+            return Create(
+                "status_effects",
+                statusEffectId.Value,
+                "name");
+        }
+
+        public static LocalizationKey StatusEffectDescription(
+            StatusEffectId statusEffectId)
+        {
+            return Create(
+                "status_effects",
+                statusEffectId.Value,
+                "description");
+        }
     }
 }

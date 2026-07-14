@@ -22,6 +22,19 @@ public class FightUnit : MonoBehaviour
     [SerializeField] private FightUnitRuntimeState runtimeState;
     private FightUnitStats stats;
 
+    private StatusEffectCollection statusEffects;
+
+    private StatusEffectStatModifierBinder
+        statusEffectStatModifierBinder;
+
+    private readonly StatusEffectTurnProcessor
+    statusEffectTurnProcessor =
+        new();
+
+    private readonly StatusEffectBehaviorExecutor
+        statusEffectBehaviorExecutor =
+            new();
+
     [Header("Cached Modules")]
     [SerializeField] private FightUnitTurnResources turnResources;
     [SerializeField] private FightUnitSkills skills;
@@ -53,6 +66,8 @@ public class FightUnit : MonoBehaviour
             FightStatType.Initiative)
         : GetBaseInitiative();
     public FightUnitStats Stats => stats;
+    public StatusEffectCollection StatusEffects =>
+    statusEffects;
 
     public FightGridTile CurrentTile => runtimeState != null ? runtimeState.CurrentTile : null;
     public FightUnitTurnResources TurnResources => turnResources;
@@ -101,6 +116,7 @@ public class FightUnit : MonoBehaviour
     private void Awake()
     {
         CacheModules();
+        EnsureStatusEffects();
         InitializeStats();
         InitializeRuntimeState();
         InitializeSkillsFromDefinition();
@@ -114,6 +130,7 @@ public class FightUnit : MonoBehaviour
     int newInitiative)
     {
         CacheModules();
+        ResetStatusEffects();
 
         definition = null;
 
@@ -154,6 +171,7 @@ public class FightUnit : MonoBehaviour
         }
 
         CacheModules();
+        ResetStatusEffects();
 
         definition = newDefinition;
         InitializeStats();
@@ -266,6 +284,81 @@ public class FightUnit : MonoBehaviour
         HealthChanged?.Invoke(this);
     }
 
+    public StatusEffectApplyResult ApplyStatusEffect(
+    StatusEffectDefinition statusEffectDefinition)
+    {
+        EnsureStatusEffects();
+
+        return statusEffects.Apply(
+            statusEffectDefinition);
+    }
+
+    public bool RemoveStatusEffect(
+        StatusEffectId statusEffectId)
+    {
+        EnsureStatusEffects();
+
+        return statusEffects.Remove(
+            statusEffectId);
+    }
+
+    public StatusEffectDispelResult DispelStatusEffects(
+    StatusEffectCategory category,
+    int maximumEffects = int.MaxValue)
+    {
+        EnsureStatusEffects();
+
+        return statusEffects.Dispel(
+            category,
+            maximumEffects);
+    }
+
+    public bool HasStatusEffect(
+        StatusEffectId statusEffectId)
+    {
+        EnsureStatusEffects();
+
+        return statusEffects.Contains(
+            statusEffectId);
+    }
+
+    public StatusEffectTurnProcessResult
+    ProcessStatusEffectsAtStartOfTurn()
+    {
+        EnsureStatusEffects();
+
+        return statusEffectTurnProcessor
+            .ProcessStartOfTurn(
+                statusEffects,
+                ExecuteStatusEffectBehaviors);
+    }
+
+    public StatusEffectTurnProcessResult
+        ProcessStatusEffectsAtEndOfTurn()
+    {
+        EnsureStatusEffects();
+
+        return statusEffectTurnProcessor
+            .ProcessEndOfTurn(
+                statusEffects,
+                ExecuteStatusEffectBehaviors);
+    }
+
+    private void ExecuteStatusEffectBehaviors(
+    StatusEffectRuntimeState state)
+    {
+        if (!IsAlive ||
+            state == null ||
+            state.IsExpired)
+        {
+            return;
+        }
+
+        statusEffectBehaviorExecutor.Execute(
+            this,
+            state);
+    }
+
     private void Die()
     {
         if (runtimeState.CurrentTile != null)
@@ -319,6 +412,10 @@ public class FightUnit : MonoBehaviour
 
     private void InitializeStats()
     {
+        statusEffectStatModifierBinder?.Dispose();
+
+        statusEffectStatModifierBinder = null;
+
         if (stats != null)
         {
             stats.StatChanged -= HandleStatChanged;
@@ -362,6 +459,13 @@ public class FightUnit : MonoBehaviour
         {
             turnResources.RefreshStatsSubscription();
         }
+
+        EnsureStatusEffects();
+
+        statusEffectStatModifierBinder =
+            new StatusEffectStatModifierBinder(
+                statusEffects,
+                stats);
     }
 
     private void HandleStatChanged(
@@ -441,8 +545,25 @@ public class FightUnit : MonoBehaviour
             : maxHealth;
     }
 
+    private void EnsureStatusEffects()
+    {
+        statusEffects ??=
+            new StatusEffectCollection();
+    }
+
+    private void ResetStatusEffects()
+    {
+        EnsureStatusEffects();
+
+        statusEffects.Clear();
+    }
+
     private void OnDestroy()
     {
+        statusEffectStatModifierBinder?.Dispose();
+
+        statusEffectStatModifierBinder = null;
+
         if (stats != null)
         {
             stats.StatChanged -= HandleStatChanged;

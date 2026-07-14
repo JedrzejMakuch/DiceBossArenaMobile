@@ -96,5 +96,46 @@ namespace DiceBossArena.Tests.EditMode
                 key.IsValid,
                 Is.False);
         }
+
+        [Test]
+        public void StatusEffectName_CreatesExpectedKey()
+        {
+            LocalizationKey key =
+                LocalizationKeys.StatusEffectName(
+                    new StatusEffectId(
+                        "bleed"));
+
+            Assert.That(
+                key.Value,
+                Is.EqualTo(
+                    "status_effects.bleed.name"));
+        }
+
+        [Test]
+        public void StatusEffectDescription_CreatesExpectedKey()
+        {
+            LocalizationKey key =
+                LocalizationKeys.StatusEffectDescription(
+                    new StatusEffectId(
+                        "bleed"));
+
+            Assert.That(
+                key.Value,
+                Is.EqualTo(
+                    "status_effects.bleed.description"));
+        }
+
+        [Test]
+        public void InvalidStatusEffectId_ReturnsInvalidKey()
+        {
+            LocalizationKey key =
+                LocalizationKeys.StatusEffectName(
+                    new StatusEffectId(
+                        null));
+
+            Assert.That(
+                key.IsValid,
+                Is.False);
+        }
     }
 }

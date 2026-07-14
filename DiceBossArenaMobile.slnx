@@ -1,6 +1,6 @@
 ﻿<Solution>
-  <Project Path="DiceBossArena.Game.csproj" />
   <Project Path="DiceBossArena.Tests.EditMode.csproj" />
+  <Project Path="DiceBossArena.Game.csproj" />
   <Project Path="DiceBossArena.Tests.Fixtures.csproj" />
   <Project Path="DiceBossArena.Tests.PlayMode.csproj" />
 </Solution>

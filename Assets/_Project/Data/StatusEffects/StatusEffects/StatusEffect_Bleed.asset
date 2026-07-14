@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d92af84bffc80cf41912d67989f4367e, type: 3}
+  m_Name: StatusEffect_Bleed
+  m_EditorClassIdentifier: DiceBossArena.Game::StatusEffectDefinition
+  statusEffectId: bleed
+  nameLocalizationKey: status_effects.bleed.name
+  descriptionLocalizationKey: status_effects.bleed.description
+  displayName: Bleed
+  description: 'Description:
+
+    Deals damage at the end of the owner''s turn.
+    Damage increases with each stack.'
+  icon: {fileID: 0}
+  category: 2
+  baseDurationTurns: 3
+  maxStacks: 5
+  stackingPolicy: 1
+  tickTiming: 2
+  statModifiers: []
+  behaviors:
+  - {fileID: 11400000, guid: a2f82e0ef0ef5a44b925d3d279b1b32a, type: 2}
