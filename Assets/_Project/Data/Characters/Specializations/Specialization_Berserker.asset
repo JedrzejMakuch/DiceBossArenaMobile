@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2431d335675c11e408015f3204d5fcdf, type: 3}
+  m_Name: Specialization_Berserker
+  m_EditorClassIdentifier: DiceBossArena.Game::DiceBossArena.Game.SpecializationDefinition
+  specializationId: berserker
+  requiredClassId: companion
+  nameLocalizationKey: specializations.berserker.name
+  descriptionLocalizationKey: specializations.berserker.description
+  displayName: Berserker
+  description: "Ofensywna specjalizacja Dru\u017Cynnika, kt\xF3ra wzmacnia atak i
+    zast\u0119puje podstawowy atak wariantem nak\u0142adaj\u0105cym Bleed."
+  icon: {fileID: 0}
+  statModifiers:
+  - statType: 1
+    modifierType: 1
+    value: 15
+  startingSkills: []
+  skillPoolIds: []
+  passives:
+  - passiveId: blood_frenzy
+  skillReplacements:
+  - sourceSkillId: basic_attack
+    replacementSkillId: berserker_basic_attack

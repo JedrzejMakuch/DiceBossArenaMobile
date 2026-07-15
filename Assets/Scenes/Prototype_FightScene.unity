@@ -2730,6 +2730,62 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 914027513}
   m_CullTransparentMesh: 1
+--- !u!1 &981956861
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 981956862}
+  - component: {fileID: 981956863}
+  m_Layer: 0
+  m_Name: FightPlayerBuildDevConfigurator
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &981956862
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 981956861}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1191272046}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &981956863
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 981956861}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 953b5257bc9e2e04c877aa59dce5dfc6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DiceBossArena.Game::FightPlayerBuildDevConfigurator
+  deploymentManager: {fileID: 451924744}
+  classDefinition: {fileID: 11400000, guid: 5f0211dd6eae97c4d88b5e3aea8e9916, type: 2}
+  specializationDefinition: {fileID: 11400000, guid: 2724cbd73258ffe488e6903f7f6cb225, type: 2}
+  selectedSkills:
+  - skillId: power_strike
+    level: 1
+  - skillId: dash
+    level: 1
+  - skillId: ground_slam
+    level: 1
+  - skillId: second_wind
+    level: 1
 --- !u!1 &990038344
 GameObject:
   m_ObjectHideFlags: 0
@@ -3291,6 +3347,38 @@ Transform:
   m_Children:
   - {fileID: 2094619643}
   m_Father: {fileID: 2017946713}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1191272045
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1191272046}
+  m_Layer: 0
+  m_Name: --- DEV
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1191272046
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1191272045}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 981956862}
+  m_Father: {fileID: 1431030727}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1224403021
 GameObject:
@@ -4198,6 +4286,7 @@ Transform:
   - {fileID: 324545910}
   - {fileID: 2017946713}
   - {fileID: 1164438920}
+  - {fileID: 1191272046}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1454235569
@@ -5158,6 +5247,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: DiceBossArena.Game::FightUnitSpawner
   unitRegistry: {fileID: 1359750538}
+  skillDefinitions:
+  - {fileID: 11400000, guid: cfbef989ed023a24f9de625c4d3f4080, type: 2}
+  - {fileID: 11400000, guid: 436ef86ee645953428e07ddf9e7c7fe5, type: 2}
+  - {fileID: 11400000, guid: f8a60ffa83c63804280bd54490f6d2fa, type: 2}
+  - {fileID: 11400000, guid: 8364b3a167bf94d46bab0245b7728a94, type: 2}
+  - {fileID: 11400000, guid: 57be1660f4bde144c8786eb9edf665b8, type: 2}
+  - {fileID: 11400000, guid: cb67290ab93cc1a488badac2c9ab0661, type: 2}
 --- !u!1 &1730101404
 GameObject:
   m_ObjectHideFlags: 0
