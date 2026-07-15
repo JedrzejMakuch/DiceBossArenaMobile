@@ -176,5 +176,170 @@ namespace DiceBossArena.Tests.EditMode
                 Is.EqualTo(
                     StatusEffectTargetRelation.Enemy));
         }
+
+        [Test]
+        public void FullContent_BuildsResolvedBerserkerLoadout()
+        {
+            ClassDefinition classDefinition =
+                AssetDatabase.LoadAssetAtPath<
+                    ClassDefinition>(
+                        ClassPath);
+
+            SpecializationDefinition specialization =
+                AssetDatabase.LoadAssetAtPath<
+                    SpecializationDefinition>(
+                        SpecializationPath);
+
+            SkillDefinition berserkerBasicAttack =
+                LoadSkill(
+                    "Assets/_Project/Data/Skills/" +
+                    "Specializations/Berserker/" +
+                    "Skill_BerserkerBasicAttack.asset");
+
+            SkillDefinition powerStrike =
+                LoadSkill(
+                    "Assets/_Project/Data/Skills/" +
+                    "Player/Skill_PowerStrike.asset");
+
+            SkillDefinition dash =
+                LoadSkill(
+                    "Assets/_Project/Data/Skills/" +
+                    "Player/Skill_Dash.asset");
+
+            SkillDefinition groundSlam =
+                LoadSkill(
+                    "Assets/_Project/Data/Skills/" +
+                    "Player/Skill_GroundSlam.asset");
+
+            SkillDefinition secondWind =
+                LoadSkill(
+                    "Assets/_Project/Data/Skills/" +
+                    "Player/Skill_SecondWind.asset");
+
+            CharacterClassContentValidator validator =
+                new CharacterClassContentValidator();
+
+            Assert.That(
+                () =>
+                    validator.Validate(
+                        new[]
+                        {
+                            classDefinition
+                        },
+                        new[]
+                        {
+                            specialization
+                        }),
+                Throws.Nothing);
+
+            CharacterBuildResolver resolver =
+                new CharacterBuildResolver(
+                    new SkillDefinitionCatalog(
+                        new[]
+                        {
+                            berserkerBasicAttack,
+                            powerStrike,
+                            dash,
+                            groundSlam,
+                            secondWind
+                        }));
+
+            CharacterBuildCompositionRequest request =
+                new CharacterBuildCompositionRequest(
+                    classDefinition,
+                    specialization,
+                    new[]
+                    {
+                        new CharacterBuildSkill(
+                            "power_strike",
+                            1),
+                        new CharacterBuildSkill(
+                            "dash",
+                            1),
+                        new CharacterBuildSkill(
+                            "ground_slam",
+                            1),
+                        new CharacterBuildSkill(
+                            "second_wind",
+                            1)
+                    });
+
+            ResolvedCharacterBuild result =
+                resolver.Resolve(
+                    request);
+
+            Assert.That(
+                result.ClassId.Value,
+                Is.EqualTo(
+                    "companion"));
+
+            Assert.That(
+                result.SpecializationId.Value,
+                Is.EqualTo(
+                    "berserker"));
+
+            Assert.That(
+                result.Skills,
+                Has.Count.EqualTo(5));
+
+            Assert.That(
+                result.Skills[0].Definition,
+                Is.SameAs(
+                    berserkerBasicAttack));
+
+            Assert.That(
+                result.Skills[1].Definition,
+                Is.SameAs(
+                    powerStrike));
+
+            Assert.That(
+                result.Skills[2].Definition,
+                Is.SameAs(
+                    dash));
+
+            Assert.That(
+                result.Skills[3].Definition,
+                Is.SameAs(
+                    groundSlam));
+
+            Assert.That(
+                result.Skills[4].Definition,
+                Is.SameAs(
+                    secondWind));
+
+            Assert.That(
+                result.StatModifiers,
+                Has.Count.EqualTo(2));
+
+            Assert.That(
+                result.PassiveIds,
+                Has.Count.EqualTo(2));
+
+            Assert.That(
+                result.PassiveIds[0].Value,
+                Is.EqualTo(
+                    "battle_training"));
+
+            Assert.That(
+                result.PassiveIds[1].Value,
+                Is.EqualTo(
+                    "blood_frenzy"));
+        }
+
+        private static SkillDefinition LoadSkill(
+            string path)
+        {
+            SkillDefinition definition =
+                AssetDatabase.LoadAssetAtPath<
+                    SkillDefinition>(
+                        path);
+
+            Assert.That(
+                definition,
+                Is.Not.Null,
+                $"Missing skill asset: {path}");
+
+            return definition;
+        }
     }
 }

@@ -81,6 +81,16 @@ namespace DiceBossArena.Game
                         $"{buildSkill.SkillId}.");
                 }
 
+                if (buildSkill.Level >
+                    definition.MaxLevel)
+                {
+                    throw new InvalidOperationException(
+                        $"Skill {buildSkill.SkillId} " +
+                        $"has level {buildSkill.Level}, " +
+                        $"but its maximum level is " +
+                        $"{definition.MaxLevel}.");
+                }
+
                 result.Add(
                     new UnitStartingSkill(
                         definition,

@@ -1,5 +1,6 @@
 ﻿using DiceBossArena.Game;
 using NUnit.Framework;
+using System;
 using UnityEngine;
 
 public class CharacterBuildResolverTests
@@ -67,8 +68,8 @@ public class CharacterBuildResolverTests
             result.Skills[1].Level,
             Is.EqualTo(4));
 
-        Object.DestroyImmediate(basicAttack);
-        Object.DestroyImmediate(shieldBash);
+        UnityEngine.Object.DestroyImmediate(basicAttack);
+        UnityEngine.Object.DestroyImmediate(shieldBash);
     }
 
     [Test]
@@ -116,8 +117,8 @@ public class CharacterBuildResolverTests
             result.Skills[1].Definition,
             Is.SameAs(first));
 
-        Object.DestroyImmediate(first);
-        Object.DestroyImmediate(second);
+        UnityEngine.Object.DestroyImmediate(first);
+        UnityEngine.Object.DestroyImmediate(second);
     }
 
     [Test]
@@ -169,7 +170,7 @@ public class CharacterBuildResolverTests
                 result.StatModifiers),
             Is.False);
 
-        Object.DestroyImmediate(definition);
+        UnityEngine.Object.DestroyImmediate(definition);
     }
 
     [Test]
@@ -225,7 +226,7 @@ public class CharacterBuildResolverTests
                 new CharacterPassiveId(
                     "shield_mastery")));
 
-        Object.DestroyImmediate(definition);
+        UnityEngine.Object.DestroyImmediate(definition);
     }
 
     [Test]
@@ -365,13 +366,13 @@ public class CharacterBuildResolverTests
         }
         finally
         {
-            Object.DestroyImmediate(
+            UnityEngine.Object.DestroyImmediate(
                 specialization);
 
-            Object.DestroyImmediate(
+            UnityEngine.Object.DestroyImmediate(
                 classDefinition);
 
-            Object.DestroyImmediate(
+            UnityEngine.Object.DestroyImmediate(
                 berserkerBasicAttack);
         }
     }
@@ -389,7 +390,9 @@ public class CharacterBuildResolverTests
     public void ResolvingSameSnapshotTwiceCreatesIndependentResults()
     {
         SkillDefinition definition =
-            CreateDefinition("basic_attack");
+            CreateDefinition(
+                "basic_attack",
+                2);
 
         CharacterBuildSnapshot snapshot =
             new CharacterBuildSnapshot(
@@ -439,7 +442,110 @@ public class CharacterBuildResolverTests
             Is.SameAs(
                 second.Skills[0].Definition));
 
-        Object.DestroyImmediate(definition);
+        UnityEngine.Object.DestroyImmediate(definition);
+    }
+
+    [Test]
+    public void Resolve_SkillAtMaximumLevelSucceeds()
+    {
+        SkillDefinition definition =
+            CreateDefinition(
+                "power_strike",
+                3);
+
+        try
+        {
+            CharacterBuildResolver resolver =
+                new CharacterBuildResolver(
+                    new SkillDefinitionCatalog(
+                        new[]
+                        {
+                            definition
+                        }));
+
+            CharacterBuildSnapshot snapshot =
+                new CharacterBuildSnapshot(
+                    new CharacterClassId(
+                        "companion"),
+                    new CharacterSpecializationId(
+                        string.Empty),
+                    new[]
+                    {
+                        new CharacterBuildSkill(
+                            "power_strike",
+                            3)
+                    },
+                    null);
+
+            ResolvedCharacterBuild result =
+                resolver.Resolve(
+                    snapshot);
+
+            Assert.That(
+                result.Skills[0].Level,
+                Is.EqualTo(3));
+        }
+        finally
+        {
+            UnityEngine.Object.DestroyImmediate(
+                definition);
+        }
+    }
+
+    [Test]
+    public void Resolve_SkillAboveMaximumLevelThrows()
+    {
+        SkillDefinition definition =
+            CreateDefinition(
+                "power_strike",
+                3);
+
+        try
+        {
+            CharacterBuildResolver resolver =
+                new CharacterBuildResolver(
+                    new SkillDefinitionCatalog(
+                        new[]
+                        {
+                            definition
+                        }));
+
+            CharacterBuildSnapshot snapshot =
+                new CharacterBuildSnapshot(
+                    new CharacterClassId(
+                        "companion"),
+                    new CharacterSpecializationId(
+                        string.Empty),
+                    new[]
+                    {
+                        new CharacterBuildSkill(
+                            "power_strike",
+                            4)
+                    },
+                    null);
+
+            InvalidOperationException exception =
+                Assert.Throws<
+                    InvalidOperationException>(
+                    () =>
+                        resolver.Resolve(
+                            snapshot));
+
+            Assert.That(
+                exception.Message,
+                Does.Contain(
+                    "level 4"));
+
+            Assert.That(
+                exception.Message,
+                Does.Contain(
+                    "maximum level is 3"));
+        }
+        finally
+        {
+            UnityEngine.Object.DestroyImmediate(
+                definition);
+        }
     }
 
     private static SkillDefinition CreateDefinition(
