@@ -254,15 +254,126 @@ public class CharacterBuildResolverTests
     }
 
     [Test]
-    public void Resolve_NullSnapshotThrowsException()
+    public void Resolve_CompositionRequestBuildsFinalRuntimeBuild()
     {
-        CharacterBuildResolver resolver =
-            new CharacterBuildResolver(
-                new SkillDefinitionCatalog(null));
+        SkillDefinition berserkerBasicAttack =
+            CreateDefinition(
+                "berserker_basic_attack",
+                3);
 
-        Assert.That(
-            () => resolver.Resolve(null),
-            Throws.ArgumentNullException);
+        ClassDefinition classDefinition =
+            ScriptableObject.CreateInstance<
+                ClassDefinition>();
+
+        SpecializationDefinition specialization =
+            ScriptableObject.CreateInstance<
+                SpecializationDefinition>();
+
+        try
+        {
+            classDefinition.InitializeForTests(
+                newClassId:
+                    "companion",
+                newStartingSkills:
+                    new[]
+                    {
+                        new CharacterSkillDefinitionEntry(
+                            "basic_attack",
+                            2)
+                    },
+                newStatModifiers:
+                    new[]
+                    {
+                        new CharacterStatModifierDefinition(
+                            FightStatType.MaxHealth,
+                            FightStatModifierType.Flat,
+                            10)
+                    },
+                newPassives:
+                    new[]
+                    {
+                        new CharacterPassiveDefinitionEntry(
+                            "battle_training")
+                    });
+
+            specialization.InitializeForTests(
+                newSpecializationId:
+                    "berserker",
+                newRequiredClassId:
+                    "companion",
+                newSkillReplacements:
+                    new[]
+                    {
+                        new SkillReplacementDefinition(
+                            "basic_attack",
+                            "berserker_basic_attack")
+                    },
+                newPassives:
+                    new[]
+                    {
+                        new CharacterPassiveDefinitionEntry(
+                            "blood_frenzy")
+                    });
+
+            CharacterBuildResolver resolver =
+                new CharacterBuildResolver(
+                    new SkillDefinitionCatalog(
+                        new[]
+                        {
+                            berserkerBasicAttack
+                        }));
+
+            CharacterBuildCompositionRequest request =
+                new CharacterBuildCompositionRequest(
+                    classDefinition,
+                    specialization);
+
+            ResolvedCharacterBuild result =
+                resolver.Resolve(
+                    request);
+
+            Assert.That(
+                result.ClassId.Value,
+                Is.EqualTo(
+                    "companion"));
+
+            Assert.That(
+                result.SpecializationId.Value,
+                Is.EqualTo(
+                    "berserker"));
+
+            Assert.That(
+                result.Skills.Count,
+                Is.EqualTo(1));
+
+            Assert.That(
+                result.Skills[0].Definition,
+                Is.SameAs(
+                    berserkerBasicAttack));
+
+            Assert.That(
+                result.Skills[0].Level,
+                Is.EqualTo(2));
+
+            Assert.That(
+                result.StatModifiers,
+                Has.Count.EqualTo(1));
+
+            Assert.That(
+                result.PassiveIds,
+                Has.Count.EqualTo(2));
+        }
+        finally
+        {
+            Object.DestroyImmediate(
+                specialization);
+
+            Object.DestroyImmediate(
+                classDefinition);
+
+            Object.DestroyImmediate(
+                berserkerBasicAttack);
+        }
     }
 
     [Test]

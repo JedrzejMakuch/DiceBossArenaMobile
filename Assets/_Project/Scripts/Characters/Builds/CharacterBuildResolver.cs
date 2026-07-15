@@ -8,6 +8,9 @@ namespace DiceBossArena.Game
         private readonly ISkillDefinitionResolver
             skillResolver;
 
+        private readonly CharacterBuildComposer
+           buildComposer;
+
         public CharacterBuildResolver(
             ISkillDefinitionResolver skillResolver)
         {
@@ -15,6 +18,26 @@ namespace DiceBossArena.Game
                 skillResolver ??
                 throw new ArgumentNullException(
                     nameof(skillResolver));
+
+            buildComposer =
+                new CharacterBuildComposer();
+        }
+
+        public ResolvedCharacterBuild Resolve(
+            CharacterBuildCompositionRequest request)
+        {
+            if (request == null)
+            {
+                throw new ArgumentNullException(
+                    nameof(request));
+            }
+
+            CharacterBuildSnapshot snapshot =
+                buildComposer.Compose(
+                    request);
+
+            return Resolve(
+                snapshot);
         }
 
         public ResolvedCharacterBuild Resolve(
