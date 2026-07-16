@@ -9,7 +9,7 @@ public class EquipmentLoadoutSnapshotTests
         EquippedItemSnapshot[] source =
         {
             new EquippedItemSnapshot(
-                EquipmentSlotType.Weapon,
+                EquipmentSlotType.MainHand,
                 new CharacterItemId("iron_sword"))
         };
 
@@ -18,7 +18,7 @@ public class EquipmentLoadoutSnapshotTests
 
         source[0] =
             new EquippedItemSnapshot(
-                EquipmentSlotType.Weapon,
+                EquipmentSlotType.MainHand,
                 new CharacterItemId("wooden_staff"));
 
         Assert.That(
@@ -36,10 +36,10 @@ public class EquipmentLoadoutSnapshotTests
         EquippedItemSnapshot[] items =
         {
             new EquippedItemSnapshot(
-                EquipmentSlotType.Weapon,
+                EquipmentSlotType.MainHand,
                 new CharacterItemId("iron_sword")),
             new EquippedItemSnapshot(
-                EquipmentSlotType.Weapon,
+                EquipmentSlotType.MainHand,
                 new CharacterItemId("wooden_staff"))
         };
 
@@ -55,7 +55,7 @@ public class EquipmentLoadoutSnapshotTests
         EquippedItemSnapshot[] items =
         {
             new EquippedItemSnapshot(
-                EquipmentSlotType.Weapon,
+                EquipmentSlotType.MainHand,
                 new CharacterItemId("   "))
         };
 
@@ -73,7 +73,7 @@ public class EquipmentLoadoutSnapshotTests
                 new[]
                 {
                     new EquippedItemSnapshot(
-                        EquipmentSlotType.Weapon,
+                        EquipmentSlotType.MainHand,
                         new CharacterItemId(
                             "iron_sword")),
                     new EquippedItemSnapshot(
@@ -87,7 +87,7 @@ public class EquipmentLoadoutSnapshotTests
                 new[]
                 {
                     new EquippedItemSnapshot(
-                        EquipmentSlotType.Weapon,
+                        EquipmentSlotType.MainHand,
                         new CharacterItemId(
                             "iron_sword")),
                     new EquippedItemSnapshot(

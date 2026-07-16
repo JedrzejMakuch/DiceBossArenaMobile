@@ -1,7 +1,6 @@
-﻿using DiceBossArena.Game;
-using System;
+﻿using System;
 
-namespace DiceBossArena.Assets._Project.Scripts.Characters.Equipment.Definitions
+namespace DiceBossArena.Game
 {
     public sealed class CharacterItemInstanceValidator
     {

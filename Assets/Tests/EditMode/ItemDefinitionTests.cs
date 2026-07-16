@@ -58,7 +58,7 @@ public class ItemDefinitionTests
 
         Assert.That(
             definition.SlotType,
-            Is.EqualTo(EquipmentSlotType.Weapon));
+            Is.EqualTo(EquipmentSlotType.MainHand));
 
         Assert.That(
             definition.MaxStackSize,
@@ -73,13 +73,15 @@ public class ItemDefinitionTests
                 ItemDefinition>();
 
         definition.InitializeForTests(
-            "  iron_sword  ",
-            EquipmentSlotType.Weapon,
-            1,
-            "  Iron Sword  ",
-            "  item.iron_sword.name  ",
-            "  item.iron_sword.description  ",
-            "  A basic sword.  ");
+    "  iron_sword  ",
+    EquipmentSlotType.MainHand,
+    1,
+    EquipmentItemCategory.Weapon,
+    WeaponHandedness.OneHanded,
+    "  Iron Sword  ",
+    "  item.iron_sword.name  ",
+    "  item.iron_sword.description  ",
+    "  A basic sword.  ");
 
         Assert.That(
             definition.ItemId.Value,
@@ -103,7 +105,7 @@ public class ItemDefinitionTests
 
         definition.InitializeForTests(
             "iron_sword",
-            EquipmentSlotType.Weapon);
+            EquipmentSlotType.MainHand);
 
         Assert.That(
             definition.DisplayName,
@@ -119,7 +121,7 @@ public class ItemDefinitionTests
 
         definition.InitializeForTests(
             "iron_sword",
-            EquipmentSlotType.Weapon,
+            EquipmentSlotType.MainHand,
             0);
 
         Assert.That(
@@ -136,7 +138,7 @@ public class ItemDefinitionTests
 
         definition.InitializeForTests(
             "iron_sword",
-            EquipmentSlotType.Weapon);
+            EquipmentSlotType.MainHand);
 
         Assert.That(
             definition.StatModifiers,
@@ -151,6 +153,125 @@ public class ItemDefinitionTests
             Is.Empty);
     }
 
+    [Test]
+    public void InitializeForTests_PreservesCategoryAndHandedness()
+    {
+        definition =
+            ScriptableObject.CreateInstance<
+                ItemDefinition>();
+
+        definition.InitializeForTests(
+            "battle_axe",
+            EquipmentSlotType.MainHand,
+            1,
+            EquipmentItemCategory.Weapon,
+            WeaponHandedness.TwoHanded);
+
+        Assert.That(
+            definition.Category,
+            Is.EqualTo(
+                EquipmentItemCategory.Weapon));
+
+        Assert.That(
+            definition.Handedness,
+            Is.EqualTo(
+                WeaponHandedness.TwoHanded));
+    }
+
+    [Test]
+    public void InitializeForTests_PreservesRequirements()
+    {
+        definition =
+            ScriptableObject.CreateInstance<
+                ItemDefinition>();
+
+        definition.InitializeForTests(
+            "berserker_axe",
+            EquipmentSlotType.MainHand,
+            1,
+            EquipmentItemCategory.Weapon,
+            WeaponHandedness.TwoHanded,
+            newRequiredClassIds:
+                new[]
+                {
+                "companion"
+                },
+            newRequiredSpecializationIds:
+                new[]
+                {
+                "berserker"
+                });
+
+        Assert.That(
+            definition.RequiredClassIds,
+            Is.EqualTo(
+                new[]
+                {
+                "companion"
+                }));
+
+        Assert.That(
+            definition.RequiredSpecializationIds,
+            Is.EqualTo(
+                new[]
+                {
+                "berserker"
+                }));
+    }
+
+    [Test]
+    public void InitializeForTests_NormalizesRequirements()
+    {
+        definition =
+            ScriptableObject.CreateInstance<
+                ItemDefinition>();
+
+        definition.InitializeForTests(
+            "berserker_axe",
+            EquipmentSlotType.MainHand,
+            1,
+            EquipmentItemCategory.Weapon,
+            WeaponHandedness.TwoHanded,
+            newRequiredClassIds:
+                new[]
+                {
+                "  companion  "
+                },
+            newRequiredSpecializationIds:
+                new[]
+                {
+                "  berserker  "
+                });
+
+        Assert.That(
+            definition.RequiredClassIds[0],
+            Is.EqualTo("companion"));
+
+        Assert.That(
+            definition.RequiredSpecializationIds[0],
+            Is.EqualTo("berserker"));
+    }
+
+    [Test]
+    public void NullRequirements_CreateEmptyCollections()
+    {
+        definition =
+            ScriptableObject.CreateInstance<
+                ItemDefinition>();
+
+        definition.InitializeForTests(
+            "iron_sword",
+            EquipmentSlotType.MainHand);
+
+        Assert.That(
+            definition.RequiredClassIds,
+            Is.Empty);
+
+        Assert.That(
+            definition.RequiredSpecializationIds,
+            Is.Empty);
+    }
+
     private ItemDefinition CreateDefinition()
     {
         ItemDefinition result =
@@ -158,13 +279,15 @@ public class ItemDefinitionTests
                 ItemDefinition>();
 
         result.InitializeForTests(
-            "iron_sword",
-            EquipmentSlotType.Weapon,
-            1,
-            "Iron Sword",
-            "item.iron_sword.name",
-            "item.iron_sword.description",
-            "A basic sword.");
+    "iron_sword",
+    EquipmentSlotType.MainHand,
+    1,
+    EquipmentItemCategory.Weapon,
+    WeaponHandedness.OneHanded,
+    "Iron Sword",
+    "item.iron_sword.name",
+    "item.iron_sword.description",
+    "A basic sword.");
 
         return result;
     }

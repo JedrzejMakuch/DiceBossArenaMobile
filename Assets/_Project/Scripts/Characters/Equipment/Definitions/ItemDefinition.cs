@@ -34,8 +34,25 @@ namespace DiceBossArena.Game
         [SerializeField]
         private EquipmentSlotType slotType;
 
+        public bool IsEquippable =>
+    slotType != EquipmentSlotType.None;
+
+        [SerializeField]
+        private EquipmentItemCategory category;
+
+        [SerializeField]
+        private WeaponHandedness handedness;
+
         [SerializeField, Min(1)]
         private int maxStackSize = 1;
+
+        [Header("Requirements")]
+        [SerializeField]
+        private List<string> requiredClassIds = new();
+
+        [SerializeField]
+        private List<string>
+            requiredSpecializationIds = new();
 
         [Header("Build")]
         [SerializeField]
@@ -72,8 +89,22 @@ namespace DiceBossArena.Game
         public EquipmentSlotType SlotType =>
             slotType;
 
+        public EquipmentItemCategory Category =>
+    category;
+
+        public WeaponHandedness Handedness =>
+            handedness;
+
         public int MaxStackSize =>
             maxStackSize;
+
+        public IReadOnlyList<string>
+    RequiredClassIds =>
+        requiredClassIds;
+
+        public IReadOnlyList<string>
+            RequiredSpecializationIds =>
+                requiredSpecializationIds;
 
         public IReadOnlyList<
             CharacterStatModifierDefinition>
@@ -110,6 +141,13 @@ namespace DiceBossArena.Game
             description =
                 Normalize(description);
 
+            requiredClassIds =
+    NormalizeIds(requiredClassIds);
+
+            requiredSpecializationIds =
+                NormalizeIds(
+                    requiredSpecializationIds);
+
             maxStackSize =
                 Mathf.Max(1, maxStackSize);
 
@@ -126,6 +164,28 @@ namespace DiceBossArena.Game
                     CharacterPassiveDefinitionEntry>();
         }
 
+        private static List<string> NormalizeIds(
+    IReadOnlyList<string> source)
+        {
+            List<string> result =
+                new();
+
+            if (source == null)
+            {
+                return result;
+            }
+
+            for (int i = 0;
+                 i < source.Count;
+                 i++)
+            {
+                result.Add(
+                    Normalize(source[i]));
+            }
+
+            return result;
+        }
+
         private static string Normalize(
             string value)
         {
@@ -138,6 +198,10 @@ namespace DiceBossArena.Game
             string newItemId,
             EquipmentSlotType newSlotType,
             int newMaxStackSize = 1,
+            EquipmentItemCategory newCategory =
+                EquipmentItemCategory.Weapon,
+            WeaponHandedness newHandedness =
+                WeaponHandedness.OneHanded,
             string newDisplayName = null,
             string newNameLocalizationKey = null,
             string newDescriptionLocalizationKey = null,
@@ -149,14 +213,24 @@ namespace DiceBossArena.Game
                 CharacterSkillDefinitionEntry>
                 newGrantedSkills = null,
             IReadOnlyList<
-                CharacterPassiveDefinitionEntry>
-                newGrantedPassives = null)
+    CharacterPassiveDefinitionEntry>
+                newGrantedPassives = null,
+            IReadOnlyList<string>
+                newRequiredClassIds = null,
+            IReadOnlyList<string>
+                newRequiredSpecializationIds = null)
         {
             itemId =
                 Normalize(newItemId);
 
             slotType =
                 newSlotType;
+
+            category =
+    newCategory;
+
+            handedness =
+                newHandedness;
 
             maxStackSize =
                 Mathf.Max(1, newMaxStackSize);
@@ -203,6 +277,14 @@ namespace DiceBossArena.Game
                             newGrantedPassives)
                     : new List<
                         CharacterPassiveDefinitionEntry>();
+
+            requiredClassIds =
+    NormalizeIds(
+        newRequiredClassIds);
+
+            requiredSpecializationIds =
+                NormalizeIds(
+                    newRequiredSpecializationIds);
         }
 #endif
     }

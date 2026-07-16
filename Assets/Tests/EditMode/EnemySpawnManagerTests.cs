@@ -236,7 +236,7 @@ namespace DiceBossArena.Tests.EditMode
                         new[]
                         {
                             new EquippedItemSnapshot(
-                                EquipmentSlotType.Weapon,
+                                EquipmentSlotType.MainHand,
                                 new CharacterItemId(
                                     "rusty_axe"))
                         }),

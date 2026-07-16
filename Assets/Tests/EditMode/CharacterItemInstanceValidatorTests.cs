@@ -1,5 +1,4 @@
-﻿using DiceBossArena.Assets._Project.Scripts.Characters.Equipment.Definitions;
-using DiceBossArena.Game;
+﻿using DiceBossArena.Game;
 using NUnit.Framework;
 using System;
 using UnityEngine;

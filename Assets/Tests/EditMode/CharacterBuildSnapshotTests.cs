@@ -339,7 +339,7 @@ public class CharacterBuildSnapshotTests
                 new[]
                 {
                 new EquippedItemSnapshot(
-                    EquipmentSlotType.Weapon,
+                    EquipmentSlotType.MainHand,
                     new CharacterItemId(
                         "iron_sword"))
                 });
@@ -443,7 +443,7 @@ public class CharacterBuildSnapshotTests
                     new[]
                     {
                     new EquippedItemSnapshot(
-                        EquipmentSlotType.Weapon,
+                        EquipmentSlotType.MainHand,
                         new CharacterItemId(
                             "iron_sword"))
                     }));
@@ -459,7 +459,7 @@ public class CharacterBuildSnapshotTests
                     new[]
                     {
                     new EquippedItemSnapshot(
-                        EquipmentSlotType.Weapon,
+                        EquipmentSlotType.MainHand,
                         new CharacterItemId(
                             "wooden_staff"))
                     }));
@@ -568,7 +568,7 @@ public class CharacterBuildSnapshotTests
                     new[]
                     {
                     new EquippedItemSnapshot(
-                        EquipmentSlotType.Weapon,
+                        EquipmentSlotType.MainHand,
                         new CharacterItemId(
                             "iron_sword")),
                     new EquippedItemSnapshot(

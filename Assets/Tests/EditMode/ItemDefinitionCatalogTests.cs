@@ -20,7 +20,7 @@ public class ItemDefinitionCatalogTests
         firstDefinition =
             CreateDefinition(
                 "iron_sword",
-                EquipmentSlotType.Weapon);
+                EquipmentSlotType.MainHand);
 
         ItemDefinitionCatalog catalog =
             new ItemDefinitionCatalog(
@@ -49,7 +49,7 @@ public class ItemDefinitionCatalogTests
         firstDefinition =
             CreateDefinition(
                 "iron_sword",
-                EquipmentSlotType.Weapon);
+                EquipmentSlotType.MainHand);
 
         ItemDefinitionCatalog catalog =
             new ItemDefinitionCatalog(
@@ -98,12 +98,12 @@ public class ItemDefinitionCatalogTests
         firstDefinition =
             CreateDefinition(
                 "iron_sword",
-                EquipmentSlotType.Weapon);
+                EquipmentSlotType.MainHand);
 
         secondDefinition =
             CreateDefinition(
                 "iron_sword",
-                EquipmentSlotType.Weapon);
+                EquipmentSlotType.MainHand);
 
         Assert.That(
             () =>
@@ -135,7 +135,7 @@ public class ItemDefinitionCatalogTests
         firstDefinition =
             CreateDefinition(
                 " ",
-                EquipmentSlotType.Weapon);
+                EquipmentSlotType.MainHand);
 
         Assert.That(
             () =>

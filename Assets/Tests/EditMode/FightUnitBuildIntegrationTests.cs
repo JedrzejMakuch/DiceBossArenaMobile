@@ -292,7 +292,7 @@ public class FightUnitBuildIntegrationTests
                 new[]
                 {
                     new EquippedItemSnapshot(
-                        EquipmentSlotType.Weapon,
+                        EquipmentSlotType.MainHand,
                         new CharacterItemId(
                             "iron_sword"))
                 });

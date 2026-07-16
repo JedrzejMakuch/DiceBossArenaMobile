@@ -190,7 +190,7 @@ public class CharacterBuildResolverTests
                     new[]
                     {
                         new EquippedItemSnapshot(
-                            EquipmentSlotType.Weapon,
+                            EquipmentSlotType.MainHand,
                             new CharacterItemId(
                                 "iron_sword"))
                     }),
