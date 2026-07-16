@@ -15,6 +15,13 @@ namespace DiceBossArena.Game
 
         public int Quantity { get; }
 
+        public bool IsValid =>
+            InstanceId.IsValid &&
+            ItemId.IsValid &&
+            Level >= 1 &&
+            UpgradeLevel >= 0 &&
+            Quantity >= 1;
+
         public CharacterItemInstance(
             CharacterItemInstanceId instanceId,
             CharacterItemId itemId,
@@ -65,6 +72,27 @@ namespace DiceBossArena.Game
             Level = level;
             UpgradeLevel = upgradeLevel;
             Quantity = quantity;
+        }
+
+        public bool CanStackWith(
+    CharacterItemInstance other)
+        {
+            return IsValid &&
+                   other.IsValid &&
+                   ItemId.Equals(other.ItemId) &&
+                   Level == other.Level &&
+                   UpgradeLevel == other.UpgradeLevel;
+        }
+
+        public CharacterItemInstance WithQuantity(
+            int newQuantity)
+        {
+            return new CharacterItemInstance(
+                InstanceId,
+                ItemId,
+                Level,
+                UpgradeLevel,
+                newQuantity);
         }
 
         public bool Equals(
