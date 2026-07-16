@@ -58,6 +58,32 @@ namespace DiceBossArena.Game
                 items.AsReadOnly();
         }
 
+        public bool TryGet(
+    CharacterItemInstanceId instanceId,
+    out CharacterItemInstance item)
+        {
+            if (!instanceId.IsValid)
+            {
+                item = default;
+                return false;
+            }
+
+            for (int i = 0;
+                 i < items.Count;
+                 i++)
+            {
+                if (items[i].InstanceId.Equals(
+                        instanceId))
+                {
+                    item = items[i];
+                    return true;
+                }
+            }
+
+            item = default;
+            return false;
+        }
+
         public InventoryAddResult TryAdd(
     CharacterItemInstance item)
         {
