@@ -5,6 +5,61 @@ using NUnit.Framework;
 public class CharacterInventoryTests
 {
     [Test]
+    public void TryGet_UnknownInstanceReturnsFalse()
+    {
+        CharacterInventory inventory =
+            new CharacterInventory(
+                5,
+                CreateEmptyResolver());
+
+        bool found =
+            inventory.TryGet(
+                new CharacterItemInstanceId(
+                    "missing_instance"),
+                out CharacterItemInstance result);
+
+        Assert.That(
+            found,
+            Is.False);
+
+        Assert.That(
+            result.IsValid,
+            Is.False);
+    }
+
+    [Test]
+    public void TryGet_KnownInstanceReturnsItem()
+    {
+        CharacterItemInstance expected =
+            CreateItem(
+                "instance_001",
+                "iron_sword");
+
+        CharacterInventory inventory =
+            new CharacterInventory(
+                5,
+                CreateEmptyResolver(),
+                new[]
+                {
+                expected
+                });
+
+        bool found =
+            inventory.TryGet(
+                new CharacterItemInstanceId(
+                    "instance_001"),
+                out CharacterItemInstance result);
+
+        Assert.That(
+            found,
+            Is.True);
+
+        Assert.That(
+            result,
+            Is.EqualTo(expected));
+    }
+
+    [Test]
     public void Constructor_CreatesEmptyInventory()
     {
         CharacterInventory inventory =
