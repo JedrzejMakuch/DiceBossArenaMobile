@@ -717,6 +717,97 @@ public class CharacterEquipmentServiceTests
             Is.Empty);
     }
 
+    [Test]
+    public void TryEquip_TwoAccessoriesCanOccupySeparateSlots()
+    {
+        AddDefinition(
+            "wolf_charm",
+            EquipmentSlotType.Accessory,
+            EquipmentItemCategory.Accessory,
+            WeaponHandedness.NotApplicable);
+
+        AddDefinition(
+            "raven_ring",
+            EquipmentSlotType.Accessory,
+            EquipmentItemCategory.Accessory,
+            WeaponHandedness.NotApplicable);
+
+        CharacterItemInstance first =
+            CreateItem(
+                "instance_001",
+                "wolf_charm");
+
+        CharacterItemInstance second =
+            CreateItem(
+                "instance_002",
+                "raven_ring");
+
+        CharacterInventory inventory =
+            CreateInventory(
+                first,
+                second);
+
+        CharacterEquipmentLoadout loadout =
+            new CharacterEquipmentLoadout();
+
+        CharacterEquipmentService service =
+            CreateService();
+
+        EquipmentOperationResult firstResult =
+            service.TryEquip(
+                inventory,
+                loadout,
+                first.InstanceId,
+                EquipmentSlotType.Accessory,
+                new CharacterClassId("companion"),
+                new CharacterSpecializationId(
+                    "berserker"));
+
+        EquipmentOperationResult secondResult =
+            service.TryEquip(
+                inventory,
+                loadout,
+                second.InstanceId,
+                EquipmentSlotType.AccessoryTwo,
+                new CharacterClassId("companion"),
+                new CharacterSpecializationId(
+                    "berserker"));
+
+        Assert.That(
+            firstResult,
+            Is.EqualTo(
+                EquipmentOperationResult.Equipped));
+
+        Assert.That(
+            secondResult,
+            Is.EqualTo(
+                EquipmentOperationResult.Equipped));
+
+        Assert.That(
+            loadout.Count,
+            Is.EqualTo(2));
+
+        Assert.That(
+            loadout.TryGet(
+                EquipmentSlotType.Accessory,
+                out EquippedItemInstance firstEquipped),
+            Is.True);
+
+        Assert.That(
+            firstEquipped.InstanceId,
+            Is.EqualTo(first.InstanceId));
+
+        Assert.That(
+            loadout.TryGet(
+                EquipmentSlotType.AccessoryTwo,
+                out EquippedItemInstance secondEquipped),
+            Is.True);
+
+        Assert.That(
+            secondEquipped.InstanceId,
+            Is.EqualTo(second.InstanceId));
+    }
+
     private CharacterEquipmentService CreateService()
     {
         ItemDefinitionCatalog catalog =

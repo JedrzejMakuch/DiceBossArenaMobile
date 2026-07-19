@@ -270,6 +270,92 @@ public class CharacterEquipmentLoadoutTests
             Is.Empty);
     }
 
+    [Test]
+    public void Constructor_AllowsEightDifferentEquipmentSlots()
+    {
+        EquippedItemInstance[] items =
+        {
+        CreateItem(
+            EquipmentSlotType.MainHand,
+            "main-hand"),
+
+        CreateItem(
+            EquipmentSlotType.OffHand,
+            "off-hand"),
+
+        CreateItem(
+            EquipmentSlotType.Head,
+            "head"),
+
+        CreateItem(
+            EquipmentSlotType.Armor,
+            "armor"),
+
+        CreateItem(
+            EquipmentSlotType.Hands,
+            "hands"),
+
+        CreateItem(
+            EquipmentSlotType.Feet,
+            "feet"),
+
+        CreateItem(
+            EquipmentSlotType.Accessory,
+            "accessory-one"),
+
+        CreateItem(
+            EquipmentSlotType.AccessoryTwo,
+            "accessory-two")
+    };
+
+        CharacterEquipmentLoadout loadout =
+            new(items);
+
+        Assert.That(
+            loadout.Count,
+            Is.EqualTo(8));
+
+        Assert.That(
+            loadout.IsSlotOccupied(
+                EquipmentSlotType.MainHand),
+            Is.True);
+
+        Assert.That(
+            loadout.IsSlotOccupied(
+                EquipmentSlotType.OffHand),
+            Is.True);
+
+        Assert.That(
+            loadout.IsSlotOccupied(
+                EquipmentSlotType.Head),
+            Is.True);
+
+        Assert.That(
+            loadout.IsSlotOccupied(
+                EquipmentSlotType.Armor),
+            Is.True);
+
+        Assert.That(
+            loadout.IsSlotOccupied(
+                EquipmentSlotType.Hands),
+            Is.True);
+
+        Assert.That(
+            loadout.IsSlotOccupied(
+                EquipmentSlotType.Feet),
+            Is.True);
+
+        Assert.That(
+            loadout.IsSlotOccupied(
+                EquipmentSlotType.Accessory),
+            Is.True);
+
+        Assert.That(
+            loadout.IsSlotOccupied(
+                EquipmentSlotType.AccessoryTwo),
+            Is.True);
+    }
+
     private static EquippedItemInstance CreateItem(
         EquipmentSlotType slotType,
         string instanceId)

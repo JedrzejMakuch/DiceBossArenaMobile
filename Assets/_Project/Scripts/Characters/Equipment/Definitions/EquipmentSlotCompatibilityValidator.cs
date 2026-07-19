@@ -47,6 +47,14 @@ namespace DiceBossArena.Game
                 return false;
             }
 
+            if (definition.SlotType == EquipmentSlotType.Accessory)
+            {
+                return targetSlot ==
+                           EquipmentSlotType.Accessory ||
+                       targetSlot ==
+                           EquipmentSlotType.AccessoryTwo;
+            }
+
             return definition.SlotType ==
                    targetSlot;
         }

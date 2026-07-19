@@ -173,6 +173,23 @@ public class EquipmentSlotCompatibilityValidatorTests
             Is.False);
     }
 
+    [Test]
+    public void CanEquip_AccessoryInSecondAccessorySlotReturnsTrue()
+    {
+        definition =
+            CreateDefinition(
+                "wolf_charm",
+                EquipmentSlotType.Accessory,
+                EquipmentItemCategory.Accessory,
+                WeaponHandedness.NotApplicable);
+
+        Assert.That(
+            validator.CanEquip(
+                definition,
+                EquipmentSlotType.AccessoryTwo),
+            Is.True);
+    }
+
     private static ItemDefinition CreateDefinition(
         string itemId,
         EquipmentSlotType slotType,
