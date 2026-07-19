@@ -54,6 +54,138 @@ namespace DiceBossArena.Tests.EditMode
         }
 
         [Test]
+        public void Compose_PreservesEquipmentLoadout()
+        {
+            EquipmentLoadoutSnapshot loadout =
+                new EquipmentLoadoutSnapshot(
+                    new[]
+                    {
+                new EquippedItemSnapshot(
+                    EquipmentSlotType.MainHand,
+                    new CharacterItemId(
+                        "starter_sword"))
+                    });
+
+            CharacterBuildCompositionRequest request =
+                new CharacterBuildCompositionRequest(
+                    classDefinition,
+                    equipmentLoadout:
+                        loadout);
+
+            CharacterBuildSnapshot snapshot =
+                composer.Compose(request);
+
+            Assert.That(
+                snapshot.EquipmentLoadout,
+                Is.EqualTo(loadout));
+
+            Assert.That(
+                snapshot.EquipmentLoadout.Items.Count,
+                Is.EqualTo(1));
+
+            Assert.That(
+                snapshot.EquipmentLoadout.Items[0].ItemId,
+                Is.EqualTo(
+                    new CharacterItemId(
+                        "starter_sword")));
+        }
+
+        [Test]
+        public void Compose_AddsEquipmentModifiersAfterClassModifiers()
+        {
+            ItemDefinition item =
+                ScriptableObject.CreateInstance<
+                    ItemDefinition>();
+
+            try
+            {
+                classDefinition.InitializeForTests(
+                    newClassId:
+                        "companion",
+                    newStatModifiers:
+                        new[]
+                        {
+                    new CharacterStatModifierDefinition(
+                        FightStatType.MaxHealth,
+                        FightStatModifierType.Flat,
+                        10)
+                        });
+
+                item.InitializeForTests(
+                    "starter_sword",
+                    EquipmentSlotType.MainHand,
+                    newStatModifiers:
+                        new[]
+                        {
+                    new CharacterStatModifierDefinition(
+                        FightStatType.Strength,
+                        FightStatModifierType.Flat,
+                        5)
+                        });
+
+                ItemDefinitionCatalog catalog =
+                    new ItemDefinitionCatalog(
+                        new[]
+                        {
+                    item
+                        });
+
+                EquipmentStatModifierResolver
+                    equipmentResolver =
+                        new EquipmentStatModifierResolver(
+                            catalog);
+
+                CharacterBuildComposer equipmentComposer =
+                    new CharacterBuildComposer(
+                        equipmentResolver);
+
+                EquipmentLoadoutSnapshot loadout =
+                    new EquipmentLoadoutSnapshot(
+                        new[]
+                        {
+                    new EquippedItemSnapshot(
+                        EquipmentSlotType.MainHand,
+                        new CharacterItemId(
+                            "starter_sword"))
+                        });
+
+                CharacterBuildCompositionRequest request =
+                    new CharacterBuildCompositionRequest(
+                        classDefinition,
+                        equipmentLoadout:
+                            loadout);
+
+                CharacterBuildSnapshot result =
+                    equipmentComposer.Compose(
+                        request);
+
+                Assert.That(
+                    result.StatModifiers.Count,
+                    Is.EqualTo(2));
+
+                Assert.That(
+                    result.StatModifiers[0],
+                    Is.EqualTo(
+                        new FightStatModifier(
+                            FightStatType.MaxHealth,
+                            FightStatModifierType.Flat,
+                            10)));
+
+                Assert.That(
+                    result.StatModifiers[1],
+                    Is.EqualTo(
+                        new FightStatModifier(
+                            FightStatType.Strength,
+                            FightStatModifierType.Flat,
+                            5)));
+            }
+            finally
+            {
+                UnityEngine.Object.DestroyImmediate(item);
+            }
+        }
+
+        [Test]
         public void Compose_NullRequestThrows()
         {
             Assert.That(

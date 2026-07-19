@@ -5,6 +5,17 @@ namespace DiceBossArena.Game
 {
     public sealed class CharacterBuildComposer
     {
+        private readonly EquipmentStatModifierResolver
+    equipmentStatModifierResolver;
+
+        public CharacterBuildComposer(
+    EquipmentStatModifierResolver
+        equipmentStatModifierResolver = null)
+        {
+            this.equipmentStatModifierResolver =
+                equipmentStatModifierResolver;
+        }
+
         public CharacterBuildSnapshot Compose(
             CharacterBuildCompositionRequest request)
         {
@@ -108,6 +119,13 @@ namespace DiceBossArena.Game
                         specialization.StatModifiers));
             }
 
+            if (equipmentStatModifierResolver != null)
+            {
+                statModifiers.AddRange(
+                    equipmentStatModifierResolver.Resolve(
+                        request.EquipmentLoadout));
+            }
+
             return new CharacterBuildSnapshot(
                 classId,
                 specializationId,
@@ -116,7 +134,7 @@ namespace DiceBossArena.Game
                 statModifiers:
                     statModifiers,
                 equipmentLoadout:
-                    null,
+    request.EquipmentLoadout,
                 passiveIds:
                     passiveIds);
                     }

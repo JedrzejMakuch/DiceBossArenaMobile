@@ -21,16 +21,23 @@ namespace DiceBossArena.Game
             get;
         }
 
+        public EquipmentLoadoutSnapshot EquipmentLoadout
+        {
+            get;
+        }
+
         public IReadOnlyList<CharacterBuildSkill>
             SelectedSkills =>
                 selectedSkills;
 
         public CharacterBuildCompositionRequest(
-            ClassDefinition classDefinition,
-            SpecializationDefinition
-                specializationDefinition = null,
-            IReadOnlyList<CharacterBuildSkill>
-                selectedSkills = null)
+    ClassDefinition classDefinition,
+    SpecializationDefinition
+        specializationDefinition = null,
+    IReadOnlyList<CharacterBuildSkill>
+        selectedSkills = null,
+    EquipmentLoadoutSnapshot
+        equipmentLoadout = null)
         {
             ClassDefinition =
                 classDefinition ??
@@ -44,6 +51,10 @@ namespace DiceBossArena.Game
                 CopySkills(
                     selectedSkills)
                     .AsReadOnly();
+
+            EquipmentLoadout =
+        equipmentLoadout ??
+        new EquipmentLoadoutSnapshot(null);
         }
 
         private static List<CharacterBuildSkill>

@@ -21,6 +21,78 @@ namespace DiceBossArena.Tests.EditMode
         }
 
         [Test]
+        public void Calculate_NewFightStatTypes_AreCalculatedCorrectly()
+        {
+            List<FightStatModifier> modifiers =
+                new()
+                {
+            new FightStatModifier(
+                FightStatType.FireResistance,
+                FightStatModifierType.Flat,
+                15),
+
+            new FightStatModifier(
+                FightStatType.FireResistance,
+                FightStatModifierType.Percent,
+                20)
+                };
+
+            int result =
+                FightStatCalculator.Calculate(
+                    FightStatType.FireResistance,
+                    100,
+                    modifiers);
+
+            Assert.That(
+                result,
+                Is.EqualTo(138));
+        }
+
+        [Test]
+        public void Calculate_DifferentElementStats_DoNotAffectEachOther()
+        {
+            List<FightStatModifier> modifiers =
+                new()
+                {
+            new FightStatModifier(
+                FightStatType.FireDamageBonus,
+                FightStatModifierType.Flat,
+                25),
+
+            new FightStatModifier(
+                FightStatType.WaterDamageBonus,
+                FightStatModifierType.Flat,
+                50),
+
+            new FightStatModifier(
+                FightStatType.FireResistance,
+                FightStatModifierType.Flat,
+                15)
+                };
+
+            Assert.That(
+                FightStatCalculator.Calculate(
+                    FightStatType.FireDamageBonus,
+                    100,
+                    modifiers),
+                Is.EqualTo(125));
+
+            Assert.That(
+                FightStatCalculator.Calculate(
+                    FightStatType.WaterDamageBonus,
+                    100,
+                    modifiers),
+                Is.EqualTo(150));
+
+            Assert.That(
+                FightStatCalculator.Calculate(
+                    FightStatType.FireResistance,
+                    100,
+                    modifiers),
+                Is.EqualTo(115));
+        }
+
+        [Test]
         public void Calculate_WithFlatModifier_AddsFlatValue()
         {
             List<FightStatModifier> modifiers =

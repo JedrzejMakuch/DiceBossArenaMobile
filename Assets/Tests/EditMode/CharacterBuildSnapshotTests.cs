@@ -27,6 +27,63 @@ public class CharacterBuildSnapshotTests
     }
 
     [Test]
+    public void Constructor_PreservesNewFightStatModifiers()
+    {
+        FightStatModifier[] modifiers =
+        {
+        new FightStatModifier(
+            FightStatType.Strength,
+            FightStatModifierType.Flat,
+            12),
+
+        new FightStatModifier(
+            FightStatType.FireDamageBonus,
+            FightStatModifierType.Percent,
+            20),
+
+        new FightStatModifier(
+            FightStatType.WaterResistance,
+            FightStatModifierType.Flat,
+            15),
+
+        new FightStatModifier(
+            FightStatType.SummonLimit,
+            FightStatModifierType.Flat,
+            1)
+    };
+
+        CharacterBuildSnapshot snapshot =
+            new CharacterBuildSnapshot(
+                new CharacterClassId("companion"),
+                new CharacterSpecializationId(
+                    "berserker"),
+                null,
+                modifiers);
+
+        Assert.That(
+            snapshot.StatModifiers.Count,
+            Is.EqualTo(4));
+
+        Assert.That(
+            snapshot.StatModifiers[0].StatType,
+            Is.EqualTo(FightStatType.Strength));
+
+        Assert.That(
+            snapshot.StatModifiers[1].StatType,
+            Is.EqualTo(
+                FightStatType.FireDamageBonus));
+
+        Assert.That(
+            snapshot.StatModifiers[2].StatType,
+            Is.EqualTo(
+                FightStatType.WaterResistance));
+
+        Assert.That(
+            snapshot.StatModifiers[3].StatType,
+            Is.EqualTo(FightStatType.SummonLimit));
+    }
+
+    [Test]
     public void Snapshot_WithClassIsNotEmpty()
     {
         CharacterBuildSnapshot snapshot =
