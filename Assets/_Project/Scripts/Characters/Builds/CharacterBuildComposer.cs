@@ -6,14 +6,22 @@ namespace DiceBossArena.Game
     public sealed class CharacterBuildComposer
     {
         private readonly EquipmentStatModifierResolver
-    equipmentStatModifierResolver;
+            equipmentStatModifierResolver;
+
+        private readonly EquipmentLoadoutValidator
+            equipmentLoadoutValidator;
 
         public CharacterBuildComposer(
-    EquipmentStatModifierResolver
-        equipmentStatModifierResolver = null)
+            EquipmentStatModifierResolver
+                equipmentStatModifierResolver = null,
+            EquipmentLoadoutValidator
+                equipmentLoadoutValidator = null)
         {
             this.equipmentStatModifierResolver =
                 equipmentStatModifierResolver;
+
+            this.equipmentLoadoutValidator =
+                equipmentLoadoutValidator;
         }
 
         public CharacterBuildSnapshot Compose(
@@ -110,7 +118,17 @@ namespace DiceBossArena.Game
                         specialization.Passives));
             }
 
-            List<FightStatModifier> statModifiers = CreateStatModifiers(classDefinition.StatModifiers);
+            if (equipmentLoadoutValidator != null)
+            {
+                equipmentLoadoutValidator.Validate(
+                    request.EquipmentLoadout,
+                    classId,
+                    specializationId);
+            }
+
+            List<FightStatModifier> statModifiers =
+                CreateStatModifiers(
+                    classDefinition.StatModifiers);
 
             if (specialization != null)
             {

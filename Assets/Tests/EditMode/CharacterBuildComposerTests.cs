@@ -1,6 +1,7 @@
-﻿using System;
-using DiceBossArena.Game;
+﻿using DiceBossArena.Game;
 using NUnit.Framework;
+using System;
+using System.Linq;
 using UnityEngine;
 
 namespace DiceBossArena.Tests.EditMode
@@ -88,6 +89,167 @@ namespace DiceBossArena.Tests.EditMode
                 Is.EqualTo(
                     new CharacterItemId(
                         "starter_sword")));
+        }
+
+        [Test]
+        public void Compose_InvalidEquipmentLoadoutThrows()
+        {
+            ItemDefinition sword =
+                ScriptableObject.CreateInstance<ItemDefinition>();
+
+            try
+            {
+                sword.InitializeForTests(
+                    "starter_sword",
+                    EquipmentSlotType.MainHand);
+
+                ItemDefinitionCatalog catalog =
+                    new ItemDefinitionCatalog(
+                        new[]
+                        {
+                    sword
+                        });
+
+                EquipmentLoadoutValidator loadoutValidator =
+                new EquipmentLoadoutValidator(
+                    catalog,
+                    new EquipmentSlotCompatibilityValidator(
+                        new ItemDefinitionContentValidator()),
+                    new ItemRequirementValidator());
+
+                CharacterBuildComposer validatingComposer =
+                    new CharacterBuildComposer(
+                        equipmentLoadoutValidator:
+                            loadoutValidator);
+
+                EquipmentLoadoutSnapshot loadout =
+                    new EquipmentLoadoutSnapshot(
+                        new[]
+                        {
+                    new EquippedItemSnapshot(
+                        EquipmentSlotType.Head,
+                        new CharacterItemId(
+                            "starter_sword"))
+                        });
+
+                CharacterBuildCompositionRequest request =
+                    new CharacterBuildCompositionRequest(
+                        classDefinition,
+                        equipmentLoadout:
+                            loadout);
+
+                Assert.That(
+                    () =>
+                        validatingComposer.Compose(
+                            request),
+                    Throws.TypeOf<
+                        InvalidOperationException>());
+            }
+            finally
+            {
+                UnityEngine.Object.DestroyImmediate(sword);
+            }
+        }
+
+        [Test]
+        public void Compose_WithoutEquipmentValidator_DoesNotValidateLoadout()
+        {
+            CharacterBuildComposer composer =
+                new CharacterBuildComposer();
+
+            EquipmentLoadoutSnapshot loadout =
+                new EquipmentLoadoutSnapshot(
+                    new[]
+                    {
+                new EquippedItemSnapshot(
+                    EquipmentSlotType.Head,
+                    new CharacterItemId("missing_item"))
+                    });
+
+            CharacterBuildCompositionRequest request =
+                new CharacterBuildCompositionRequest(
+                    classDefinition,
+                    equipmentLoadout:
+                        loadout);
+
+            Assert.That(
+                () => composer.Compose(request),
+                Throws.Nothing);
+        }
+
+        [Test]
+        public void Compose_ValidEquipment_ValidatesAndAddsEquipmentStats()
+        {
+            ItemDefinition sword =
+                ScriptableObject.CreateInstance<ItemDefinition>();
+
+            try
+            {
+                sword.InitializeForTests(
+                    "starter_sword",
+                    EquipmentSlotType.MainHand,
+                    newStatModifiers:
+                        new[]
+                        {
+                    new CharacterStatModifierDefinition(
+                        FightStatType.Strength,
+                        FightStatModifierType.Flat,
+                        5)
+                        });
+
+                ItemDefinitionCatalog catalog =
+                    new ItemDefinitionCatalog(
+                        new[]
+                        {
+                    sword
+                        });
+
+                EquipmentLoadoutValidator validator =
+                    new EquipmentLoadoutValidator(
+                        catalog,
+                        new EquipmentSlotCompatibilityValidator(
+                            new ItemDefinitionContentValidator()),
+                        new ItemRequirementValidator());
+
+                EquipmentStatModifierResolver resolver =
+                    new EquipmentStatModifierResolver(
+                        catalog);
+
+                CharacterBuildComposer composer =
+                    new CharacterBuildComposer(
+                        resolver,
+                        validator);
+
+                EquipmentLoadoutSnapshot loadout =
+                    new EquipmentLoadoutSnapshot(
+                        new[]
+                        {
+                    new EquippedItemSnapshot(
+                        EquipmentSlotType.MainHand,
+                        new CharacterItemId(
+                            "starter_sword"))
+                        });
+
+                CharacterBuildCompositionRequest request =
+                    new CharacterBuildCompositionRequest(
+                        classDefinition,
+                        equipmentLoadout:
+                            loadout);
+
+                CharacterBuildSnapshot result =
+                    composer.Compose(request);
+
+                Assert.That(
+                    result.StatModifiers.Any(
+                        x =>
+                            x.StatType ==
+                                FightStatType.Strength &&
+                            x.Value == 5));
+            }
+            finally
+            {
+                UnityEngine.Object.DestroyImmediate(sword);
+            }
         }
 
         [Test]
