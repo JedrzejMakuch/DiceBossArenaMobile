@@ -32,6 +32,8 @@ namespace DiceBossArena.Game
 
         [Header("Equipment")]
         [SerializeField]
+        private EquipmentBaseTypeDefinition baseType;
+        [SerializeField]
         private EquipmentSlotType slotType;
 
         public bool IsEquippable =>
@@ -85,6 +87,9 @@ namespace DiceBossArena.Game
 
         public Sprite Icon =>
             icon;
+
+        public EquipmentBaseTypeDefinition BaseType =>
+    baseType;
 
         public EquipmentSlotType SlotType =>
             slotType;
@@ -218,7 +223,8 @@ namespace DiceBossArena.Game
             IReadOnlyList<string>
                 newRequiredClassIds = null,
             IReadOnlyList<string>
-                newRequiredSpecializationIds = null)
+    newRequiredSpecializationIds = null,
+EquipmentBaseTypeDefinition newBaseType = null)
         {
             itemId =
                 Normalize(newItemId);
@@ -285,6 +291,9 @@ namespace DiceBossArena.Game
             requiredSpecializationIds =
                 NormalizeIds(
                     newRequiredSpecializationIds);
+
+            baseType =
+    newBaseType;
         }
 #endif
     }

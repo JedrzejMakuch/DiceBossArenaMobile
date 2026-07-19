@@ -87,6 +87,91 @@ namespace DiceBossArena.Tests.EditMode
         }
 
         [Test]
+        public void Resolve_ItemWithBaseType_ReturnsBaseAndItemModifiers()
+        {
+            EquipmentBaseTypeDefinition baseType =
+                ScriptableObject.CreateInstance<
+                    EquipmentBaseTypeDefinition>();
+
+            try
+            {
+                CharacterStatModifierDefinition
+                    baseModifier =
+                        new CharacterStatModifierDefinition(
+                            FightStatType.Strength,
+                            FightStatModifierType.Flat,
+                            3);
+
+                CharacterStatModifierDefinition
+                    itemModifier =
+                        new CharacterStatModifierDefinition(
+                            FightStatType.Strength,
+                            FightStatModifierType.Flat,
+                            5);
+
+                baseType.InitializeForTests(
+                    "iron_sword",
+                    EquipmentSlotType.MainHand,
+                    EquipmentBaseTypeCategory.Sword,
+                    new[]
+                    {
+                baseModifier
+                    });
+
+                item.InitializeForTests(
+                    "starter_sword",
+                    EquipmentSlotType.MainHand,
+                    newStatModifiers:
+                        new[]
+                        {
+                    itemModifier
+                        },
+                    newBaseType:
+                        baseType);
+
+                ItemDefinitionCatalog catalog =
+                    new ItemDefinitionCatalog(
+                        new[]
+                        {
+                    item
+                        });
+
+                EquipmentLoadoutSnapshot loadout =
+                    new EquipmentLoadoutSnapshot(
+                        new[]
+                        {
+                    new EquippedItemSnapshot(
+                        EquipmentSlotType.MainHand,
+                        new CharacterItemId(
+                            "starter_sword"))
+                        });
+
+                EquipmentStatModifierResolver resolver =
+                    new EquipmentStatModifierResolver(
+                        catalog);
+
+                IReadOnlyList<FightStatModifier> result =
+                    resolver.Resolve(loadout);
+
+                Assert.That(
+                    result,
+                    Has.Count.EqualTo(2));
+
+                Assert.That(
+                    result[0].Value,
+                    Is.EqualTo(3));
+
+                Assert.That(
+                    result[1].Value,
+                    Is.EqualTo(5));
+            }
+            finally
+            {
+                Object.DestroyImmediate(baseType);
+            }
+        }
+
+        [Test]
         public void Resolve_TwoEquippedItems_ReturnsModifiersFromBothItems()
         {
             ItemDefinition sword =

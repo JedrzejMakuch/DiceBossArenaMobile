@@ -43,6 +43,27 @@ namespace DiceBossArena.Game
                         $"{equippedItem.ItemId.Value}.");
                 }
 
+                if (definition.BaseType != null)
+                {
+                    EquipmentBaseTypeStatModifierResolver
+                        baseTypeResolver =
+                            new EquipmentBaseTypeStatModifierResolver();
+
+                    IReadOnlyList<FightStatModifier>
+                        baseTypeModifiers =
+                            baseTypeResolver.Resolve(
+                                definition.BaseType);
+
+                    for (int modifierIndex = 0;
+                         modifierIndex <
+                         baseTypeModifiers.Count;
+                         modifierIndex++)
+                    {
+                        result.Add(
+                            baseTypeModifiers[modifierIndex]);
+                    }
+                }
+
                 for (int modifierIndex = 0;
                      modifierIndex <
                      definition.StatModifiers.Count;

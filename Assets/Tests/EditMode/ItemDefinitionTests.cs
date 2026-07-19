@@ -51,6 +51,63 @@ public class ItemDefinitionTests
     }
 
     [Test]
+    public void InitializeForTests_AssignsBaseType()
+    {
+        EquipmentBaseTypeDefinition baseType =
+            ScriptableObject.CreateInstance<
+                EquipmentBaseTypeDefinition>();
+
+        ItemDefinition item =
+            ScriptableObject.CreateInstance<
+                ItemDefinition>();
+
+        try
+        {
+            baseType.InitializeForTests(
+                "iron_sword",
+                EquipmentSlotType.MainHand,
+                EquipmentBaseTypeCategory.Sword);
+
+            item.InitializeForTests(
+                "iron_sword_item",
+                EquipmentSlotType.MainHand,
+                newBaseType: baseType);
+
+            Assert.That(
+                item.BaseType,
+                Is.SameAs(baseType));
+        }
+        finally
+        {
+            Object.DestroyImmediate(item);
+            Object.DestroyImmediate(baseType);
+        }
+    }
+
+    [Test]
+    public void InitializeForTests_WithoutBaseType_UsesNull()
+    {
+        ItemDefinition item =
+            ScriptableObject.CreateInstance<
+                ItemDefinition>();
+
+        try
+        {
+            item.InitializeForTests(
+                "iron_sword_item",
+                EquipmentSlotType.MainHand);
+
+            Assert.That(
+                item.BaseType,
+                Is.Null);
+        }
+        finally
+        {
+            Object.DestroyImmediate(item);
+        }
+    }
+
+    [Test]
     public void InitializeForTests_PreservesEquipmentData()
     {
         definition =

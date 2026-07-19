@@ -42,6 +42,9 @@ namespace DiceBossArena.Game
                     $"{definition.Category} is not valid " +
                     $"for slot {definition.SlotType}.");
             }
+
+            ValidateStatModifiers(
+    definition.StatModifiers);
         }
 
         private static bool IsCategoryAllowedForSlot(
@@ -95,6 +98,31 @@ namespace DiceBossArena.Game
 
                 default:
                     return false;
+            }
+        }
+
+        private static void ValidateStatModifiers(
+    System.Collections.Generic.IReadOnlyList<
+        CharacterStatModifierDefinition>
+        statModifiers)
+        {
+            if (statModifiers == null)
+            {
+                throw new InvalidOperationException(
+                    "Equipment base type stat modifiers " +
+                    "collection cannot be null.");
+            }
+
+            for (int i = 0;
+                 i < statModifiers.Count;
+                 i++)
+            {
+                if (statModifiers[i] == null)
+                {
+                    throw new InvalidOperationException(
+                        $"Equipment base type stat modifier " +
+                        $"at index {i} cannot be null.");
+                }
             }
         }
     }

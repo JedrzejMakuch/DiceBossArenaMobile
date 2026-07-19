@@ -355,11 +355,76 @@ namespace DiceBossArena.Tests.EditMode
             }
         }
 
+        [Test]
+        public void Validate_ValidStatModifier_DoesNotThrow()
+        {
+            CharacterStatModifierDefinition modifier =
+                new CharacterStatModifierDefinition(
+                    FightStatType.Strength,
+                    FightStatModifierType.Flat,
+                    8);
+
+            EquipmentBaseTypeDefinition definition =
+                CreateDefinition(
+                    "iron_sword",
+                    EquipmentSlotType.MainHand,
+                    EquipmentBaseTypeCategory.Sword,
+                    new[]
+                    {
+                modifier
+                    });
+
+            try
+            {
+                EquipmentBaseTypeDefinitionValidator validator =
+                    new EquipmentBaseTypeDefinitionValidator();
+
+                Assert.That(
+                    () => validator.Validate(definition),
+                    Throws.Nothing);
+            }
+            finally
+            {
+                UnityEngine.Object.DestroyImmediate(definition);
+            }
+        }
+
+        [Test]
+        public void Validate_NullStatModifier_Throws()
+        {
+            EquipmentBaseTypeDefinition definition =
+                CreateDefinition(
+                    "broken_sword",
+                    EquipmentSlotType.MainHand,
+                    EquipmentBaseTypeCategory.Sword,
+                    new CharacterStatModifierDefinition[]
+                    {
+                null
+                    });
+
+            try
+            {
+                EquipmentBaseTypeDefinitionValidator validator =
+                    new EquipmentBaseTypeDefinitionValidator();
+
+                Assert.That(
+                    () => validator.Validate(definition),
+                    Throws.TypeOf<InvalidOperationException>());
+            }
+            finally
+            {
+                UnityEngine.Object.DestroyImmediate(definition);
+            }
+        }
+
         private static EquipmentBaseTypeDefinition
-            CreateDefinition(
-                string id,
-                EquipmentSlotType slotType,
-                EquipmentBaseTypeCategory category)
+    CreateDefinition(
+        string id,
+        EquipmentSlotType slotType,
+        EquipmentBaseTypeCategory category,
+        System.Collections.Generic.IReadOnlyList<
+            CharacterStatModifierDefinition>
+            statModifiers = null)
         {
             EquipmentBaseTypeDefinition definition =
                 ScriptableObject.CreateInstance<
@@ -368,7 +433,8 @@ namespace DiceBossArena.Tests.EditMode
             definition.InitializeForTests(
                 id,
                 slotType,
-                category);
+                category,
+                statModifiers);
 
             return definition;
         }

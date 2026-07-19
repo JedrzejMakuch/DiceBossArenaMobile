@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 namespace DiceBossArena.Game
 {
@@ -17,6 +18,11 @@ namespace DiceBossArena.Game
         [SerializeField]
         private EquipmentSlotType slotType;
 
+        [Header("Base Stats")]
+        [SerializeField]
+        private List<CharacterStatModifierDefinition>
+    statModifiers = new();
+
         [SerializeField]
         private EquipmentBaseTypeCategory category;
 
@@ -29,18 +35,30 @@ namespace DiceBossArena.Game
         public EquipmentBaseTypeCategory Category =>
             category;
 
+        public IReadOnlyList<
+    CharacterStatModifierDefinition>
+    StatModifiers =>
+        statModifiers;
+
         private void OnValidate()
         {
             baseTypeId =
                 baseTypeId?.Trim() ??
                 string.Empty;
+
+            statModifiers ??=
+                new List<
+                    CharacterStatModifierDefinition>();
         }
 
 #if UNITY_EDITOR
         public void InitializeForTests(
-            string newBaseTypeId,
-            EquipmentSlotType newSlotType,
-            EquipmentBaseTypeCategory newCategory)
+    string newBaseTypeId,
+    EquipmentSlotType newSlotType,
+    EquipmentBaseTypeCategory newCategory,
+    IReadOnlyList<
+        CharacterStatModifierDefinition>
+        newStatModifiers = null)
         {
             baseTypeId =
                 newBaseTypeId?.Trim() ??
@@ -51,6 +69,14 @@ namespace DiceBossArena.Game
 
             category =
                 newCategory;
+
+            statModifiers =
+    newStatModifiers != null
+        ? new List<
+            CharacterStatModifierDefinition>(
+                newStatModifiers)
+        : new List<
+            CharacterStatModifierDefinition>();
         }
 #endif
     }
