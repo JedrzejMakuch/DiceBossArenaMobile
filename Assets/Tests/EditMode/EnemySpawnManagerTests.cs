@@ -100,6 +100,8 @@ namespace DiceBossArena.Tests.EditMode
                 "enemyCount",
                 1);
 
+            InitializeBuildResolver();
+
             SetGeneratedTiles(
                 arenaGenerator,
                 spawnTile);
@@ -220,7 +222,7 @@ namespace DiceBossArena.Tests.EditMode
                         "enemy_warrior"),
                     new CharacterSpecializationId(
                         "brute"),
-                    null,
+                    CreateCompleteBuildSkills(),
                     new[]
                     {
                         new FightStatModifier(
@@ -349,7 +351,7 @@ namespace DiceBossArena.Tests.EditMode
                         "enemy_warrior"),
                     new CharacterSpecializationId(
                         "brute"),
-                    null,
+                    CreateCompleteBuildSkills(),
                     new[]
                     {
                         new FightStatModifier(
@@ -406,6 +408,74 @@ namespace DiceBossArena.Tests.EditMode
             Assert.That(
                 registry.Units,
                 Is.Empty);
+        }
+
+        private void InitializeBuildResolver()
+        {
+            SkillDefinition[] definitions =
+            {
+        CreateSkillDefinition(
+            CharacterSkillIds.BasicAttack),
+
+        CreateSkillDefinition(
+            "enemy_skill_one"),
+
+        CreateSkillDefinition(
+            "enemy_skill_two"),
+
+        CreateSkillDefinition(
+            "enemy_skill_three"),
+
+        CreateSkillDefinition(
+            "enemy_skill_four")
+    };
+
+            unitSpawner.InitializeBuildResolverForTests(
+                definitions);
+        }
+
+        private SkillDefinition CreateSkillDefinition(
+            string skillId)
+        {
+            SkillDefinition definition =
+                ScriptableObject.CreateInstance<
+                    SkillDefinition>();
+
+            definition.InitializeForTests(
+                skillId,
+                skillId,
+                1);
+
+            createdObjects.Add(definition);
+
+            return definition;
+        }
+
+        private static CharacterBuildSkill[]
+            CreateCompleteBuildSkills()
+        {
+            return new[]
+            {
+        new CharacterBuildSkill(
+            CharacterSkillIds.BasicAttack,
+            1),
+
+        new CharacterBuildSkill(
+            "enemy_skill_one",
+            1),
+
+        new CharacterBuildSkill(
+            "enemy_skill_two",
+            1),
+
+        new CharacterBuildSkill(
+            "enemy_skill_three",
+            1),
+
+        new CharacterBuildSkill(
+            "enemy_skill_four",
+            1)
+    };
         }
 
         private T CreateComponent<T>(

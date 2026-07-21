@@ -90,6 +90,107 @@ public class FightUnitBuildIntegrationTests
     }
 
     [Test]
+    public void ApplyActionSet_PreservesWeaponProfile()
+    {
+        GameObject unitObject =
+            new GameObject("Unit");
+
+        FightUnit unit =
+            unitObject.AddComponent<FightUnit>();
+
+        RolledWeaponProfile profile =
+            new RolledWeaponProfile(
+                new[]
+                {
+                new RolledWeaponAttackLine(
+                    new WeaponAttackLineId(
+                        "primary_damage"),
+                    WeaponAttackElement.Fire,
+                    4,
+                    8)
+                });
+
+        CharacterActionSet actionSet =
+            CreateActionSet(profile);
+
+        Assert.That(
+            unit.ApplyActionSet(actionSet),
+            Is.True);
+
+        Assert.That(
+            unit.ActionSet,
+            Is.SameAs(actionSet));
+
+        Assert.That(
+            unit.ActionSet[
+                CharacterActionSlot.WeaponAttack]
+                .WeaponProfile,
+            Is.SameAs(profile));
+
+        Object.DestroyImmediate(unitObject);
+    }
+
+    [Test]
+    public void ApplyActionSet_NullReturnsFalse()
+    {
+        GameObject unitObject =
+            new GameObject("Unit");
+
+        FightUnit unit =
+            unitObject.AddComponent<FightUnit>();
+
+        Assert.That(
+            unit.ApplyActionSet(null),
+            Is.False);
+
+        Assert.That(
+            unit.ActionSet,
+            Is.Null);
+
+        Object.DestroyImmediate(unitObject);
+    }
+
+    private static CharacterActionSet CreateActionSet(
+        RolledWeaponProfile profile)
+    {
+        return new CharacterActionSet(
+            new[]
+            {
+            CharacterActionContent
+                .CreateWeaponAttack(profile),
+
+            CharacterActionContent.CreateSkill(
+                CharacterActionSlot.BasicAttack,
+                CreateBuildSkill(
+                    CharacterSkillIds.BasicAttack)),
+
+            CharacterActionContent.CreateSkill(
+                CharacterActionSlot.SkillOne,
+                CreateBuildSkill("skill_one")),
+
+            CharacterActionContent.CreateSkill(
+                CharacterActionSlot.SkillTwo,
+                CreateBuildSkill("skill_two")),
+
+            CharacterActionContent.CreateSkill(
+                CharacterActionSlot.SkillThree,
+                CreateBuildSkill("skill_three")),
+
+            CharacterActionContent.CreateSkill(
+                CharacterActionSlot.SkillFour,
+                CreateBuildSkill("skill_four"))
+            });
+    }
+
+    private static CharacterBuildSkill CreateBuildSkill(
+        string skillId)
+    {
+        return new CharacterBuildSkill(
+            skillId,
+            1);
+    }
+
+    [Test]
     public void ApplyRuntimeSnapshot_RestoresCurrentHealth()
     {
         GameObject unitObject =

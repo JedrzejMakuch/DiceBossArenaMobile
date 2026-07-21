@@ -46,6 +46,8 @@ public class FightUnit : MonoBehaviour
     private EquipmentLoadoutSnapshot equipmentLoadout =
         new EquipmentLoadoutSnapshot(null);
 
+    private CharacterActionSet actionSet;
+
     private IReadOnlyList<CharacterPassiveId> passiveIds =
         Array.Empty<CharacterPassiveId>();
 
@@ -86,6 +88,9 @@ public class FightUnit : MonoBehaviour
 
     public EquipmentLoadoutSnapshot EquipmentLoadout =>
         equipmentLoadout;
+
+    public CharacterActionSet ActionSet =>
+    actionSet;
 
     public IReadOnlyList<CharacterPassiveId> PassiveIds =>
         passiveIds;
@@ -568,6 +573,18 @@ public class FightUnit : MonoBehaviour
         {
             stats.StatChanged -= HandleStatChanged;
         }
+    }
+
+    public bool ApplyActionSet(
+    CharacterActionSet newActionSet)
+    {
+        if (newActionSet == null)
+        {
+            return false;
+        }
+
+        actionSet = newActionSet;
+        return true;
     }
 
     public bool ApplyBuild(

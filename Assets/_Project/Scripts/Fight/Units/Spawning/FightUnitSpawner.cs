@@ -199,18 +199,36 @@ public sealed class FightUnitSpawner : MonoBehaviour
             ResolvedCharacterBuild resolvedBuild =
                 buildResolver.Resolve(snapshot);
 
-            return unit.ApplyBuild(
-                resolvedBuild);
+            CharacterActionSet actionSet =
+                CharacterActionSetFactory.Create(
+                    snapshot);
+
+            if (!unit.ApplyBuild(resolvedBuild))
+            {
+                return false;
+            }
+
+            return unit.ApplyActionSet(actionSet);
         }
         catch (InvalidOperationException exception)
         {
-            Debug.LogError(
-                $"FightUnitSpawner could not resolve build. " +
-                $"{exception.Message}",
-                this);
-
+            LogBuildError(exception);
             return false;
         }
+        catch (ArgumentException exception)
+        {
+            LogBuildError(exception);
+            return false;
+        }
+    }
+
+    private void LogBuildError(
+    Exception exception)
+    {
+        Debug.LogError(
+            $"FightUnitSpawner could not resolve build. " +
+            $"{exception.Message}",
+            this);
     }
 
 #if UNITY_EDITOR

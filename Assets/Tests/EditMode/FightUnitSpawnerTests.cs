@@ -61,6 +61,7 @@ namespace DiceBossArena.Tests.EditMode
                 "SpawnTile");
 
             tile.Initialize(2, 3);
+            InitializeCompleteBuildResolver();
         }
 
         [TearDown]
@@ -98,6 +99,104 @@ namespace DiceBossArena.Tests.EditMode
             Assert.That(result.CurrentHealth, Is.EqualTo(20));
             Assert.That(result.AttackPower, Is.EqualTo(5));
             Assert.That(result.Initiative, Is.EqualTo(8));
+        }
+
+        [Test]
+        public void Spawn_AppliesActionSetWithWeaponProfile()
+        {
+            SkillDefinition basicAttack =
+                CreateSkillDefinition(
+                    CharacterSkillIds.BasicAttack);
+
+            SkillDefinition skillOne =
+                CreateSkillDefinition("skill_one");
+
+            SkillDefinition skillTwo =
+                CreateSkillDefinition("skill_two");
+
+            SkillDefinition skillThree =
+                CreateSkillDefinition("skill_three");
+
+            SkillDefinition skillFour =
+                CreateSkillDefinition("skill_four");
+
+            spawner.InitializeBuildResolverForTests(
+                new[]
+                {
+            basicAttack,
+            skillOne,
+            skillTwo,
+            skillThree,
+            skillFour
+                });
+
+            RolledWeaponProfile profile =
+                new RolledWeaponProfile(
+                    new[]
+                    {
+                new RolledWeaponAttackLine(
+                    new WeaponAttackLineId(
+                        "primary_damage"),
+                    WeaponAttackElement.Fire,
+                    4,
+                    8)
+                    });
+
+            CharacterBuildSnapshot build =
+                new CharacterBuildSnapshot(
+                    new CharacterClassId("warrior"),
+                    new CharacterSpecializationId(
+                        "guardian"),
+                    new[]
+                    {
+                CreateBuildSkill(
+                    CharacterSkillIds.BasicAttack),
+                CreateBuildSkill("skill_one"),
+                CreateBuildSkill("skill_two"),
+                CreateBuildSkill("skill_three"),
+                CreateBuildSkill("skill_four")
+                    },
+                    null,
+                    new EquipmentLoadoutSnapshot(
+                        new[]
+                        {
+                    new EquippedItemSnapshot(
+                        EquipmentSlotType.MainHand,
+                        new CharacterItemId(
+                            "iron_sword"),
+                        profile)
+                        }));
+
+            FightUnitSpawnRequest request =
+                new FightUnitSpawnRequest(
+                    prefab,
+                    definition,
+                    ownership,
+                    tile,
+                    buildSnapshot: build);
+
+            FightUnit unit =
+                spawner.Spawn(request);
+
+            TrackSpawnedUnit(unit);
+
+            Assert.That(
+                unit,
+                Is.Not.Null);
+
+            Assert.That(
+                unit.ActionSet,
+                Is.Not.Null);
+
+            Assert.That(
+                unit.ActionSet.Count,
+                Is.EqualTo(6));
+
+            Assert.That(
+                unit.ActionSet[
+                    CharacterActionSlot.WeaponAttack]
+                    .WeaponProfile,
+                Is.SameAs(profile));
         }
 
         [Test]
@@ -194,32 +293,12 @@ namespace DiceBossArena.Tests.EditMode
         [Test]
         public void Spawn_AppliesBuildSnapshot()
         {
-            SkillDefinition skillDefinition =
-                ScriptableObject.CreateInstance<
-                    SkillDefinition>();
-
-            skillDefinition.InitializeForTests(
-                "shield_bash",
-                "Shield Bash",
-                3);
-
-            spawner.InitializeBuildResolverForTests(
-                new[]
-                {
-            skillDefinition
-                });
-
             CharacterBuildSnapshot build =
                 new CharacterBuildSnapshot(
                     new CharacterClassId("warrior"),
                     new CharacterSpecializationId(
                         "guardian"),
-                    new[]
-                    {
-                new CharacterBuildSkill(
-                    "shield_bash",
-                    2)
-                    },
+                    CreateCompleteBuildSkills(),
                     new[]
                     {
                 new FightStatModifier(
@@ -279,15 +358,19 @@ namespace DiceBossArena.Tests.EditMode
                     definition.AttackPower + 3));
 
             Assert.That(
-                unit.Skills.Skills.Count,
-                Is.EqualTo(1));
+                unit.Skills.Skills,
+                Has.Count.EqualTo(5));
+
+            var shieldBash =
+                unit.Skills.GetSkillById(
+                    "shield_bash");
 
             Assert.That(
-                unit.Skills.Skills[0].Definition,
-                Is.SameAs(skillDefinition));
+                shieldBash,
+                Is.Not.Null);
 
             Assert.That(
-                unit.Skills.Skills[0].Level,
+                shieldBash.Level,
                 Is.EqualTo(2));
 
             Assert.That(
@@ -299,7 +382,6 @@ namespace DiceBossArena.Tests.EditMode
                 unit.PassiveIds[0].Value,
                 Is.EqualTo("shield_mastery"));
 
-            Object.DestroyImmediate(skillDefinition);
         }
 
         [Test]
@@ -392,7 +474,7 @@ namespace DiceBossArena.Tests.EditMode
                     new CharacterClassId("warrior"),
                     new CharacterSpecializationId(
                         "guardian"),
-                    null,
+                    CreateCompleteBuildSkills(),
                     new[]
                     {
                 new FightStatModifier(
@@ -438,7 +520,7 @@ namespace DiceBossArena.Tests.EditMode
                     new CharacterClassId("warrior"),
                     new CharacterSpecializationId(
                         "guardian"),
-                    null,
+                    CreateCompleteBuildSkills(),
                     new[]
                     {
                 new FightStatModifier(
@@ -484,7 +566,7 @@ namespace DiceBossArena.Tests.EditMode
                     new CharacterClassId("warrior"),
                     new CharacterSpecializationId(
                         "guardian"),
-                    null,
+                    CreateCompleteBuildSkills(),
                     new[]
                     {
                 new FightStatModifier(
@@ -530,8 +612,8 @@ namespace DiceBossArena.Tests.EditMode
             createdObjects.Add(definitionSkill);
 
             definitionSkill.InitializeForTests(
-                "basic_attack",
-                "Basic Attack",
+                "definition_only_skill",
+                "Definition Only Skill",
                 0);
 
             SkillDefinition buildSkill =
@@ -548,8 +630,12 @@ namespace DiceBossArena.Tests.EditMode
             spawner.InitializeBuildResolverForTests(
                 new[]
                 {
-            definitionSkill,
-            buildSkill
+                    CreateSkillDefinition(
+                        CharacterSkillIds.BasicAttack),
+                    buildSkill,
+                    CreateSkillDefinition("skill_two"),
+                    CreateSkillDefinition("skill_three"),
+                    CreateSkillDefinition("skill_four")
                 });
 
             FightUnitDefinition definitionWithSkill =
@@ -584,12 +670,7 @@ namespace DiceBossArena.Tests.EditMode
                         "warrior"),
                     new CharacterSpecializationId(
                         "guardian"),
-                    new[]
-                    {
-                new CharacterBuildSkill(
-                    "shield_bash",
-                    2)
-                    },
+                    CreateCompleteBuildSkills(),
                     null);
 
             FightUnitSpawnRequest request =
@@ -616,21 +697,21 @@ namespace DiceBossArena.Tests.EditMode
 
             Assert.That(
                 unit.Skills.Skills,
-                Has.Count.EqualTo(1));
+                Has.Count.EqualTo(5));
 
             Assert.That(
-                unit.Skills.Skills[0]
-                    .Definition,
+                unit.Skills.GetSkillById(
+                    "shield_bash").Definition,
                 Is.SameAs(buildSkill));
 
             Assert.That(
-                unit.Skills.Skills[0]
-                    .Level,
+                unit.Skills.GetSkillById(
+                    "shield_bash").Level,
                 Is.EqualTo(2));
 
             Assert.That(
                 unit.Skills.GetSkillById(
-                    "basic_attack"),
+                    "definition_only_skill"),
                 Is.Null);
         }
 
@@ -649,7 +730,7 @@ namespace DiceBossArena.Tests.EditMode
                         "warrior"),
                     new CharacterSpecializationId(
                         "guardian"),
-                    null,
+                    CreateCompleteBuildSkills(),
                     new[]
                     {
                 new FightStatModifier(
@@ -904,6 +985,76 @@ namespace DiceBossArena.Tests.EditMode
                 unit.Skills.Skills[0]
                     .Level,
                 Is.EqualTo(1));
+        }
+
+        private void InitializeCompleteBuildResolver()
+        {
+            spawner.InitializeBuildResolverForTests(
+                new[]
+                {
+            CreateSkillDefinition(
+                CharacterSkillIds.BasicAttack),
+
+            CreateSkillDefinition(
+                "shield_bash",
+                2),
+
+            CreateSkillDefinition(
+                "skill_two"),
+
+            CreateSkillDefinition(
+                "skill_three"),
+
+            CreateSkillDefinition(
+                "skill_four")
+                });
+        }
+
+        private static CharacterBuildSkill[]
+            CreateCompleteBuildSkills()
+        {
+            return new[]
+            {
+                new CharacterBuildSkill(
+                    CharacterSkillIds.BasicAttack,
+                    1),
+                new CharacterBuildSkill(
+                    "shield_bash",
+                    2),
+                new CharacterBuildSkill(
+                    "skill_two",
+                    1),
+                new CharacterBuildSkill(
+                    "skill_three",
+                    1),
+                new CharacterBuildSkill(
+                    "skill_four",
+                    1)
+            };
+        }
+
+        private SkillDefinition CreateSkillDefinition(string skillId, int maximumLevel = 1)
+        {
+            SkillDefinition skillDefinition =
+                ScriptableObject.CreateInstance<
+                    SkillDefinition>();
+
+            skillDefinition.InitializeForTests(
+                skillId,
+                skillId,
+                maximumLevel);
+
+            createdObjects.Add(skillDefinition);
+
+            return skillDefinition;
+        }
+
+        private static CharacterBuildSkill CreateBuildSkill(
+            string skillId)
+        {
+            return new CharacterBuildSkill(
+                skillId,
+                1);
         }
 
         private FightUnitSpawnRequest CreateRequest(

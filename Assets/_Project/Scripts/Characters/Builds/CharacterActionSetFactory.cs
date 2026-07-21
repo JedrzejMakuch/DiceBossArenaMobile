@@ -48,9 +48,7 @@ namespace DiceBossArena.Game
                 });
         }
 
-        private static RolledWeaponProfile
-    ResolveWeaponProfile(
-        EquipmentLoadoutSnapshot loadout)
+        private static RolledWeaponProfile ResolveWeaponProfile(EquipmentLoadoutSnapshot loadout)
         {
             for (int i = 0;
                  i < loadout.Items.Count;
