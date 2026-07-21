@@ -583,6 +583,94 @@ namespace DiceBossArena.Tests.EditMode
             }
         }
 
+        [Test]
+        public void Generate_SameBaseWithDifferentRandomValues_CreatesDifferentProfiles()
+        {
+            EquipmentBaseTypeDefinition baseType =
+                ScriptableObject.CreateInstance<
+                    EquipmentBaseTypeDefinition>();
+
+            ItemDefinition itemDefinition =
+                ScriptableObject.CreateInstance<
+                    ItemDefinition>();
+
+            try
+            {
+                baseType.InitializeForTests(
+                    "sword",
+                    EquipmentSlotType.MainHand,
+                    EquipmentBaseTypeCategory.Sword,
+                    newStatModifiers: null,
+                    newWeaponProfileGeneration:
+                        CreateWeaponProfileDefinition());
+
+                itemDefinition.InitializeForTests(
+                    "iron_sword",
+                    EquipmentSlotType.MainHand,
+                    newBaseType: baseType);
+
+                CharacterItemInstanceGenerationRequest request =
+                    new CharacterItemInstanceGenerationRequest(
+                        itemDefinition,
+                        new EquipmentAffixPoolDefinition(),
+                        10,
+                        0,
+                        1);
+
+                CharacterItemInstance first =
+                    new CharacterItemInstanceGenerator(
+                        new StubInstanceIdGenerator(
+                            "instance_001"),
+                        CreateRarityRoller(),
+                        CreateAffixGenerator(),
+                        CreateWeaponProfileRoller(
+                            new SequenceRandomSource(0)))
+                    .Generate(request);
+
+                CharacterItemInstance second =
+                    new CharacterItemInstanceGenerator(
+                        new StubInstanceIdGenerator(
+                            "instance_002"),
+                        CreateRarityRoller(),
+                        CreateAffixGenerator(),
+                        CreateWeaponProfileRoller(
+                            new SequenceRandomSource(1)))
+                    .Generate(request);
+
+                Assert.That(
+                    second.ItemId,
+                    Is.EqualTo(first.ItemId));
+
+                Assert.That(
+                    second.BaseTypeId,
+                    Is.EqualTo(first.BaseTypeId));
+
+                Assert.That(
+                    second.InstanceId,
+                    Is.Not.EqualTo(first.InstanceId));
+
+                Assert.That(
+                    first.WeaponProfile.Lines[0].Element,
+                    Is.EqualTo(WeaponAttackElement.Fire));
+
+                Assert.That(
+                    second.WeaponProfile.Lines[0].Element,
+                    Is.EqualTo(WeaponAttackElement.Water));
+
+                Assert.That(
+                    second.WeaponProfile,
+                    Is.Not.EqualTo(first.WeaponProfile));
+            }
+            finally
+            {
+                UnityEngine.Object.DestroyImmediate(
+                    itemDefinition);
+
+                UnityEngine.Object.DestroyImmediate(
+                    baseType);
+            }
+        }
+
         private static CharacterItemInstanceGenerator
     CreateDeterministicMagicGenerator()
         {
@@ -672,6 +760,14 @@ namespace DiceBossArena.Tests.EditMode
         private static WeaponProfileRoller
             CreateWeaponProfileRoller()
         {
+            return CreateWeaponProfileRoller(
+                new StubRandomSource());
+        }
+
+        private static WeaponProfileRoller
+            CreateWeaponProfileRoller(
+                IEquipmentAffixRandomSource randomSource)
+        {
             WeaponAttackLineGenerationDefinitionValidator
                 lineValidator =
                     new
@@ -679,7 +775,7 @@ namespace DiceBossArena.Tests.EditMode
 
             WeaponAttackLineRoller lineRoller =
                 new WeaponAttackLineRoller(
-                    new StubRandomSource(),
+                    randomSource,
                     lineValidator);
 
             WeaponProfileGenerationDefinitionValidator
@@ -808,10 +904,19 @@ namespace DiceBossArena.Tests.EditMode
         private sealed class StubInstanceIdGenerator :
             ICharacterItemInstanceIdGenerator
         {
+            private readonly string instanceId;
+
+            public StubInstanceIdGenerator(
+                string newInstanceId = "instance_001")
+            {
+                instanceId =
+                    newInstanceId;
+            }
+
             public CharacterItemInstanceId Generate()
             {
                 return new CharacterItemInstanceId(
-                    "instance_001");
+                    instanceId);
             }
         }
 
