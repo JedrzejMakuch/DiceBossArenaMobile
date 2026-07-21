@@ -28,7 +28,7 @@ public sealed class CharacterActionSetFactoryTests
                 CharacterActionSlot.BasicAttack]
                 .Skill.SkillId,
             Is.EqualTo(
-    CharacterSkillIds.BasicAttack));
+                CharacterSkillIds.BasicAttack));
 
         Assert.That(
             actionSet[
@@ -63,7 +63,7 @@ public sealed class CharacterActionSetFactoryTests
                 new[]
                 {
                     CreateSkill(
-    CharacterSkillIds.BasicAttack),
+                        CharacterSkillIds.BasicAttack),
                     CreateSkill("skill_one")
                 },
                 null);
@@ -108,7 +108,7 @@ public sealed class CharacterActionSetFactoryTests
             new[]
             {
                 CreateSkill(
-    CharacterSkillIds.BasicAttack),
+                    CharacterSkillIds.BasicAttack),
                 CreateSkill("skill_one"),
                 CreateSkill("skill_two"),
                 CreateSkill("skill_three"),
