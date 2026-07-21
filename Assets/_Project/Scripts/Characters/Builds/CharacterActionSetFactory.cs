@@ -68,29 +68,6 @@ namespace DiceBossArena.Game
                     "must be Basic Attack.",
                     nameof(skills));
             }
-
-            HashSet<string> skillIds =
-            new HashSet<string>(
-                StringComparer.Ordinal);
-
-            for (int i = 0; i < skills.Count; i++)
-            {
-                if (!skills[i].IsValid)
-                {
-                    throw new ArgumentException(
-                        $"Character build skill at index {i} " +
-                        "is invalid.",
-                        nameof(skills));
-                }
-
-                if (!skillIds.Add(skills[i].SkillId))
-                {
-                    throw new ArgumentException(
-                        $"Character build contains duplicate " +
-                        $"skill ID: {skills[i].SkillId}.",
-                        nameof(skills));
-                }
-            }
         }
     }
 }
