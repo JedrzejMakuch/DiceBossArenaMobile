@@ -258,6 +258,216 @@ public class CharacterItemInstanceTests
         Assert.That(
             updated.ItemId,
             Is.EqualTo(original.ItemId));
+
+        Assert.That(
+            updated.Rarity,
+            Is.EqualTo(original.Rarity));
+    }
+
+    [Test]
+    public void Constructor_WithoutAffixes_CreatesEmptyCollection()
+    {
+        CharacterItemInstance item =
+            CreateItem();
+
+        Assert.That(
+            item.Affixes,
+            Is.Not.Null);
+
+        Assert.That(
+            item.Affixes,
+            Is.Empty);
+    }
+
+    [Test]
+    public void Constructor_PreservesAffixes()
+    {
+        RolledEquipmentAffix strength =
+            new RolledEquipmentAffix(
+                new EquipmentAffixId(
+                    "strength_flat"),
+                FightStatType.Strength,
+                FightStatModifierType.Flat,
+                5);
+
+        RolledEquipmentAffix vitality =
+            new RolledEquipmentAffix(
+                new EquipmentAffixId(
+                    "vitality_flat"),
+                FightStatType.MaxHealth,
+                FightStatModifierType.Flat,
+                3);
+
+        CharacterItemInstance item =
+            new CharacterItemInstance(
+                new CharacterItemInstanceId(
+                    "item_instance_001"),
+                new CharacterItemId(
+                    "iron_sword"),
+                5,
+                2,
+                1,
+                EquipmentItemRarity.Magic,
+                new[]
+                {
+                strength,
+                vitality
+                });
+
+        Assert.That(
+            item.Affixes.Count,
+            Is.EqualTo(2));
+
+        Assert.That(
+            item.Affixes[0],
+            Is.SameAs(strength));
+
+        Assert.That(
+            item.Affixes[1],
+            Is.SameAs(vitality));
+    }
+
+    [Test]
+    public void Constructor_PreservesExplicitRarity()
+    {
+        CharacterItemInstance item =
+            new CharacterItemInstance(
+                new CharacterItemInstanceId(
+                    "item_instance_001"),
+                new CharacterItemId(
+                    "iron_sword"),
+                5,
+                2,
+                1,
+                EquipmentItemRarity.Rare);
+
+        Assert.That(
+            item.Rarity,
+            Is.EqualTo(
+                EquipmentItemRarity.Rare));
+    }
+
+    [Test]
+    public void Constructor_NullAffixEntryThrows()
+    {
+        Assert.That(
+            () =>
+                new CharacterItemInstance(
+                    new CharacterItemInstanceId(
+                        "item_instance_001"),
+                    new CharacterItemId(
+                        "iron_sword"),
+                    1,
+                    0,
+                    1,
+                    EquipmentItemRarity.Magic,
+                    new RolledEquipmentAffix[]
+                    {
+                    null
+                    }),
+            Throws.TypeOf<
+                ArgumentException>());
+    }
+
+    [Test]
+    public void CanStackWith_SameAffixesReturnsTrue()
+    {
+        CharacterItemInstance first =
+            CreateItemWithAffixValue(3);
+
+        CharacterItemInstance second =
+            new CharacterItemInstance(
+                new CharacterItemInstanceId(
+                    "item_instance_002"),
+                new CharacterItemId(
+                    "iron_sword"),
+                5,
+                2,
+                1,
+                EquipmentItemRarity.Magic,
+                new[]
+                {
+                CreateStrengthAffix(3)
+                });
+
+        Assert.That(
+            first.CanStackWith(second),
+            Is.True);
+    }
+
+    [Test]
+    public void InstancesWithDifferentRarity_AreNotEqual()
+    {
+        CharacterItemInstance first =
+            new CharacterItemInstance(
+                new CharacterItemInstanceId(
+                    "item_instance_001"),
+                new CharacterItemId(
+                    "iron_sword"),
+                5,
+                2,
+                1,
+                EquipmentItemRarity.Magic);
+
+        CharacterItemInstance second =
+            new CharacterItemInstance(
+                new CharacterItemInstanceId(
+                    "item_instance_001"),
+                new CharacterItemId(
+                    "iron_sword"),
+                5,
+                2,
+                1,
+                EquipmentItemRarity.Rare);
+
+        Assert.That(
+            first,
+            Is.Not.EqualTo(second));
+    }
+
+    [Test]
+    public void CanStackWith_DifferentAffixValueReturnsFalse()
+    {
+        CharacterItemInstance first =
+            CreateItemWithAffixValue(3);
+
+        CharacterItemInstance second =
+            new CharacterItemInstance(
+                new CharacterItemInstanceId(
+                    "item_instance_002"),
+                new CharacterItemId(
+                    "iron_sword"),
+                5,
+                2,
+                1,
+                EquipmentItemRarity.Magic,
+                new[]
+                {
+                CreateStrengthAffix(5)
+                });
+
+        Assert.That(
+            first.CanStackWith(second),
+            Is.False);
+    }
+
+    [Test]
+    public void Constructor_NullAffixesThrows()
+    {
+        Assert.That(
+            () =>
+                new CharacterItemInstance(
+                    new CharacterItemInstanceId(
+                        "item_instance_001"),
+                    new CharacterItemId(
+                        "iron_sword"),
+                    1,
+                    0,
+                    1,
+                    EquipmentItemRarity.Magic,
+                    null),
+            Throws.TypeOf<
+                ArgumentNullException>());
     }
 
     [Test]
@@ -288,5 +498,36 @@ public class CharacterItemInstanceTests
             5,
             2,
             1);
+    }
+
+    private static CharacterItemInstance
+        CreateItemWithAffixValue(
+            int value)
+    {
+        return new CharacterItemInstance(
+            new CharacterItemInstanceId(
+                "item_instance_001"),
+            new CharacterItemId(
+                "iron_sword"),
+            5,
+            2,
+            1,
+            EquipmentItemRarity.Magic,
+            new[]
+            {
+            CreateStrengthAffix(value)
+            });
+    }
+
+    private static RolledEquipmentAffix
+        CreateStrengthAffix(
+            int value)
+    {
+        return new RolledEquipmentAffix(
+            new EquipmentAffixId(
+                "strength_flat"),
+            FightStatType.Strength,
+            FightStatModifierType.Flat,
+            value);
     }
 }
