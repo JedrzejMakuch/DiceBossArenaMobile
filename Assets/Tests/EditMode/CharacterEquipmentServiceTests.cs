@@ -808,6 +808,103 @@ public class CharacterEquipmentServiceTests
             Is.EqualTo(second.InstanceId));
     }
 
+    [Test]
+    public void TryEquipAndUnequip_WeaponProfileRemainsUnchanged()
+    {
+        AddDefinition(
+            "iron_sword",
+            EquipmentSlotType.MainHand,
+            EquipmentItemCategory.Weapon,
+            WeaponHandedness.OneHanded);
+
+        RolledWeaponProfile profile =
+            new RolledWeaponProfile(
+                new[]
+                {
+                new RolledWeaponAttackLine(
+                    new WeaponAttackLineId(
+                        "primary_damage"),
+                    WeaponAttackElement.Fire,
+                    4,
+                    8)
+                });
+
+        CharacterItemInstance item =
+            new CharacterItemInstance(
+                new CharacterItemInstanceId(
+                    "instance_001"),
+                new CharacterItemId(
+                    "iron_sword"),
+                new EquipmentBaseTypeId(
+                    "sword"),
+                10,
+                0,
+                1,
+                EquipmentItemRarity.Common,
+                System.Array.Empty<
+                    RolledEquipmentAffix>(),
+                profile);
+
+        CharacterInventory inventory =
+            CreateInventory(item);
+
+        CharacterEquipmentLoadout loadout =
+            new CharacterEquipmentLoadout();
+
+        CharacterEquipmentService service =
+            CreateService();
+
+        EquipmentOperationResult equipResult =
+            service.TryEquip(
+                inventory,
+                loadout,
+                item.InstanceId,
+                EquipmentSlotType.MainHand,
+                new CharacterClassId(
+                    "companion"),
+                new CharacterSpecializationId(
+                    "berserker"));
+
+        Assert.That(
+            equipResult,
+            Is.EqualTo(
+                EquipmentOperationResult.Equipped));
+
+        Assert.That(
+            inventory.TryGet(
+                item.InstanceId,
+                out CharacterItemInstance equippedItem),
+            Is.True);
+
+        Assert.That(
+            equippedItem.WeaponProfile,
+            Is.SameAs(profile));
+
+        EquipmentOperationResult unequipResult =
+            service.TryUnequip(
+                loadout,
+                EquipmentSlotType.MainHand);
+
+        Assert.That(
+            unequipResult,
+            Is.EqualTo(
+                EquipmentOperationResult.Unequipped));
+
+        Assert.That(
+            inventory.TryGet(
+                item.InstanceId,
+                out CharacterItemInstance unequippedItem),
+            Is.True);
+
+        Assert.That(
+            unequippedItem.WeaponProfile,
+            Is.SameAs(profile));
+
+        Assert.That(
+            unequippedItem,
+            Is.EqualTo(item));
+    }
+
     private CharacterEquipmentService CreateService()
     {
         ItemDefinitionCatalog catalog =
