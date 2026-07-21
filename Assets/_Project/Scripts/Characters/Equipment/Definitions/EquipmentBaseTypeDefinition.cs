@@ -14,6 +14,11 @@ namespace DiceBossArena.Game
         [SerializeField]
         private string baseTypeId;
 
+        [Header("Weapon Profile")]
+        [SerializeField]
+        private WeaponProfileGenerationDefinition
+    weaponProfileGeneration;
+
         [Header("Equipment")]
         [SerializeField]
         private EquipmentSlotType slotType;
@@ -40,6 +45,10 @@ namespace DiceBossArena.Game
     StatModifiers =>
         statModifiers;
 
+        public WeaponProfileGenerationDefinition
+    WeaponProfileGeneration =>
+        weaponProfileGeneration;
+
         private void OnValidate()
         {
             baseTypeId =
@@ -58,7 +67,9 @@ namespace DiceBossArena.Game
     EquipmentBaseTypeCategory newCategory,
     IReadOnlyList<
         CharacterStatModifierDefinition>
-        newStatModifiers = null)
+        newStatModifiers = null,
+    WeaponProfileGenerationDefinition
+    newWeaponProfileGeneration = null)
         {
             baseTypeId =
                 newBaseTypeId?.Trim() ??
@@ -77,6 +88,9 @@ namespace DiceBossArena.Game
                 newStatModifiers)
         : new List<
             CharacterStatModifierDefinition>();
+
+            weaponProfileGeneration =
+    newWeaponProfileGeneration;
         }
 #endif
     }

@@ -24,7 +24,10 @@ namespace DiceBossArena.Tests.EditMode
                 baseType.InitializeForTests(
                     "sword",
                     EquipmentSlotType.MainHand,
-                    EquipmentBaseTypeCategory.Sword);
+                    EquipmentBaseTypeCategory.Sword,
+                    newStatModifiers: null,
+                    newWeaponProfileGeneration:
+                        CreateWeaponProfileDefinition());
 
                 itemDefinition.InitializeForTests(
                     "iron_sword",
@@ -56,7 +59,8 @@ namespace DiceBossArena.Tests.EditMode
                     new CharacterItemInstanceGenerator(
                         new StubInstanceIdGenerator(),
                         CreateMagicRarityRoller(),
-                        CreateMagicAffixGenerator());
+                        CreateMagicAffixGenerator(),
+                        CreateWeaponProfileRoller());
 
                 CharacterItemInstance result =
                     generator.Generate(request);
@@ -93,6 +97,85 @@ namespace DiceBossArena.Tests.EditMode
                     result.Affixes[0].AffixId,
                     Is.Not.EqualTo(
                         result.Affixes[1].AffixId));
+            }
+            finally
+            {
+                UnityEngine.Object.DestroyImmediate(
+                    itemDefinition);
+
+                UnityEngine.Object.DestroyImmediate(
+                    baseType);
+            }
+        }
+
+        [Test]
+        public void Generate_Weapon_RollsAndStoresWeaponProfile()
+        {
+            EquipmentBaseTypeDefinition baseType =
+                ScriptableObject.CreateInstance<
+                    EquipmentBaseTypeDefinition>();
+
+            ItemDefinition itemDefinition =
+                ScriptableObject.CreateInstance<
+                    ItemDefinition>();
+
+            try
+            {
+                baseType.InitializeForTests(
+                    "sword",
+                    EquipmentSlotType.MainHand,
+                    EquipmentBaseTypeCategory.Sword,
+                    newStatModifiers: null,
+                    newWeaponProfileGeneration:
+                        CreateWeaponProfileDefinition());
+
+                itemDefinition.InitializeForTests(
+                    "iron_sword",
+                    EquipmentSlotType.MainHand,
+                    newBaseType: baseType);
+
+                CharacterItemInstanceGenerationRequest request =
+                    new CharacterItemInstanceGenerationRequest(
+                        itemDefinition,
+                        new EquipmentAffixPoolDefinition(),
+                        10,
+                        0,
+                        1);
+
+                CharacterItemInstance result =
+                    new CharacterItemInstanceGenerator(
+                        new StubInstanceIdGenerator(),
+                        CreateRarityRoller(),
+                        CreateAffixGenerator(),
+                        CreateWeaponProfileRoller())
+                    .Generate(request);
+
+                Assert.That(
+                    result.WeaponProfile,
+                    Is.Not.Null);
+
+                Assert.That(
+                    result.WeaponProfile.Lines,
+                    Has.Length.EqualTo(1));
+
+                Assert.That(
+                    result.WeaponProfile.Lines[0].LineId,
+                    Is.EqualTo(
+                        new WeaponAttackLineId(
+                            "primary_damage")));
+
+                Assert.That(
+                    result.WeaponProfile.Lines[0].Element,
+                    Is.EqualTo(
+                        WeaponAttackElement.Fire));
+
+                Assert.That(
+                    result.WeaponProfile.Lines[0].MinDamage,
+                    Is.EqualTo(4));
+
+                Assert.That(
+                    result.WeaponProfile.Lines[0].MaxDamage,
+                    Is.EqualTo(8));
             }
             finally
             {
@@ -160,7 +243,8 @@ namespace DiceBossArena.Tests.EditMode
                     new CharacterItemInstanceGenerator(
                         new StubInstanceIdGenerator(),
                         CreateRareRarityRoller(),
-                        CreateRareAffixGenerator());
+                        CreateRareAffixGenerator(),
+                        CreateWeaponProfileRoller());
 
                 CharacterItemInstance result =
                     generator.Generate(request);
@@ -244,7 +328,8 @@ namespace DiceBossArena.Tests.EditMode
                 () => new CharacterItemInstanceGenerator(
                     new StubInstanceIdGenerator(),
                     CreateRarityRoller(),
-                    CreateAffixGenerator()),
+                    CreateAffixGenerator(),
+                    CreateWeaponProfileRoller()),
                 Throws.Nothing);
         }
 
@@ -255,7 +340,8 @@ namespace DiceBossArena.Tests.EditMode
                 () => new CharacterItemInstanceGenerator(
                     null,
                     CreateRarityRoller(),
-                    CreateAffixGenerator()),
+                    CreateAffixGenerator(),
+                    CreateWeaponProfileRoller()),
                 Throws.TypeOf<ArgumentNullException>());
         }
 
@@ -266,7 +352,8 @@ namespace DiceBossArena.Tests.EditMode
                 () => new CharacterItemInstanceGenerator(
                     new StubInstanceIdGenerator(),
                     null,
-                    CreateAffixGenerator()),
+                    CreateAffixGenerator(),
+                    CreateWeaponProfileRoller()),
                 Throws.TypeOf<ArgumentNullException>());
         }
 
@@ -277,7 +364,8 @@ namespace DiceBossArena.Tests.EditMode
                 () => new CharacterItemInstanceGenerator(
                     new StubInstanceIdGenerator(),
                     CreateRarityRoller(),
-                    null),
+                    null,
+                    CreateWeaponProfileRoller()),
                 Throws.TypeOf<ArgumentNullException>());
         }
 
@@ -288,7 +376,8 @@ namespace DiceBossArena.Tests.EditMode
                 new CharacterItemInstanceGenerator(
                     new StubInstanceIdGenerator(),
                     CreateRarityRoller(),
-                    CreateAffixGenerator());
+                    CreateAffixGenerator(),
+                    CreateWeaponProfileRoller());
 
             Assert.That(
                 () => generator.Generate(null),
@@ -330,7 +419,8 @@ namespace DiceBossArena.Tests.EditMode
                     new CharacterItemInstanceGenerator(
                         new StubInstanceIdGenerator(),
                         CreateRarityRoller(),
-                        CreateAffixGenerator());
+                        CreateAffixGenerator(),
+                        CreateWeaponProfileRoller());
 
                 CharacterItemInstance result =
                     generator.Generate(request);
@@ -545,7 +635,62 @@ namespace DiceBossArena.Tests.EditMode
             return new CharacterItemInstanceGenerator(
                 new StubInstanceIdGenerator(),
                 rarityRoller,
-                affixGenerator);
+                affixGenerator,
+                CreateWeaponProfileRoller());
+        }
+
+        [Test]
+        public void Constructor_NullWeaponProfileRoller_Throws()
+        {
+            Assert.That(
+                () => new CharacterItemInstanceGenerator(
+                    new StubInstanceIdGenerator(),
+                    CreateRarityRoller(),
+                    CreateAffixGenerator(),
+                    null),
+                Throws.TypeOf<ArgumentNullException>());
+        }
+
+        private static WeaponProfileGenerationDefinition
+    CreateWeaponProfileDefinition()
+        {
+            return new WeaponProfileGenerationDefinition(
+                new[]
+                {
+            new WeaponAttackLineGenerationDefinition(
+                "primary_damage",
+                4,
+                8,
+                new[]
+                {
+                    WeaponAttackElement.Fire,
+                    WeaponAttackElement.Water
+                })
+                });
+        }
+
+        private static WeaponProfileRoller
+            CreateWeaponProfileRoller()
+        {
+            WeaponAttackLineGenerationDefinitionValidator
+                lineValidator =
+                    new
+                        WeaponAttackLineGenerationDefinitionValidator();
+
+            WeaponAttackLineRoller lineRoller =
+                new WeaponAttackLineRoller(
+                    new StubRandomSource(),
+                    lineValidator);
+
+            WeaponProfileGenerationDefinitionValidator
+                profileValidator =
+                    new
+                        WeaponProfileGenerationDefinitionValidator(
+                            lineValidator);
+
+            return new WeaponProfileRoller(
+                lineRoller,
+                profileValidator);
         }
 
         private static EquipmentItemRarityRoller

@@ -19,7 +19,7 @@ namespace DiceBossArena.Tests.EditMode
             try
             {
                 EquipmentBaseTypeDefinitionValidator validator =
-                    new EquipmentBaseTypeDefinitionValidator();
+                    CreateValidator();
 
                 Assert.That(
                     () => validator.Validate(definition),
@@ -43,7 +43,7 @@ namespace DiceBossArena.Tests.EditMode
             try
             {
                 EquipmentBaseTypeDefinitionValidator validator =
-                    new EquipmentBaseTypeDefinitionValidator();
+                    CreateValidator();
 
                 Assert.That(
                     () => validator.Validate(definition),
@@ -67,7 +67,7 @@ namespace DiceBossArena.Tests.EditMode
             try
             {
                 EquipmentBaseTypeDefinitionValidator validator =
-                    new EquipmentBaseTypeDefinitionValidator();
+                    CreateValidator();
 
                 Assert.That(
                     () => validator.Validate(definition),
@@ -91,7 +91,7 @@ namespace DiceBossArena.Tests.EditMode
             try
             {
                 EquipmentBaseTypeDefinitionValidator validator =
-                    new EquipmentBaseTypeDefinitionValidator();
+                    CreateValidator();
 
                 Assert.That(
                     () => validator.Validate(definition),
@@ -115,8 +115,7 @@ namespace DiceBossArena.Tests.EditMode
             try
             {
                 EquipmentBaseTypeDefinitionValidator validator =
-                    new EquipmentBaseTypeDefinitionValidator();
-
+                    CreateValidator();
                 Assert.That(
                     () => validator.Validate(definition),
                     Throws.Nothing);
@@ -139,7 +138,7 @@ namespace DiceBossArena.Tests.EditMode
             try
             {
                 EquipmentBaseTypeDefinitionValidator validator =
-                    new EquipmentBaseTypeDefinitionValidator();
+                    CreateValidator();
 
                 Assert.That(
                     () => validator.Validate(definition),
@@ -176,7 +175,7 @@ namespace DiceBossArena.Tests.EditMode
             try
             {
                 EquipmentBaseTypeDefinitionValidator validator =
-                    new EquipmentBaseTypeDefinitionValidator();
+                    CreateValidator();
 
                 Assert.That(
                     () => validator.Validate(definition),
@@ -200,7 +199,7 @@ namespace DiceBossArena.Tests.EditMode
             try
             {
                 EquipmentBaseTypeDefinitionValidator validator =
-                    new EquipmentBaseTypeDefinitionValidator();
+                    CreateValidator();
 
                 Assert.That(
                     () => validator.Validate(definition),
@@ -273,7 +272,7 @@ namespace DiceBossArena.Tests.EditMode
             try
             {
                 EquipmentBaseTypeDefinitionValidator validator =
-                    new EquipmentBaseTypeDefinitionValidator();
+                    CreateValidator();
 
                 Assert.That(
                     () => validator.Validate(definition),
@@ -319,7 +318,7 @@ namespace DiceBossArena.Tests.EditMode
             try
             {
                 EquipmentBaseTypeDefinitionValidator validator =
-                    new EquipmentBaseTypeDefinitionValidator();
+                    CreateValidator();
 
                 Assert.That(
                     () => validator.Validate(definition),
@@ -343,7 +342,7 @@ namespace DiceBossArena.Tests.EditMode
             try
             {
                 EquipmentBaseTypeDefinitionValidator validator =
-                    new EquipmentBaseTypeDefinitionValidator();
+                    CreateValidator();
 
                 Assert.That(
                     () => validator.Validate(definition),
@@ -377,7 +376,7 @@ namespace DiceBossArena.Tests.EditMode
             try
             {
                 EquipmentBaseTypeDefinitionValidator validator =
-                    new EquipmentBaseTypeDefinitionValidator();
+                    CreateValidator();
 
                 Assert.That(
                     () => validator.Validate(definition),
@@ -405,10 +404,43 @@ namespace DiceBossArena.Tests.EditMode
             try
             {
                 EquipmentBaseTypeDefinitionValidator validator =
-                    new EquipmentBaseTypeDefinitionValidator();
+                    CreateValidator();
 
                 Assert.That(
                     () => validator.Validate(definition),
+                    Throws.TypeOf<InvalidOperationException>());
+            }
+            finally
+            {
+                UnityEngine.Object.DestroyImmediate(definition);
+            }
+        }
+
+        [Test]
+        public void Constructor_NullWeaponProfileValidator_Throws()
+        {
+            Assert.That(
+                () => new EquipmentBaseTypeDefinitionValidator(
+                    null),
+                Throws.TypeOf<ArgumentNullException>());
+        }
+
+        [Test]
+        public void Validate_MainHandWithoutWeaponProfile_Throws()
+        {
+            EquipmentBaseTypeDefinition definition =
+                ScriptableObject.CreateInstance<
+                    EquipmentBaseTypeDefinition>();
+
+            try
+            {
+                definition.InitializeForTests(
+                    "iron_sword",
+                    EquipmentSlotType.MainHand,
+                    EquipmentBaseTypeCategory.Sword);
+
+                Assert.That(
+                    () => CreateValidator().Validate(definition),
                     Throws.TypeOf<InvalidOperationException>());
             }
             finally
@@ -430,13 +462,61 @@ namespace DiceBossArena.Tests.EditMode
                 ScriptableObject.CreateInstance<
                     EquipmentBaseTypeDefinition>();
 
+            WeaponProfileGenerationDefinition weaponProfile =
+                slotType == EquipmentSlotType.MainHand
+                    ? CreateValidWeaponProfile()
+                    : null;
+
             definition.InitializeForTests(
                 id,
                 slotType,
                 category,
-                statModifiers);
+                statModifiers,
+                weaponProfile);
 
             return definition;
+        }
+
+        private static WeaponProfileGenerationDefinition
+    CreateValidWeaponProfile()
+        {
+            return new WeaponProfileGenerationDefinition(
+                new[]
+                {
+            new WeaponAttackLineGenerationDefinition(
+                "primary_damage",
+                4,
+                8,
+                new[]
+                {
+                    WeaponAttackElement.Neutral,
+                    WeaponAttackElement.Fire
+                })
+                });
+        }
+
+        private static EquipmentBaseTypeDefinitionValidator
+            CreateValidator()
+        {
+            WeaponAttackLineGenerationDefinitionValidator
+                lineValidator =
+                    new
+                        WeaponAttackLineGenerationDefinitionValidator();
+
+            WeaponProfileGenerationDefinitionValidator
+                profileValidator =
+                    new
+                        WeaponProfileGenerationDefinitionValidator(
+                            lineValidator);
+
+            EquipmentBaseTypeWeaponProfileValidator
+                weaponProfileValidator =
+                    new
+                        EquipmentBaseTypeWeaponProfileValidator(
+                            profileValidator);
+
+            return new EquipmentBaseTypeDefinitionValidator(
+                weaponProfileValidator);
         }
     }
 }

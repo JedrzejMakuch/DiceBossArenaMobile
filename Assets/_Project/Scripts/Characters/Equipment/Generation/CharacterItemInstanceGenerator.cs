@@ -13,13 +13,18 @@ namespace DiceBossArena.Game
         private readonly EquipmentAffixCollectionByRarityGenerator
             affixGenerator;
 
+        private readonly WeaponProfileRoller
+    weaponProfileRoller;
+
         public CharacterItemInstanceGenerator(
             ICharacterItemInstanceIdGenerator
                 newInstanceIdGenerator,
             EquipmentItemRarityRoller
                 newRarityRoller,
             EquipmentAffixCollectionByRarityGenerator
-                newAffixGenerator)
+                newAffixGenerator,
+            WeaponProfileRoller
+    newWeaponProfileRoller)
         {
             instanceIdGenerator =
                 newInstanceIdGenerator ??
@@ -35,6 +40,11 @@ namespace DiceBossArena.Game
                 newAffixGenerator ??
                 throw new ArgumentNullException(
                     nameof(newAffixGenerator));
+
+            weaponProfileRoller =
+                newWeaponProfileRoller ??
+                throw new ArgumentNullException(
+                    nameof(newWeaponProfileRoller));
         }
 
         public CharacterItemInstance Generate(
@@ -55,6 +65,14 @@ namespace DiceBossArena.Game
                     request.Level,
                     rarity);
 
+            RolledWeaponProfile weaponProfile =
+                request.ItemDefinition.BaseType
+                    .WeaponProfileGeneration == null
+                    ? null
+                    : weaponProfileRoller.Roll(
+                        request.ItemDefinition.BaseType
+                            .WeaponProfileGeneration);
+
             return new CharacterItemInstance(
                 instanceIdGenerator.Generate(),
                 request.ItemDefinition.ItemId,
@@ -63,7 +81,8 @@ namespace DiceBossArena.Game
                 request.UpgradeLevel,
                 request.Quantity,
                 rarity,
-                affixes);
+                affixes,
+                weaponProfile);
         }
     }
 }

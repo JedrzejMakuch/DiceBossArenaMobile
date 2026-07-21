@@ -4,6 +4,20 @@ namespace DiceBossArena.Game
 {
     public sealed class EquipmentBaseTypeDefinitionValidator
     {
+        private readonly
+    EquipmentBaseTypeWeaponProfileValidator
+    weaponProfileValidator;
+
+        public EquipmentBaseTypeDefinitionValidator(
+            EquipmentBaseTypeWeaponProfileValidator
+                newWeaponProfileValidator)
+        {
+            weaponProfileValidator =
+                newWeaponProfileValidator ??
+                throw new ArgumentNullException(
+                    nameof(newWeaponProfileValidator));
+        }
+
         public void Validate(
             EquipmentBaseTypeDefinition definition)
         {
@@ -45,6 +59,9 @@ namespace DiceBossArena.Game
 
             ValidateStatModifiers(
     definition.StatModifiers);
+
+            weaponProfileValidator.Validate(
+    definition);
         }
 
         private static bool IsCategoryAllowedForSlot(

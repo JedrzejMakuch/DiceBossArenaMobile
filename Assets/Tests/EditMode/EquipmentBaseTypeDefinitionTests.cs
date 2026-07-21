@@ -33,6 +33,52 @@ namespace DiceBossArena.Tests.EditMode
                     definition.Category,
                     Is.EqualTo(
                         EquipmentBaseTypeCategory.Sword));
+
+                Assert.That(
+                    definition.WeaponProfileGeneration,
+                    Is.Null);
+            }
+            finally
+            {
+                Object.DestroyImmediate(definition);
+            }
+        }
+
+        [Test]
+        public void InitializeForTests_AssignsWeaponProfileGeneration()
+        {
+            WeaponProfileGenerationDefinition weaponProfile =
+                new WeaponProfileGenerationDefinition(
+                    new[]
+                    {
+                new WeaponAttackLineGenerationDefinition(
+                    "primary_damage",
+                    4,
+                    8,
+                    new[]
+                    {
+                        WeaponAttackElement.Neutral,
+                        WeaponAttackElement.Fire
+                    })
+                    });
+
+            EquipmentBaseTypeDefinition definition =
+                ScriptableObject.CreateInstance<
+                    EquipmentBaseTypeDefinition>();
+
+            try
+            {
+                definition.InitializeForTests(
+                    "iron_sword",
+                    EquipmentSlotType.MainHand,
+                    EquipmentBaseTypeCategory.Sword,
+                    newStatModifiers: null,
+                    newWeaponProfileGeneration:
+                        weaponProfile);
+
+                Assert.That(
+                    definition.WeaponProfileGeneration,
+                    Is.SameAs(weaponProfile));
             }
             finally
             {
