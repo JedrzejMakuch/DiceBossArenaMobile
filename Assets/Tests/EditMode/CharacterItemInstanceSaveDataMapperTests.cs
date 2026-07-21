@@ -7,6 +7,28 @@ namespace DiceBossArena.Tests.EditMode
 {
     public sealed class CharacterItemInstanceSaveDataMapperTests
     {
+
+        private static RolledEquipmentAffixSaveDataMapper
+    CreateAffixMapper()
+        {
+            EquipmentAffixDefinition definition =
+                new EquipmentAffixDefinition(
+                    "strength_flat",
+                    FightStatType.Strength,
+                    FightStatModifierType.Flat);
+
+            EquipmentAffixDefinitionCatalog catalog =
+                new EquipmentAffixDefinitionCatalog(
+                    new[]
+                    {
+                definition
+                    });
+
+            return new RolledEquipmentAffixSaveDataMapper(
+                catalog);
+        }
+
+
         [Test]
         public void Constructor_NullAffixMapper_Throws()
         {
@@ -76,6 +98,16 @@ namespace DiceBossArena.Tests.EditMode
             Assert.That(
                 data.Affixes[0].Value,
                 Is.EqualTo(7));
+        }
+
+        [Test]
+        public void Constructor_NullWeaponProfileMapper_Throws()
+        {
+            Assert.That(
+                () => new CharacterItemInstanceSaveDataMapper(
+                    CreateAffixMapper(),
+                    null),
+                Throws.TypeOf<ArgumentNullException>());
         }
 
         [Test]
@@ -191,28 +223,109 @@ namespace DiceBossArena.Tests.EditMode
                 Is.EqualTo(CreateItem()));
         }
 
-        private static CharacterItemInstanceSaveDataMapper
-            CreateMapper()
+        [Test]
+        public void ToSaveData_ItemWithWeaponProfile_StoresProfile()
         {
-            EquipmentAffixDefinition definition =
-                new EquipmentAffixDefinition(
-                    "strength_flat",
-                    FightStatType.Strength,
-                    FightStatModifierType.Flat);
+            CharacterItemInstanceSaveData data =
+                CreateMapper().ToSaveData(
+                    CreateItemWithWeaponProfile());
 
-            EquipmentAffixDefinitionCatalog catalog =
-                new EquipmentAffixDefinitionCatalog(
+            Assert.That(
+                data.WeaponProfile,
+                Is.Not.Null);
+
+            Assert.That(
+                data.WeaponProfile.Lines,
+                Has.Length.EqualTo(1));
+
+            Assert.That(
+                data.WeaponProfile.Lines[0].LineId,
+                Is.EqualTo("primary_damage"));
+
+            Assert.That(
+                data.WeaponProfile.Lines[0].Element,
+                Is.EqualTo(WeaponAttackElement.Fire));
+
+            Assert.That(
+                data.WeaponProfile.Lines[0].MinDamage,
+                Is.EqualTo(4));
+
+            Assert.That(
+                data.WeaponProfile.Lines[0].MaxDamage,
+                Is.EqualTo(8));
+        }
+
+        [Test]
+        public void JsonRoundTrip_ItemWithWeaponProfile_RestoresIdenticalItem()
+        {
+            CharacterItemInstanceSaveDataMapper mapper =
+                CreateMapper();
+
+            CharacterItemInstance original =
+                CreateItemWithWeaponProfile();
+
+            string json =
+                JsonUtility.ToJson(
+                    mapper.ToSaveData(original));
+
+            CharacterItemInstanceSaveData restoredData =
+                JsonUtility.FromJson<
+                    CharacterItemInstanceSaveData>(
+                    json);
+
+            CharacterItemInstance restored =
+                mapper.FromSaveData(restoredData);
+
+            Assert.That(
+                restored,
+                Is.EqualTo(original));
+
+            Assert.That(
+                restored.WeaponProfile,
+                Is.EqualTo(original.WeaponProfile));
+        }
+
+        private static CharacterItemInstance
+    CreateItemWithWeaponProfile()
+        {
+            return new CharacterItemInstance(
+                new CharacterItemInstanceId(
+                    "instance_weapon_001"),
+                new CharacterItemId(
+                    "iron_sword"),
+                new EquipmentBaseTypeId(
+                    "sword"),
+                10,
+                2,
+                1,
+                EquipmentItemRarity.Magic,
+                new[]
+                {
+            new RolledEquipmentAffix(
+                new EquipmentAffixId(
+                    "strength_flat"),
+                FightStatType.Strength,
+                FightStatModifierType.Flat,
+                7)
+                },
+                new RolledWeaponProfile(
                     new[]
                     {
-                        definition
-                    });
+                new RolledWeaponAttackLine(
+                    new WeaponAttackLineId(
+                        "primary_damage"),
+                    WeaponAttackElement.Fire,
+                    4,
+                    8)
+                    }));
+        }
 
-            RolledEquipmentAffixSaveDataMapper affixMapper =
-                new RolledEquipmentAffixSaveDataMapper(
-                    catalog);
-
+        private static CharacterItemInstanceSaveDataMapper
+    CreateMapper()
+        {
             return new CharacterItemInstanceSaveDataMapper(
-                affixMapper);
+                CreateAffixMapper(),
+                new RolledWeaponProfileSaveDataMapper());
         }
 
         private static CharacterItemInstance CreateItem()

@@ -32,6 +32,100 @@ public class CharacterItemInstanceTests
     }
 
     [Test]
+    public void Constructor_PreservesWeaponProfile()
+    {
+        RolledWeaponProfile profile =
+            CreateWeaponProfile(
+                WeaponAttackElement.Fire,
+                4,
+                8);
+
+        CharacterItemInstance item =
+            CreateItemWithWeaponProfile(profile);
+
+        Assert.That(
+            item.WeaponProfile,
+            Is.SameAs(profile));
+    }
+
+    [Test]
+    public void InstancesWithDifferentWeaponProfiles_AreNotEqual()
+    {
+        CharacterItemInstance first =
+            CreateItemWithWeaponProfile(
+                CreateWeaponProfile(
+                    WeaponAttackElement.Fire,
+                    4,
+                    8));
+
+        CharacterItemInstance second =
+            CreateItemWithWeaponProfile(
+                CreateWeaponProfile(
+                    WeaponAttackElement.Water,
+                    4,
+                    8));
+
+        Assert.That(
+            first,
+            Is.Not.EqualTo(second));
+    }
+
+    [Test]
+    public void CanStackWith_DifferentWeaponProfilesReturnsFalse()
+    {
+        CharacterItemInstance first =
+            CreateItemWithWeaponProfile(
+                CreateWeaponProfile(
+                    WeaponAttackElement.Fire,
+                    4,
+                    8));
+
+        CharacterItemInstance second =
+            new CharacterItemInstance(
+                new CharacterItemInstanceId(
+                    "item_instance_002"),
+                new CharacterItemId(
+                    "iron_sword"),
+                new EquipmentBaseTypeId(
+                    "sword"),
+                5,
+                2,
+                1,
+                EquipmentItemRarity.Common,
+                Array.Empty<RolledEquipmentAffix>(),
+                CreateWeaponProfile(
+                    WeaponAttackElement.Fire,
+                    5,
+                    9));
+
+        Assert.That(
+            first.CanStackWith(second),
+            Is.False);
+    }
+
+    [Test]
+    public void WithQuantity_PreservesWeaponProfile()
+    {
+        RolledWeaponProfile profile =
+            CreateWeaponProfile(
+                WeaponAttackElement.Fire,
+                4,
+                8);
+
+        CharacterItemInstance updated =
+            CreateItemWithWeaponProfile(
+                profile).WithQuantity(3);
+
+        Assert.That(
+            updated.Quantity,
+            Is.EqualTo(3));
+
+        Assert.That(
+            updated.WeaponProfile,
+            Is.SameAs(profile));
+    }
+
+    [Test]
     public void Constructor_InvalidInstanceIdThrows()
     {
         Assert.That(
@@ -487,6 +581,42 @@ public class CharacterItemInstanceTests
             () => item.WithQuantity(0),
             Throws.TypeOf<
                 ArgumentOutOfRangeException>());
+    }
+
+    private static CharacterItemInstance
+    CreateItemWithWeaponProfile(
+        RolledWeaponProfile profile)
+    {
+        return new CharacterItemInstance(
+            new CharacterItemInstanceId(
+                "item_instance_001"),
+            new CharacterItemId(
+                "iron_sword"),
+            new EquipmentBaseTypeId(
+                "sword"),
+            5,
+            2,
+            1,
+            EquipmentItemRarity.Common,
+            Array.Empty<RolledEquipmentAffix>(),
+            profile);
+    }
+
+    private static RolledWeaponProfile CreateWeaponProfile(
+        WeaponAttackElement element,
+        int minDamage,
+        int maxDamage)
+    {
+        return new RolledWeaponProfile(
+            new[]
+            {
+            new RolledWeaponAttackLine(
+                new WeaponAttackLineId(
+                    "primary_damage"),
+                element,
+                minDamage,
+                maxDamage)
+            });
     }
 
     private static CharacterItemInstance CreateItem()

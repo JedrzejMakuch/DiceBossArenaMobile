@@ -7,14 +7,33 @@ namespace DiceBossArena.Game
         private readonly RolledEquipmentAffixSaveDataMapper
             affixMapper;
 
+        private readonly RolledWeaponProfileSaveDataMapper
+    weaponProfileMapper;
+
+        public CharacterItemInstanceSaveDataMapper(
+    RolledEquipmentAffixSaveDataMapper
+        newAffixMapper)
+    : this(
+        newAffixMapper,
+        new RolledWeaponProfileSaveDataMapper())
+        {
+        }
+
         public CharacterItemInstanceSaveDataMapper(
             RolledEquipmentAffixSaveDataMapper
-                newAffixMapper)
+                newAffixMapper,
+            RolledWeaponProfileSaveDataMapper
+                newWeaponProfileMapper)
         {
             affixMapper =
                 newAffixMapper ??
                 throw new ArgumentNullException(
                     nameof(newAffixMapper));
+
+            weaponProfileMapper =
+                newWeaponProfileMapper ??
+                throw new ArgumentNullException(
+                    nameof(newWeaponProfileMapper));
         }
 
         public CharacterItemInstanceSaveData ToSaveData(
@@ -40,6 +59,12 @@ namespace DiceBossArena.Game
                         item.Affixes[index]);
             }
 
+            RolledWeaponProfileSaveData weaponProfile =
+    item.WeaponProfile == null
+        ? null
+        : weaponProfileMapper.ToSaveData(
+            item.WeaponProfile);
+
             return new CharacterItemInstanceSaveData(
                 item.InstanceId.Value,
                 item.ItemId.Value,
@@ -48,7 +73,8 @@ namespace DiceBossArena.Game
                 item.UpgradeLevel,
                 item.Quantity,
                 item.Rarity,
-                affixes);
+                affixes,
+                weaponProfile);
         }
 
         public CharacterItemInstance FromSaveData(
@@ -66,6 +92,14 @@ namespace DiceBossArena.Game
                     "Saved item affixes cannot be null.",
                     nameof(data));
             }
+
+            RolledWeaponProfile weaponProfile =
+            data.WeaponProfile == null ||
+            data.WeaponProfile.Lines == null ||
+            data.WeaponProfile.Lines.Length == 0
+                ? null
+                : weaponProfileMapper.FromSaveData(
+                    data.WeaponProfile);
 
             RolledEquipmentAffix[] affixes =
                 new RolledEquipmentAffix[
@@ -91,7 +125,8 @@ namespace DiceBossArena.Game
                 data.UpgradeLevel,
                 data.Quantity,
                 data.Rarity,
-                affixes);
+                affixes,
+                weaponProfile);
         }
     }
 }

@@ -16,6 +16,8 @@ namespace DiceBossArena.Game
 
         public EquipmentItemRarity Rarity { get; }
 
+        public RolledWeaponProfile WeaponProfile { get; }
+
         public IReadOnlyList<RolledEquipmentAffix> Affixes =>
             affixes ??
             Array.Empty<RolledEquipmentAffix>();
@@ -51,7 +53,8 @@ namespace DiceBossArena.Game
                 upgradeLevel,
                 quantity,
                 EquipmentItemRarity.Common,
-                Array.Empty<RolledEquipmentAffix>())
+                Array.Empty<RolledEquipmentAffix>(),
+                null)
         {
         }
 
@@ -70,7 +73,8 @@ namespace DiceBossArena.Game
                 upgradeLevel,
                 quantity,
                 rarity,
-                Array.Empty<RolledEquipmentAffix>())
+                Array.Empty<RolledEquipmentAffix>(),
+                null)
         {
         }
 
@@ -90,7 +94,8 @@ namespace DiceBossArena.Game
                 upgradeLevel,
                 quantity,
                 rarity,
-                newAffixes)
+                newAffixes,
+                null)
         {
         }
 
@@ -103,6 +108,29 @@ namespace DiceBossArena.Game
             int quantity,
             EquipmentItemRarity rarity,
             IEnumerable<RolledEquipmentAffix> newAffixes)
+            : this(
+                instanceId,
+                itemId,
+                baseTypeId,
+                level,
+                upgradeLevel,
+                quantity,
+                rarity,
+                newAffixes,
+                null)
+        {
+        }
+
+        public CharacterItemInstance(
+            CharacterItemInstanceId instanceId,
+            CharacterItemId itemId,
+            EquipmentBaseTypeId baseTypeId,
+            int level,
+            int upgradeLevel,
+            int quantity,
+            EquipmentItemRarity rarity,
+            IEnumerable<RolledEquipmentAffix> newAffixes,
+            RolledWeaponProfile newWeaponProfile)
         {
             if (!instanceId.IsValid)
             {
@@ -182,6 +210,7 @@ namespace DiceBossArena.Game
             Quantity = quantity;
             Rarity = rarity;
             affixes = copiedAffixes.ToArray();
+            WeaponProfile = newWeaponProfile;
         }
 
         public bool CanStackWith(
@@ -194,7 +223,10 @@ namespace DiceBossArena.Game
                    Level == other.Level &&
                    UpgradeLevel == other.UpgradeLevel &&
                    Rarity == other.Rarity &&
-                   HaveEqualAffixes(other);
+                   HaveEqualAffixes(other) &&
+                   Equals(
+                       WeaponProfile,
+                       other.WeaponProfile);
         }
 
         public CharacterItemInstance WithQuantity(
@@ -208,7 +240,8 @@ namespace DiceBossArena.Game
                 UpgradeLevel,
                 newQuantity,
                 Rarity,
-                Affixes);
+                Affixes,
+                WeaponProfile);
         }
 
         public bool Equals(
@@ -221,7 +254,10 @@ namespace DiceBossArena.Game
                    UpgradeLevel == other.UpgradeLevel &&
                    Quantity == other.Quantity &&
                    Rarity == other.Rarity &&
-                   HaveEqualAffixes(other);
+                   HaveEqualAffixes(other) &&
+                   Equals(
+                       WeaponProfile,
+                       other.WeaponProfile);
         }
 
         public override bool Equals(
@@ -243,6 +279,7 @@ namespace DiceBossArena.Game
             hashCode.Add(UpgradeLevel);
             hashCode.Add(Quantity);
             hashCode.Add(Rarity);
+            hashCode.Add(WeaponProfile);
 
             for (int index = 0;
                  index < Affixes.Count;

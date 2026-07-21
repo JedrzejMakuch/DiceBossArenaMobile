@@ -16,6 +16,8 @@ namespace DiceBossArena.Game
         public RolledEquipmentAffixSaveData[] Affixes =
             Array.Empty<RolledEquipmentAffixSaveData>();
 
+        public RolledWeaponProfileSaveData WeaponProfile;
+
         public CharacterItemInstanceSaveData()
         {
         }
@@ -29,6 +31,29 @@ namespace DiceBossArena.Game
             int newQuantity,
             EquipmentItemRarity newRarity,
             RolledEquipmentAffixSaveData[] newAffixes)
+            : this(
+                newInstanceId,
+                newItemId,
+                newBaseTypeId,
+                newLevel,
+                newUpgradeLevel,
+                newQuantity,
+                newRarity,
+                newAffixes,
+                null)
+        {
+        }
+
+        public CharacterItemInstanceSaveData(
+            string newInstanceId,
+            string newItemId,
+            string newBaseTypeId,
+            int newLevel,
+            int newUpgradeLevel,
+            int newQuantity,
+            EquipmentItemRarity newRarity,
+            RolledEquipmentAffixSaveData[] newAffixes,
+            RolledWeaponProfileSaveData newWeaponProfile)
         {
             InstanceId = newInstanceId;
             ItemId = newItemId;
@@ -41,6 +66,8 @@ namespace DiceBossArena.Game
             Affixes =
                 newAffixes ??
                 Array.Empty<RolledEquipmentAffixSaveData>();
+
+            WeaponProfile = newWeaponProfile;
         }
     }
 }

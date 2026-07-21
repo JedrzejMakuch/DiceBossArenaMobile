@@ -62,6 +62,60 @@ namespace DiceBossArena.Tests.EditMode
         }
 
         [Test]
+        public void Constructor_StoresWeaponProfile()
+        {
+            RolledWeaponProfileSaveData profile =
+                CreateWeaponProfile();
+
+            CharacterItemInstanceSaveData data =
+                CreateSaveData(profile);
+
+            Assert.That(
+                data.WeaponProfile,
+                Is.SameAs(profile));
+        }
+
+        [Test]
+        public void JsonUtility_RoundTrip_PreservesWeaponProfile()
+        {
+            CharacterItemInstanceSaveData original =
+                CreateSaveData(
+                    CreateWeaponProfile());
+
+            string json =
+                JsonUtility.ToJson(original);
+
+            CharacterItemInstanceSaveData restored =
+                JsonUtility.FromJson<
+                    CharacterItemInstanceSaveData>(
+                    json);
+
+            Assert.That(
+                restored.WeaponProfile,
+                Is.Not.Null);
+
+            Assert.That(
+                restored.WeaponProfile.Lines,
+                Has.Length.EqualTo(1));
+
+            Assert.That(
+                restored.WeaponProfile.Lines[0].LineId,
+                Is.EqualTo("primary_damage"));
+
+            Assert.That(
+                restored.WeaponProfile.Lines[0].Element,
+                Is.EqualTo(WeaponAttackElement.Fire));
+
+            Assert.That(
+                restored.WeaponProfile.Lines[0].MinDamage,
+                Is.EqualTo(4));
+
+            Assert.That(
+                restored.WeaponProfile.Lines[0].MaxDamage,
+                Is.EqualTo(8));
+        }
+
+        [Test]
         public void JsonUtility_RoundTrip_PreservesCompleteItemData()
         {
             CharacterItemInstanceSaveData original =
@@ -126,6 +180,40 @@ namespace DiceBossArena.Tests.EditMode
             Assert.That(
                 restored.Affixes[1].Value,
                 Is.EqualTo(4));
+        }
+
+        private static CharacterItemInstanceSaveData CreateSaveData(
+    RolledWeaponProfileSaveData profile)
+        {
+            return new CharacterItemInstanceSaveData(
+                "instance_001",
+                "iron_sword",
+                "sword",
+                10,
+                2,
+                1,
+                EquipmentItemRarity.Magic,
+                new[]
+                {
+            new RolledEquipmentAffixSaveData(
+                "strength_flat",
+                7)
+                },
+                profile);
+        }
+
+        private static RolledWeaponProfileSaveData
+            CreateWeaponProfile()
+        {
+            return new RolledWeaponProfileSaveData(
+                new[]
+                {
+            new RolledWeaponAttackLineSaveData(
+                "primary_damage",
+                WeaponAttackElement.Fire,
+                4,
+                8)
+                });
         }
 
         private static CharacterItemInstanceSaveData
