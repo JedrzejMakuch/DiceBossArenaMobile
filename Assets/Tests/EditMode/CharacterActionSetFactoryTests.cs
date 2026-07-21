@@ -25,6 +25,19 @@ public sealed class CharacterActionSetFactoryTests
 
         Assert.That(
             actionSet[
+                CharacterActionSlot.WeaponAttack]
+                .WeaponProfile,
+            Is.SameAs(
+                CharacterWeaponProfiles.Unarmed));
+
+        Assert.That(
+            actionSet[
+                CharacterActionSlot.WeaponAttack]
+                .HasWeaponProfile,
+            Is.True);
+
+        Assert.That(
+            actionSet[
                 CharacterActionSlot.BasicAttack]
                 .Skill.SkillId,
             Is.EqualTo(
@@ -96,6 +109,60 @@ public sealed class CharacterActionSetFactoryTests
             () =>
                 CharacterActionSetFactory.Create(
                     snapshot));
+    }
+
+    [Test]
+    public void Create_PreservesMainHandWeaponProfile()
+    {
+        RolledWeaponProfile profile =
+            new RolledWeaponProfile(
+                new[]
+                {
+                new RolledWeaponAttackLine(
+                    new WeaponAttackLineId(
+                        "primary_damage"),
+                    WeaponAttackElement.Fire,
+                    4,
+                    8)
+                });
+
+        EquipmentLoadoutSnapshot loadout =
+            new EquipmentLoadoutSnapshot(
+                new[]
+                {
+                new EquippedItemSnapshot(
+                    EquipmentSlotType.MainHand,
+                    new CharacterItemId(
+                        "iron_sword"),
+                    profile)
+                });
+
+        CharacterBuildSnapshot snapshot =
+            new CharacterBuildSnapshot(
+                new CharacterClassId("warrior"),
+                new CharacterSpecializationId(
+                    "guardian"),
+                new[]
+                {
+                CreateSkill(
+                    CharacterSkillIds.BasicAttack),
+                CreateSkill("skill_one"),
+                CreateSkill("skill_two"),
+                CreateSkill("skill_three"),
+                CreateSkill("skill_four")
+                },
+                null,
+                loadout);
+
+        CharacterActionSet actionSet =
+            CharacterActionSetFactory.Create(
+                snapshot);
+
+        Assert.That(
+            actionSet[
+                CharacterActionSlot.WeaponAttack]
+                .WeaponProfile,
+            Is.SameAs(profile));
     }
 
     private static CharacterBuildSnapshot

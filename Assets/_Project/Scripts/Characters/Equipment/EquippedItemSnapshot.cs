@@ -9,19 +9,39 @@ namespace DiceBossArena.Game
 
         public CharacterItemId ItemId { get; }
 
+        public RolledWeaponProfile WeaponProfile
+        {
+            get;
+        }
+
         public EquippedItemSnapshot(
             EquipmentSlotType slotType,
             CharacterItemId itemId)
+            : this(
+                slotType,
+                itemId,
+                null)
+        {
+        }
+
+        public EquippedItemSnapshot(
+            EquipmentSlotType slotType,
+            CharacterItemId itemId,
+            RolledWeaponProfile weaponProfile)
         {
             SlotType = slotType;
             ItemId = itemId;
+            WeaponProfile = weaponProfile;
         }
 
         public bool Equals(
             EquippedItemSnapshot other)
         {
             return SlotType == other.SlotType &&
-                   ItemId.Equals(other.ItemId);
+                   ItemId.Equals(other.ItemId) &&
+                   Equals(
+                       WeaponProfile,
+                       other.WeaponProfile);
         }
 
         public override bool Equals(
@@ -35,7 +55,8 @@ namespace DiceBossArena.Game
         {
             return HashCode.Combine(
                 SlotType,
-                ItemId);
+                ItemId,
+                WeaponProfile);
         }
     }
 }

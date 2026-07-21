@@ -14,27 +14,41 @@ namespace DiceBossArena.Game
 
         public CharacterBuildSkill Skill { get; }
 
+        public RolledWeaponProfile WeaponProfile
+        {
+            get;
+        }
+
         public bool HasSkill =>
             ContentType ==
             CharacterActionContentType.Skill;
 
+        public bool HasWeaponProfile =>
+            ContentType ==
+            CharacterActionContentType.WeaponProfile &&
+            WeaponProfile != null;
+
         private CharacterActionContent(
             CharacterActionSlot slot,
             CharacterActionContentType contentType,
-            CharacterBuildSkill skill)
+            CharacterBuildSkill skill,
+            RolledWeaponProfile weaponProfile)
         {
             Slot = slot;
             ContentType = contentType;
             Skill = skill;
+            WeaponProfile = weaponProfile;
         }
 
         public static CharacterActionContent
-            CreateWeaponAttack()
+            CreateWeaponAttack(
+                RolledWeaponProfile weaponProfile = null)
         {
             return new CharacterActionContent(
                 CharacterActionSlot.WeaponAttack,
                 CharacterActionContentType.WeaponProfile,
-                default);
+                default,
+                weaponProfile);
         }
 
         public static CharacterActionContent CreateSkill(
@@ -59,7 +73,8 @@ namespace DiceBossArena.Game
             return new CharacterActionContent(
                 slot,
                 CharacterActionContentType.Skill,
-                skill);
+                skill,
+                null);
         }
 
         public bool Equals(
@@ -67,7 +82,10 @@ namespace DiceBossArena.Game
         {
             return Slot == other.Slot &&
                    ContentType == other.ContentType &&
-                   Skill.Equals(other.Skill);
+                   Skill.Equals(other.Skill) &&
+                   Equals(
+                       WeaponProfile,
+                       other.WeaponProfile);
         }
 
         public override bool Equals(
@@ -82,7 +100,8 @@ namespace DiceBossArena.Game
             return HashCode.Combine(
                 Slot,
                 ContentType,
-                Skill);
+                Skill,
+                WeaponProfile);
         }
 
         public bool IsValid

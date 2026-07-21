@@ -22,7 +22,9 @@ namespace DiceBossArena.Game
                 new[]
                 {
                     CharacterActionContent
-                        .CreateWeaponAttack(),
+                        .CreateWeaponAttack(
+                            ResolveWeaponProfile(
+                                snapshot.EquipmentLoadout)),
 
                     CharacterActionContent.CreateSkill(
                         CharacterActionSlot.BasicAttack,
@@ -44,6 +46,28 @@ namespace DiceBossArena.Game
                         CharacterActionSlot.SkillFour,
                         snapshot.Skills[4])
                 });
+        }
+
+        private static RolledWeaponProfile
+    ResolveWeaponProfile(
+        EquipmentLoadoutSnapshot loadout)
+        {
+            for (int i = 0;
+                 i < loadout.Items.Count;
+                 i++)
+            {
+                EquippedItemSnapshot item =
+                    loadout.Items[i];
+
+                if (item.SlotType ==
+                    EquipmentSlotType.MainHand)
+                {
+                    return item.WeaponProfile ??
+                           CharacterWeaponProfiles.Unarmed;
+                }
+            }
+
+            return CharacterWeaponProfiles.Unarmed;
         }
 
         private static void ValidateSkills(

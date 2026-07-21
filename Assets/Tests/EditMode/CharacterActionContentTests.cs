@@ -126,4 +126,37 @@ public sealed class CharacterActionContentTests
             content.IsValid,
             Is.True);
     }
+
+    [Test]
+    public void CreateWeaponAttack_PreservesProfile()
+    {
+        RolledWeaponProfile profile =
+            CreateProfile();
+
+        CharacterActionContent content =
+            CharacterActionContent
+                .CreateWeaponAttack(profile);
+
+        Assert.That(
+            content.WeaponProfile,
+            Is.SameAs(profile));
+
+        Assert.That(
+            content.HasWeaponProfile,
+            Is.True);
+    }
+
+    private static RolledWeaponProfile CreateProfile()
+    {
+        return new RolledWeaponProfile(
+            new[]
+            {
+            new RolledWeaponAttackLine(
+                new WeaponAttackLineId(
+                    "primary_damage"),
+                WeaponAttackElement.Fire,
+                4,
+                8)
+            });
+    }
 }
