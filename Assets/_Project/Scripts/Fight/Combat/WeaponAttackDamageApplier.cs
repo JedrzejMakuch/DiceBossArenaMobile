@@ -34,7 +34,8 @@
         {
             totalDamage +=
                 damageLineResolver.Resolve(
-                    attackResult.DamageLines[i]);
+                    attackResult.DamageLines[i],
+                    target.Stats);
         }
 
         if (totalDamage <= 0)

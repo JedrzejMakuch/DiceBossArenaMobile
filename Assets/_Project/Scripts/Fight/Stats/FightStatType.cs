@@ -25,6 +25,7 @@
         FireResistance = 16,
         WaterResistance = 17,
         EarthResistance = 18,
-        AirResistance = 19
+        AirResistance = 19,
+        Armor = 20
     }
 }
