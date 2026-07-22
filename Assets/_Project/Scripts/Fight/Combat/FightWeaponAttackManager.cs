@@ -9,8 +9,14 @@ public sealed class FightWeaponAttackManager :
     private WeaponAttackProfileDamageRoller
         profileDamageRoller;
 
+    private WeaponAttackEffectsProfileResolver
+        effectsProfileResolver;
+
     private WeaponAttackDamageApplier
         damageApplier;
+
+    private WeaponAttackLifeStealApplier
+        lifeStealApplier;
 
     public event Action<WeaponAttackRollResult>
         WeaponAttackRolled;
@@ -18,11 +24,17 @@ public sealed class FightWeaponAttackManager :
     public bool Initialize(
         WeaponAttackProfileDamageRoller
             profileDamageRoller,
+        WeaponAttackEffectsProfileResolver
+            effectsProfileResolver,
         WeaponAttackDamageApplier
-            damageApplier)
+            damageApplier,
+        WeaponAttackLifeStealApplier
+            lifeStealApplier)
     {
         if (profileDamageRoller == null ||
-            damageApplier == null)
+            effectsProfileResolver == null ||
+            damageApplier == null ||
+            lifeStealApplier == null)
         {
             return false;
         }
@@ -30,8 +42,14 @@ public sealed class FightWeaponAttackManager :
         this.profileDamageRoller =
             profileDamageRoller;
 
+        this.effectsProfileResolver =
+            effectsProfileResolver;
+
         this.damageApplier =
             damageApplier;
+
+        this.lifeStealApplier =
+            lifeStealApplier;
 
         return true;
     }
@@ -65,7 +83,9 @@ public sealed class FightWeaponAttackManager :
         }
 
         if (profileDamageRoller == null ||
-            damageApplier == null)
+            effectsProfileResolver == null ||
+            damageApplier == null ||
+            lifeStealApplier == null)
         {
             return WeaponAttackExecutionResult
                 .DamageApplicationFailed;
@@ -87,25 +107,36 @@ public sealed class FightWeaponAttackManager :
                 profileDamageRoller.Roll(
                     weaponProfile);
 
+        IReadOnlyList<
+            WeaponAttackEffectLineResult>
+            effectLines =
+                effectsProfileResolver.Resolve(
+                    weaponProfile,
+                    damageLines);
+
         WeaponAttackRollResult attackResult =
             new WeaponAttackRollResult(
                 attacker,
                 target,
-                damageLines);
+                damageLines,
+                effectLines);
 
         WeaponAttackApplyResult applyResult =
             damageApplier.Apply(
                 attackResult);
 
         WeaponAttackExecutionResult executionResult =
-    MapApplyResult(
-        applyResult);
+            MapApplyResult(
+                applyResult);
 
         if (executionResult !=
             WeaponAttackExecutionResult.Success)
         {
             return executionResult;
         }
+
+        lifeStealApplier.Apply(
+            attackResult);
 
         WeaponAttackRolled?.Invoke(
             attackResult);
@@ -114,8 +145,8 @@ public sealed class FightWeaponAttackManager :
     }
 
     private static WeaponAttackExecutionResult
-    MapApplyResult(
-        WeaponAttackApplyResult applyResult)
+        MapApplyResult(
+            WeaponAttackApplyResult applyResult)
     {
         switch (applyResult)
         {

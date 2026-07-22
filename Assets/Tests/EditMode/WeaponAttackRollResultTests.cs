@@ -206,6 +206,184 @@ public sealed class WeaponAttackRollResultTests
             Is.SameAs(originalLine));
     }
 
+    [Test]
+    public void Constructor_NoEffectLines_CreatesEmptyCollection()
+    {
+        WeaponAttackRollResult result =
+            new WeaponAttackRollResult(
+                attacker,
+                target,
+                new[]
+                {
+                CreateDamageLine(
+                    "primary_damage",
+                    6)
+                });
+
+        Assert.That(
+            result.EffectLines,
+            Is.Not.Null);
+
+        Assert.That(
+            result.EffectLines,
+            Is.Empty);
+    }
+
+    [Test]
+    public void Constructor_StoresEffectLines()
+    {
+        WeaponAttackDamageLineResult damageLine =
+            CreateDamageLine(
+                "primary_damage",
+                6);
+
+        WeaponAttackEffectLineResult effectLine =
+            CreateEffectLine(
+                damageLine);
+
+        WeaponAttackRollResult result =
+            new WeaponAttackRollResult(
+                attacker,
+                target,
+                new[]
+                {
+                damageLine
+                },
+                new[]
+                {
+                effectLine
+                });
+
+        Assert.That(
+            result.EffectLines.Count,
+            Is.EqualTo(1));
+
+        Assert.That(
+            result.EffectLines[0],
+            Is.SameAs(effectLine));
+    }
+
+    [Test]
+    public void Constructor_CopiesEffectLinesCollection()
+    {
+        WeaponAttackDamageLineResult damageLine =
+            CreateDamageLine(
+                "primary_damage",
+                6);
+
+        WeaponAttackEffectLineResult originalLine =
+            CreateEffectLine(
+                damageLine);
+
+        WeaponAttackEffectLineResult[] source =
+        {
+        originalLine
+    };
+
+        WeaponAttackRollResult result =
+            new WeaponAttackRollResult(
+                attacker,
+                target,
+                new[]
+                {
+                damageLine
+                },
+                source);
+
+        source[0] =
+            CreateEffectLine(
+                damageLine);
+
+        Assert.That(
+            result.EffectLines[0],
+            Is.SameAs(originalLine));
+    }
+
+    [Test]
+    public void Constructor_NullEffectLine_Throws()
+    {
+        WeaponAttackDamageLineResult damageLine =
+            CreateDamageLine(
+                "primary_damage",
+                6);
+
+        Assert.Throws<ArgumentException>(
+            () => new WeaponAttackRollResult(
+                attacker,
+                target,
+                new[]
+                {
+                damageLine
+                },
+                new WeaponAttackEffectLineResult[]
+                {
+                null
+                }));
+    }
+
+    [Test]
+    public void Constructor_DifferentLineCounts_Throws()
+    {
+        WeaponAttackDamageLineResult damageLine =
+            CreateDamageLine(
+                "primary_damage",
+                6);
+
+        Assert.Throws<ArgumentException>(
+            () => new WeaponAttackRollResult(
+                attacker,
+                target,
+                new[]
+                {
+                damageLine
+                },
+                new[]
+                {
+                CreateEffectLine(
+                    damageLine),
+                CreateEffectLine(
+                    damageLine)
+                }));
+    }
+
+    [Test]
+    public void Constructor_EffectLineReferencesDifferentDamageLine_Throws()
+    {
+        WeaponAttackDamageLineResult damageLine =
+            CreateDamageLine(
+                "primary_damage",
+                6);
+
+        WeaponAttackDamageLineResult differentDamageLine =
+            CreateDamageLine(
+                "primary_damage",
+                6);
+
+        Assert.Throws<ArgumentException>(
+            () => new WeaponAttackRollResult(
+                attacker,
+                target,
+                new[]
+                {
+                damageLine
+                },
+                new[]
+                {
+                CreateEffectLine(
+                    differentDamageLine)
+                }));
+    }
+
+    private static WeaponAttackEffectLineResult
+    CreateEffectLine(
+        WeaponAttackDamageLineResult damageLine)
+    {
+        return new WeaponAttackEffectLineResult(
+            damageLine,
+            Array.Empty<
+                WeaponAttackEffectTriggerResult>());
+    }
+
     private static WeaponAttackDamageLineResult
         CreateDamageLine(
             string lineId,

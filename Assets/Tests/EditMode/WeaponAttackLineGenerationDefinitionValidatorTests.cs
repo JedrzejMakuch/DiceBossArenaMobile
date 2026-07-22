@@ -16,6 +16,15 @@ namespace DiceBossArena.Tests.EditMode
         }
 
         [Test]
+        public void Constructor_NullEffectValidator_Throws()
+        {
+            Assert.Throws<ArgumentNullException>(
+                () =>
+                    new WeaponAttackLineGenerationDefinitionValidator(
+                        null));
+        }
+
+        [Test]
         public void Validate_EmptyLineId_Throws()
         {
             WeaponAttackLineGenerationDefinition definition =
@@ -87,11 +96,96 @@ namespace DiceBossArena.Tests.EditMode
         }
 
         [Test]
+        public void Validate_ValidEffect_DoesNotThrow()
+        {
+            WeaponAttackEffectDefinition effect =
+                new WeaponAttackEffectDefinition(
+                    WeaponAttackEffectType.LifeSteal,
+                    50,
+                    null,
+                    25);
+
+            WeaponAttackLineGenerationDefinition definition =
+                CreateDefinition(
+                    effects:
+                        new[]
+                        {
+                            effect
+                        });
+
+            Assert.That(
+                () => CreateValidator().Validate(definition),
+                Throws.Nothing);
+        }
+
+        [Test]
+        public void Validate_NullEffectEntry_Throws()
+        {
+            WeaponAttackLineGenerationDefinition definition =
+                CreateDefinition(
+                    effects:
+                        new WeaponAttackEffectDefinition[]
+                        {
+                            null
+                        });
+
+            AssertInvalid(definition);
+        }
+
+        [Test]
+        public void Validate_InvalidEffect_Throws()
+        {
+            WeaponAttackEffectDefinition effect =
+                new WeaponAttackEffectDefinition(
+                    WeaponAttackEffectType.LifeSteal,
+                    50,
+                    null,
+                    0);
+
+            WeaponAttackLineGenerationDefinition definition =
+                CreateDefinition(
+                    effects:
+                        new[]
+                        {
+                            effect
+                        });
+
+            InvalidOperationException exception =
+                Assert.Throws<InvalidOperationException>(
+                    () =>
+                        CreateValidator().Validate(
+                            definition));
+
+            Assert.That(
+                exception.InnerException,
+                Is.Not.Null);
+
+            Assert.That(
+                exception.InnerException,
+                Is.TypeOf<InvalidOperationException>());
+        }
+
+        [Test]
+        public void Validate_EmptyEffects_DoesNotThrow()
+        {
+            WeaponAttackLineGenerationDefinition definition =
+                CreateDefinition(
+                    effects:
+                        Array.Empty<
+                            WeaponAttackEffectDefinition>());
+
+            Assert.That(
+                () => CreateValidator().Validate(definition),
+                Throws.Nothing);
+        }
+
+        [Test]
         public void Validate_ValidDefinition_DoesNotThrow()
         {
             Assert.That(
-                () => CreateValidator().Validate(
-                    CreateDefinition()),
+                () =>
+                    CreateValidator().Validate(
+                        CreateDefinition()),
                 Throws.Nothing);
         }
 
@@ -109,7 +203,8 @@ namespace DiceBossArena.Tests.EditMode
                 string lineId = "primary_damage",
                 int minDamage = 4,
                 int maxDamage = 8,
-                WeaponAttackElement[] allowedElements = null)
+                WeaponAttackElement[] allowedElements = null,
+                WeaponAttackEffectDefinition[] effects = null)
         {
             return new WeaponAttackLineGenerationDefinition(
                 lineId,
@@ -120,7 +215,10 @@ namespace DiceBossArena.Tests.EditMode
                 {
                     WeaponAttackElement.Neutral,
                     WeaponAttackElement.Fire
-                });
+                },
+                effects ??
+                Array.Empty<
+                    WeaponAttackEffectDefinition>());
         }
 
         private static

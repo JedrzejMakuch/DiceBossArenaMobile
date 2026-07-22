@@ -51,7 +51,8 @@ namespace DiceBossArena.Game
                 definition.LineId,
                 element,
                 definition.MinDamage,
-                definition.MaxDamage);
+                definition.MaxDamage,
+                definition.Effects);
         }
     }
 }

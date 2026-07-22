@@ -6,6 +6,24 @@ namespace DiceBossArena.Game
     public sealed class
         WeaponAttackLineGenerationDefinitionValidator
     {
+        private readonly WeaponAttackEffectDefinitionValidator
+            effectValidator;
+
+        public WeaponAttackLineGenerationDefinitionValidator()
+            : this(
+                new WeaponAttackEffectDefinitionValidator())
+        {
+        }
+
+        public WeaponAttackLineGenerationDefinitionValidator(
+            WeaponAttackEffectDefinitionValidator newEffectValidator)
+        {
+            effectValidator =
+                newEffectValidator ??
+                throw new ArgumentNullException(
+                    nameof(newEffectValidator));
+        }
+
         public void Validate(
             WeaponAttackLineGenerationDefinition definition)
         {
@@ -18,6 +36,7 @@ namespace DiceBossArena.Game
             ValidateLineId(definition);
             ValidateDamageRange(definition);
             ValidateAllowedElements(definition);
+            ValidateEffects(definition);
         }
 
         private static void ValidateLineId(
@@ -96,6 +115,43 @@ namespace DiceBossArena.Game
                     throw new InvalidOperationException(
                         "Weapon attack line cannot contain " +
                         "duplicate allowed elements.");
+                }
+            }
+        }
+
+        private void ValidateEffects(
+    WeaponAttackLineGenerationDefinition definition)
+        {
+            if (definition.Effects == null)
+            {
+                throw new InvalidOperationException(
+                    "Weapon attack line effects cannot be null.");
+            }
+
+            for (int index = 0;
+                 index < definition.Effects.Count;
+                 index++)
+            {
+                WeaponAttackEffectDefinition effect =
+                    definition.Effects[index];
+
+                if (effect == null)
+                {
+                    throw new InvalidOperationException(
+                        "Weapon attack line cannot contain " +
+                        "a null effect definition.");
+                }
+
+                try
+                {
+                    effectValidator.Validate(effect);
+                }
+                catch (Exception exception)
+                {
+                    throw new InvalidOperationException(
+                        "Weapon attack line contains " +
+                        "an invalid effect definition.",
+                        exception);
                 }
             }
         }

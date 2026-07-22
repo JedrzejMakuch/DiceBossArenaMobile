@@ -27,6 +27,127 @@ namespace DiceBossArena.Tests.EditMode
         }
 
         [Test]
+        public void Constructor_StoresEffects()
+        {
+            WeaponAttackEffectDefinition effect =
+                CreateEffect();
+
+            RolledWeaponAttackLine line =
+                new RolledWeaponAttackLine(
+                    new WeaponAttackLineId(
+                        "primary_damage"),
+                    WeaponAttackElement.Fire,
+                    4,
+                    8,
+                    new[]
+                    {
+                effect
+                    });
+
+            Assert.That(
+                line.Effects.Count,
+                Is.EqualTo(1));
+
+            Assert.That(
+                line.Effects[0],
+                Is.SameAs(effect));
+        }
+
+        [Test]
+        public void Constructor_CopiesEffectsCollection()
+        {
+            WeaponAttackEffectDefinition firstEffect =
+                CreateEffect();
+
+            WeaponAttackEffectDefinition secondEffect =
+                new WeaponAttackEffectDefinition(
+                    WeaponAttackEffectType.LifeSteal,
+                    75,
+                    null,
+                    40);
+
+            WeaponAttackEffectDefinition[] effects =
+            {
+        firstEffect
+    };
+
+            RolledWeaponAttackLine line =
+                new RolledWeaponAttackLine(
+                    new WeaponAttackLineId(
+                        "primary_damage"),
+                    WeaponAttackElement.Fire,
+                    4,
+                    8,
+                    effects);
+
+            effects[0] =
+                secondEffect;
+
+            Assert.That(
+                line.Effects[0],
+                Is.SameAs(firstEffect));
+        }
+
+        [Test]
+        public void Constructor_NullEffects_CreatesEmptyCollection()
+        {
+            RolledWeaponAttackLine line =
+                new RolledWeaponAttackLine(
+                    new WeaponAttackLineId(
+                        "primary_damage"),
+                    WeaponAttackElement.Fire,
+                    4,
+                    8,
+                    null);
+
+            Assert.That(
+                line.Effects,
+                Is.Not.Null);
+
+            Assert.That(
+                line.Effects,
+                Is.Empty);
+        }
+
+        [Test]
+        public void DifferentEffects_AreNotEqual()
+        {
+            WeaponAttackEffectDefinition firstEffect =
+                CreateEffect();
+
+            WeaponAttackEffectDefinition secondEffect =
+                CreateEffect();
+
+            RolledWeaponAttackLine first =
+                new RolledWeaponAttackLine(
+                    new WeaponAttackLineId(
+                        "primary_damage"),
+                    WeaponAttackElement.Fire,
+                    4,
+                    8,
+                    new[]
+                    {
+                firstEffect
+                    });
+
+            RolledWeaponAttackLine second =
+                new RolledWeaponAttackLine(
+                    new WeaponAttackLineId(
+                        "primary_damage"),
+                    WeaponAttackElement.Fire,
+                    4,
+                    8,
+                    new[]
+                    {
+                secondEffect
+                    });
+
+            Assert.That(
+                first,
+                Is.Not.EqualTo(second));
+        }
+
+        [Test]
         public void Roll_NullDefinition_Throws()
         {
             Assert.That(
@@ -92,6 +213,52 @@ namespace DiceBossArena.Tests.EditMode
             Assert.That(
                 result.MaxDamage,
                 Is.EqualTo(8));
+        }
+
+        [Test]
+        public void Roll_CopiesEffectsFromDefinition()
+        {
+            WeaponAttackEffectDefinition effect =
+                new WeaponAttackEffectDefinition(
+                    WeaponAttackEffectType.LifeSteal,
+                    50,
+                    null,
+                    25);
+
+            WeaponAttackLineGenerationDefinition definition =
+                new WeaponAttackLineGenerationDefinition(
+                    "primary_damage",
+                    4,
+                    8,
+                    new[]
+                    {
+                WeaponAttackElement.Fire
+                    },
+                    new[]
+                    {
+                effect
+                    });
+
+            RolledWeaponAttackLine result =
+                CreateRoller(0).Roll(
+                    definition);
+
+            Assert.That(
+                result.Effects.Count,
+                Is.EqualTo(1));
+
+            Assert.That(
+                result.Effects[0],
+                Is.SameAs(effect));
+        }
+
+        private static WeaponAttackEffectDefinition CreateEffect()
+        {
+            return new WeaponAttackEffectDefinition(
+                WeaponAttackEffectType.LifeSteal,
+                50,
+                null,
+                25);
         }
 
         private static WeaponAttackLineGenerationDefinition

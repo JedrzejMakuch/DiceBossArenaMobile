@@ -29,14 +29,14 @@ public sealed class FightWeaponAttackManagerTests
     [TearDown]
     public void TearDown()
     {
-        for (int i = createdObjects.Count - 1;
-             i >= 0;
-             i--)
+        for (int index = createdObjects.Count - 1;
+             index >= 0;
+             index--)
         {
-            if (createdObjects[i] != null)
+            if (createdObjects[index] != null)
             {
                 Object.DestroyImmediate(
-                    createdObjects[i]);
+                    createdObjects[index]);
             }
         }
 
@@ -62,7 +62,30 @@ public sealed class FightWeaponAttackManagerTests
         bool result =
             manager.Initialize(
                 null,
-                new WeaponAttackDamageApplier());
+                CreateEffectsProfileResolver(
+                    new SequenceRandomSource(0)),
+                new WeaponAttackDamageApplier(),
+                CreateLifeStealApplier());
+
+        Assert.That(
+            result,
+            Is.False);
+    }
+
+    [Test]
+    public void Initialize_NullEffectsResolverReturnsFalse()
+    {
+        WeaponAttackProfileDamageRoller
+            profileDamageRoller =
+                CreateProfileDamageRoller(
+                    new SequenceRandomSource(1));
+
+        bool result =
+            manager.Initialize(
+                profileDamageRoller,
+                null,
+                new WeaponAttackDamageApplier(),
+                CreateLifeStealApplier());
 
         Assert.That(
             result,
@@ -75,12 +98,43 @@ public sealed class FightWeaponAttackManagerTests
         WeaponAttackProfileDamageRoller
             profileDamageRoller =
                 CreateProfileDamageRoller(
-                    new SequenceRandomSource(
-                        1));
+                    new SequenceRandomSource(1));
+
+        WeaponAttackEffectsProfileResolver
+            effectsProfileResolver =
+                CreateEffectsProfileResolver(
+                    new SequenceRandomSource(0));
 
         bool result =
             manager.Initialize(
                 profileDamageRoller,
+                effectsProfileResolver,
+                null,
+                CreateLifeStealApplier());
+
+        Assert.That(
+            result,
+            Is.False);
+    }
+
+    [Test]
+    public void Initialize_NullLifeStealApplierReturnsFalse()
+    {
+        WeaponAttackProfileDamageRoller
+            profileDamageRoller =
+                CreateProfileDamageRoller(
+                    new SequenceRandomSource(1));
+
+        WeaponAttackEffectsProfileResolver
+            effectsProfileResolver =
+                CreateEffectsProfileResolver(
+                    new SequenceRandomSource(0));
+
+        bool result =
+            manager.Initialize(
+                profileDamageRoller,
+                effectsProfileResolver,
+                new WeaponAttackDamageApplier(),
                 null);
 
         Assert.That(
@@ -91,23 +145,30 @@ public sealed class FightWeaponAttackManagerTests
     [Test]
     public void TryExecute_ValidAttackRollsProfileAppliesDamageAndRaisesEvent()
     {
-        SequenceRandomSource randomSource =
+        SequenceRandomSource damageRandomSource =
             new SequenceRandomSource(
                 6,
                 3);
 
+        SequenceRandomSource effectRandomSource =
+            new SequenceRandomSource();
+
         WeaponAttackProfileDamageRoller
             profileDamageRoller =
                 CreateProfileDamageRoller(
-                    randomSource);
+                    damageRandomSource);
 
-        WeaponAttackDamageApplier damageApplier =
-            new WeaponAttackDamageApplier();
+        WeaponAttackEffectsProfileResolver
+            effectsProfileResolver =
+                CreateEffectsProfileResolver(
+                    effectRandomSource);
 
         Assert.That(
             manager.Initialize(
                 profileDamageRoller,
-                damageApplier),
+                effectsProfileResolver,
+                new WeaponAttackDamageApplier(),
+                CreateLifeStealApplier()),
             Is.True);
 
         FightUnit attacker =
@@ -139,13 +200,10 @@ public sealed class FightWeaponAttackManagerTests
                         5)
                 });
 
-        CharacterActionSet actionSet =
-            CreateActionSet(
-                weaponProfile);
-
         Assert.That(
             attacker.ApplyActionSet(
-                actionSet),
+                CreateActionSet(
+                    weaponProfile)),
             Is.True);
 
         int healthBefore =
@@ -207,9 +265,221 @@ public sealed class FightWeaponAttackManagerTests
             Is.EqualTo(9));
 
         Assert.That(
+            reportedResult.EffectLines.Count,
+            Is.EqualTo(2));
+
+        Assert.That(
+            reportedResult.EffectLines[0].DamageLine,
+            Is.SameAs(
+                reportedResult.DamageLines[0]));
+
+        Assert.That(
+            reportedResult.EffectLines[1].DamageLine,
+            Is.SameAs(
+                reportedResult.DamageLines[1]));
+
+        Assert.That(
+            reportedResult.EffectLines[0]
+                .EffectResults.Count,
+            Is.EqualTo(0));
+
+        Assert.That(
+            reportedResult.EffectLines[1]
+                .EffectResults.Count,
+            Is.EqualTo(0));
+
+        Assert.That(
             target.CurrentHealth,
             Is.EqualTo(
                 healthBefore - 9));
+    }
+
+    [Test]
+    public void Execute_TriggeredEffectIsIncludedInResult()
+    {
+        WeaponAttackProfileDamageRoller
+            profileDamageRoller =
+                CreateProfileDamageRoller(
+                    new SequenceRandomSource(8));
+
+        WeaponAttackEffectsProfileResolver
+            effectsProfileResolver =
+                CreateEffectsProfileResolver(
+                    new SequenceRandomSource(0));
+
+        Assert.That(
+            manager.Initialize(
+                profileDamageRoller,
+                effectsProfileResolver,
+                new WeaponAttackDamageApplier(),
+                CreateLifeStealApplier()),
+            Is.True);
+
+        FightUnit attacker =
+            CreateUnit(
+                "Attacker",
+                FightTeam.Player);
+
+        FightUnit target =
+            CreateUnit(
+                "Target",
+                FightTeam.Enemy);
+
+        WeaponAttackEffectDefinition lifeSteal =
+            CreateLifeStealDefinition(
+                25);
+
+        RolledWeaponProfile weaponProfile =
+            new RolledWeaponProfile(
+                new[]
+                {
+                    new RolledWeaponAttackLine(
+                        new WeaponAttackLineId(
+                            "primary_damage"),
+                        WeaponAttackElement.Neutral,
+                        8,
+                        9,
+                        new[]
+                        {
+                            lifeSteal
+                        })
+                });
+
+        Assert.That(
+            attacker.ApplyActionSet(
+                CreateActionSet(
+                    weaponProfile)),
+            Is.True);
+
+        WeaponAttackRollResult reportedResult =
+            null;
+
+        manager.WeaponAttackRolled +=
+            attackResult =>
+                reportedResult =
+                    attackResult;
+
+        WeaponAttackExecutionResult result =
+            manager.Execute(
+                attacker,
+                target);
+
+        Assert.That(
+            result,
+            Is.EqualTo(
+                WeaponAttackExecutionResult.Success));
+
+        Assert.That(
+            reportedResult,
+            Is.Not.Null);
+
+        Assert.That(
+            reportedResult.EffectLines.Count,
+            Is.EqualTo(1));
+
+        Assert.That(
+            reportedResult.EffectLines[0]
+                .EffectResults.Count,
+            Is.EqualTo(1));
+
+        Assert.That(
+            reportedResult.EffectLines[0]
+                .EffectResults[0]
+                .IsTriggered,
+            Is.True);
+
+        Assert.That(
+            reportedResult.EffectLines[0]
+                .EffectResults[0]
+                .Definition,
+            Is.SameAs(lifeSteal));
+    }
+
+    [Test]
+    public void Execute_TriggeredLifeStealHealsAttacker()
+    {
+        WeaponAttackProfileDamageRoller
+            profileDamageRoller =
+                CreateProfileDamageRoller(
+                    new SequenceRandomSource(8));
+
+        WeaponAttackEffectsProfileResolver
+            effectsProfileResolver =
+                CreateEffectsProfileResolver(
+                    new SequenceRandomSource(0));
+
+        Assert.That(
+            manager.Initialize(
+                profileDamageRoller,
+                effectsProfileResolver,
+                new WeaponAttackDamageApplier(),
+                CreateLifeStealApplier()),
+            Is.True);
+
+        FightUnit attacker =
+            CreateUnit(
+                "Attacker",
+                FightTeam.Player);
+
+        FightUnit target =
+            CreateUnit(
+                "Target",
+                FightTeam.Enemy);
+
+        attacker.TakeDamage(
+            10);
+
+        WeaponAttackEffectDefinition lifeSteal =
+            CreateLifeStealDefinition(
+                25);
+
+        RolledWeaponProfile weaponProfile =
+            new RolledWeaponProfile(
+                new[]
+                {
+                    new RolledWeaponAttackLine(
+                        new WeaponAttackLineId(
+                            "primary_damage"),
+                        WeaponAttackElement.Neutral,
+                        8,
+                        9,
+                        new[]
+                        {
+                            lifeSteal
+                        })
+                });
+
+        Assert.That(
+            attacker.ApplyActionSet(
+                CreateActionSet(
+                    weaponProfile)),
+            Is.True);
+
+        int attackerHealthBefore =
+            attacker.CurrentHealth;
+
+        int targetHealthBefore =
+            target.CurrentHealth;
+
+        WeaponAttackExecutionResult result =
+            manager.Execute(
+                attacker,
+                target);
+
+        Assert.That(
+            result,
+            Is.EqualTo(
+                WeaponAttackExecutionResult.Success));
+
+        Assert.That(
+            target.CurrentHealth,
+            Is.EqualTo(
+                targetHealthBefore - 8));
+
+        Assert.That(
+            attacker.CurrentHealth,
+            Is.EqualTo(
+                attackerHealthBefore + 2));
     }
 
     [Test]
@@ -277,6 +547,47 @@ public sealed class FightWeaponAttackManagerTests
             damageRoller);
     }
 
+    private static WeaponAttackEffectsProfileResolver
+    CreateEffectsProfileResolver(
+        IWeaponAttackRandomSource randomSource)
+    {
+        WeaponAttackEffectTriggerResolver
+            triggerResolver =
+                new WeaponAttackEffectTriggerResolver(
+                    randomSource);
+
+        WeaponAttackEffectsTriggerResolver
+            effectsTriggerResolver =
+                new WeaponAttackEffectsTriggerResolver(
+                    triggerResolver);
+
+        WeaponAttackEffectLineResolver
+            effectLineResolver =
+                new WeaponAttackEffectLineResolver(
+                    effectsTriggerResolver);
+
+        return new WeaponAttackEffectsProfileResolver(
+            effectLineResolver);
+    }
+
+    private static WeaponAttackLifeStealApplier
+        CreateLifeStealApplier()
+    {
+        return new WeaponAttackLifeStealApplier(
+            new WeaponAttackLifeStealCalculator());
+    }
+
+    private static WeaponAttackEffectDefinition
+        CreateLifeStealDefinition(
+            int lifeStealPercent)
+    {
+        return new WeaponAttackEffectDefinition(
+            WeaponAttackEffectType.LifeSteal,
+            100,
+            null,
+            lifeStealPercent);
+    }
+
     private static CharacterActionSet CreateActionSet(
         RolledWeaponProfile weaponProfile)
     {
@@ -327,7 +638,8 @@ public sealed class FightWeaponAttackManagerTests
         FightTeam team)
     {
         GameObject unitObject =
-            new GameObject(unitName);
+            new GameObject(
+                unitName);
 
         createdObjects.Add(
             unitObject);

@@ -20,6 +20,10 @@ namespace DiceBossArena.Game
         private List<WeaponAttackElement> allowedElements =
             new List<WeaponAttackElement>();
 
+        [SerializeField]
+        private List<WeaponAttackEffectDefinition> effects =
+            new List<WeaponAttackEffectDefinition>();
+
         public WeaponAttackLineId LineId =>
             new WeaponAttackLineId(lineId);
 
@@ -33,13 +37,19 @@ namespace DiceBossArena.Game
             AllowedElements =>
                 allowedElements;
 
+        public IReadOnlyList<WeaponAttackEffectDefinition>
+            Effects =>
+                effects;
+
 #if UNITY_EDITOR
         public WeaponAttackLineGenerationDefinition(
             string newLineId,
             int newMinDamage,
             int newMaxDamage,
             IEnumerable<WeaponAttackElement>
-                newAllowedElements)
+                newAllowedElements,
+            IEnumerable<WeaponAttackEffectDefinition>
+                newEffects = null)
         {
             lineId =
                 newLineId;
@@ -55,6 +65,12 @@ namespace DiceBossArena.Game
                     ? new List<WeaponAttackElement>()
                     : new List<WeaponAttackElement>(
                         newAllowedElements);
+
+            effects =
+                newEffects == null
+                    ? new List<WeaponAttackEffectDefinition>()
+                    : new List<WeaponAttackEffectDefinition>(
+                        newEffects);
         }
 #endif
     }

@@ -9,6 +9,9 @@ namespace DiceBossArena.Tests.EditMode
         [Test]
         public void Constructor_StoresGenerationRules()
         {
+            WeaponAttackEffectDefinition effect =
+                CreateEffect();
+
             WeaponAttackLineGenerationDefinition definition =
                 new WeaponAttackLineGenerationDefinition(
                     "primary_damage",
@@ -18,6 +21,10 @@ namespace DiceBossArena.Tests.EditMode
                     {
                         WeaponAttackElement.Fire,
                         WeaponAttackElement.Water
+                    },
+                    new[]
+                    {
+                        effect
                     });
 
             Assert.That(
@@ -42,6 +49,14 @@ namespace DiceBossArena.Tests.EditMode
                         WeaponAttackElement.Fire,
                         WeaponAttackElement.Water
                     }));
+
+            Assert.That(
+                definition.Effects.Count,
+                Is.EqualTo(1));
+
+            Assert.That(
+                definition.Effects[0],
+                Is.SameAs(effect));
         }
 
         [Test]
@@ -69,6 +84,47 @@ namespace DiceBossArena.Tests.EditMode
         }
 
         [Test]
+        public void Constructor_CopiesEffects()
+        {
+            WeaponAttackEffectDefinition firstEffect =
+                CreateEffect();
+
+            WeaponAttackEffectDefinition secondEffect =
+                new WeaponAttackEffectDefinition(
+                    WeaponAttackEffectType.LifeSteal,
+                    75,
+                    null,
+                    40);
+
+            WeaponAttackEffectDefinition[] effects =
+            {
+                firstEffect
+            };
+
+            WeaponAttackLineGenerationDefinition definition =
+                new WeaponAttackLineGenerationDefinition(
+                    "primary_damage",
+                    4,
+                    8,
+                    new[]
+                    {
+                        WeaponAttackElement.Fire
+                    },
+                    effects);
+
+            effects[0] =
+                secondEffect;
+
+            Assert.That(
+                definition.Effects.Count,
+                Is.EqualTo(1));
+
+            Assert.That(
+                definition.Effects[0],
+                Is.SameAs(firstEffect));
+        }
+
+        [Test]
         public void Constructor_NullElements_CreatesEmptyCollection()
         {
             WeaponAttackLineGenerationDefinition definition =
@@ -81,6 +137,60 @@ namespace DiceBossArena.Tests.EditMode
             Assert.That(
                 definition.AllowedElements,
                 Is.Empty);
+        }
+
+        [Test]
+        public void Constructor_NullEffects_CreatesEmptyCollection()
+        {
+            WeaponAttackLineGenerationDefinition definition =
+                new WeaponAttackLineGenerationDefinition(
+                    "primary_damage",
+                    4,
+                    8,
+                    new[]
+                    {
+                        WeaponAttackElement.Fire
+                    },
+                    null);
+
+            Assert.That(
+                definition.Effects,
+                Is.Not.Null);
+
+            Assert.That(
+                definition.Effects,
+                Is.Empty);
+        }
+
+        [Test]
+        public void Constructor_OmittedEffects_CreatesEmptyCollection()
+        {
+            WeaponAttackLineGenerationDefinition definition =
+                new WeaponAttackLineGenerationDefinition(
+                    "primary_damage",
+                    4,
+                    8,
+                    new[]
+                    {
+                        WeaponAttackElement.Fire
+                    });
+
+            Assert.That(
+                definition.Effects,
+                Is.Not.Null);
+
+            Assert.That(
+                definition.Effects,
+                Is.Empty);
+        }
+
+        private static WeaponAttackEffectDefinition CreateEffect()
+        {
+            return new WeaponAttackEffectDefinition(
+                WeaponAttackEffectType.LifeSteal,
+                50,
+                null,
+                25);
         }
     }
 }

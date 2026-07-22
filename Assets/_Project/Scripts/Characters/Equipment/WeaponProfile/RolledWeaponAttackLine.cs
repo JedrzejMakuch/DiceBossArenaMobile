@@ -1,15 +1,21 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace DiceBossArena.Game
 {
     public sealed class RolledWeaponAttackLine :
         IEquatable<RolledWeaponAttackLine>
     {
+        private readonly List<WeaponAttackEffectDefinition>
+            effects;
+
         public RolledWeaponAttackLine(
             WeaponAttackLineId lineId,
             WeaponAttackElement element,
             int minDamage,
-            int maxDamage)
+            int maxDamage,
+            IEnumerable<WeaponAttackEffectDefinition>
+                newEffects = null)
         {
             if (lineId == default)
             {
@@ -38,10 +44,23 @@ namespace DiceBossArena.Game
                     nameof(maxDamage));
             }
 
-            LineId = lineId;
-            Element = element;
-            MinDamage = minDamage;
-            MaxDamage = maxDamage;
+            LineId =
+                lineId;
+
+            Element =
+                element;
+
+            MinDamage =
+                minDamage;
+
+            MaxDamage =
+                maxDamage;
+
+            effects =
+                newEffects == null
+                    ? new List<WeaponAttackEffectDefinition>()
+                    : new List<WeaponAttackEffectDefinition>(
+                        newEffects);
         }
 
         public WeaponAttackLineId LineId { get; }
@@ -52,14 +71,36 @@ namespace DiceBossArena.Game
 
         public int MaxDamage { get; }
 
+        public IReadOnlyList<WeaponAttackEffectDefinition>
+            Effects =>
+                effects;
+
         public bool Equals(
             RolledWeaponAttackLine other)
         {
-            return other != null &&
-                   LineId == other.LineId &&
-                   Element == other.Element &&
-                   MinDamage == other.MinDamage &&
-                   MaxDamage == other.MaxDamage;
+            if (other == null ||
+                LineId != other.LineId ||
+                Element != other.Element ||
+                MinDamage != other.MinDamage ||
+                MaxDamage != other.MaxDamage ||
+                Effects.Count != other.Effects.Count)
+            {
+                return false;
+            }
+
+            for (int index = 0;
+                 index < Effects.Count;
+                 index++)
+            {
+                if (!ReferenceEquals(
+                        Effects[index],
+                        other.Effects[index]))
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         public override bool Equals(
@@ -73,10 +114,30 @@ namespace DiceBossArena.Game
         {
             unchecked
             {
-                int hash = LineId.GetHashCode();
-                hash = (hash * 397) ^ (int)Element;
-                hash = (hash * 397) ^ MinDamage;
-                hash = (hash * 397) ^ MaxDamage;
+                int hash =
+                    LineId.GetHashCode();
+
+                hash =
+                    (hash * 397) ^
+                    (int)Element;
+
+                hash =
+                    (hash * 397) ^
+                    MinDamage;
+
+                hash =
+                    (hash * 397) ^
+                    MaxDamage;
+
+                for (int index = 0;
+                     index < Effects.Count;
+                     index++)
+                {
+                    hash =
+                        (hash * 397) ^
+                        (Effects[index]?.GetHashCode() ?? 0);
+                }
+
                 return hash;
             }
         }
