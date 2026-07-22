@@ -117,6 +117,26 @@ namespace DiceBossArena.Tests.EditMode
         }
 
         [Test]
+        public void TryExecute_WeaponAttackWithoutManager_ReturnsFalse()
+        {
+            FightWeaponAttackActionRequest request =
+                new FightWeaponAttackActionRequest(
+                    activeUnit,
+                    waitingUnit);
+
+            bool result =
+                executor.TryExecute(request);
+
+            Assert.That(
+                result,
+                Is.False);
+
+            Assert.That(
+                turnManager.ActiveUnit,
+                Is.SameAs(activeUnit));
+        }
+
+        [Test]
         public void TryExecute_WithNullRequest_ReturnsFalse()
         {
             bool result =

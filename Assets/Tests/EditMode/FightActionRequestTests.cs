@@ -145,5 +145,47 @@ namespace DiceBossArena.Tests.EditMode
                 Object.DestroyImmediate(actorObject);
             }
         }
+
+        [Test]
+        public void WeaponAttackRequest_StoresActorAndPrimaryTarget()
+        {
+            GameObject actorObject =
+                new GameObject("Actor");
+
+            GameObject targetObject =
+                new GameObject("Target");
+
+            try
+            {
+                FightUnit actor =
+                    actorObject.AddComponent<FightUnit>();
+
+                FightUnit target =
+                    targetObject.AddComponent<FightUnit>();
+
+                FightWeaponAttackActionRequest request =
+                    new FightWeaponAttackActionRequest(
+                        actor,
+                        target);
+
+                Assert.That(
+                    request.ActionType,
+                    Is.EqualTo(
+                        FightActionType.WeaponAttack));
+
+                Assert.That(
+                    request.Actor,
+                    Is.SameAs(actor));
+
+                Assert.That(
+                    request.PrimaryTarget,
+                    Is.SameAs(target));
+            }
+            finally
+            {
+                Object.DestroyImmediate(actorObject);
+                Object.DestroyImmediate(targetObject);
+            }
+        }
     }
 }

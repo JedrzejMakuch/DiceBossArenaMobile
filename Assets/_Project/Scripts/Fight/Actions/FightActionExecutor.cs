@@ -13,6 +13,10 @@ public sealed class FightActionExecutor :
     [SerializeField]
     private FightSkillManager skillManager;
 
+    [SerializeField]
+    private FightWeaponAttackManager
+    weaponAttackManager;
+
     public bool TryExecute(
         IFightActionRequest request)
     {
@@ -31,6 +35,11 @@ public sealed class FightActionExecutor :
 
             FightEndTurnActionRequest endTurnRequest =>
                 ExecuteEndTurn(endTurnRequest),
+
+            FightWeaponAttackActionRequest
+weaponAttackRequest =>
+    ExecuteWeaponAttack(
+        weaponAttackRequest),
 
             _ => false
         };
@@ -102,5 +111,18 @@ public sealed class FightActionExecutor :
         turnManager.EndCurrentTurn();
 
         return true;
+    }
+
+    private bool ExecuteWeaponAttack(
+    FightWeaponAttackActionRequest request)
+    {
+        if (weaponAttackManager == null)
+        {
+            return false;
+        }
+
+        return weaponAttackManager.TryExecute(
+            request.Actor,
+            request.PrimaryTarget);
     }
 }
