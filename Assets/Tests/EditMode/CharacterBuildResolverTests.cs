@@ -73,6 +73,80 @@ public class CharacterBuildResolverTests
     }
 
     [Test]
+    public void Resolve_RuntimeEquipmentUsesInjectedBuildComposer()
+    {
+        ClassDefinition classDefinition =
+            ScriptableObject.CreateInstance<
+                ClassDefinition>();
+
+        try
+        {
+            classDefinition.InitializeForTests(
+                newClassId:
+                    "companion");
+
+            ItemDefinitionCatalog itemCatalog =
+                new ItemDefinitionCatalog(
+                    Array.Empty<ItemDefinition>());
+
+            CharacterInventory inventory =
+                new CharacterInventory(
+                    capacity: 10,
+                    definitionResolver: itemCatalog);
+
+            CharacterEquipmentLoadout loadout =
+                new CharacterEquipmentLoadout();
+
+            CharacterEquipmentStatModifierResolver
+                runtimeEquipmentResolver =
+                    new CharacterEquipmentStatModifierResolver(
+                        itemCatalog);
+
+            CharacterBuildComposer composer =
+                new CharacterBuildComposer(
+                    runtimeEquipmentStatModifierResolver:
+                        runtimeEquipmentResolver);
+
+            SkillDefinitionCatalog skillCatalog =
+                new SkillDefinitionCatalog(
+                    Array.Empty<SkillDefinition>());
+
+            CharacterBuildResolver resolver =
+                new CharacterBuildResolver(
+                    skillCatalog,
+                    composer);
+
+            CharacterBuildCompositionRequest request =
+                new CharacterBuildCompositionRequest(
+                    classDefinition,
+                    inventory: inventory,
+                    runtimeEquipmentLoadout: loadout);
+
+            ResolvedCharacterBuild result =
+                resolver.Resolve(
+                    request);
+
+            Assert.That(
+                result.ClassId.Value,
+                Is.EqualTo(
+                    "companion"));
+
+            Assert.That(
+                result.EquipmentLoadout.Items,
+                Is.Empty);
+
+            Assert.That(
+                result.StatModifiers,
+                Is.Empty);
+        }
+        finally
+        {
+            UnityEngine.Object.DestroyImmediate(
+                classDefinition);
+        }
+    }
+
+    [Test]
     public void Resolve_PreservesSkillOrder()
     {
         SkillDefinition first =

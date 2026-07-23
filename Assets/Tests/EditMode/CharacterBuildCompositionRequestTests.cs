@@ -51,6 +51,76 @@ namespace DiceBossArena.Tests.EditMode
         }
 
         [Test]
+        public void Constructor_OnlyInventoryThrows()
+        {
+            ItemDefinitionCatalog catalog =
+                new ItemDefinitionCatalog(
+                    Array.Empty<ItemDefinition>());
+
+            CharacterInventory inventory =
+                new CharacterInventory(
+                    capacity: 10,
+                    definitionResolver: catalog);
+
+            Assert.Throws<ArgumentException>(
+                () =>
+                    new CharacterBuildCompositionRequest(
+                        classDefinition,
+                        inventory: inventory));
+        }
+
+        [Test]
+        public void Constructor_OnlyRuntimeLoadoutThrows()
+        {
+            ItemDefinitionCatalog catalog =
+    new ItemDefinitionCatalog(
+        Array.Empty<ItemDefinition>());
+
+            CharacterEquipmentLoadout loadout =
+                new CharacterEquipmentLoadout();
+
+            Assert.Throws<ArgumentException>(
+                () =>
+                    new CharacterBuildCompositionRequest(
+                        classDefinition,
+                        runtimeEquipmentLoadout: loadout));
+        }
+
+        [Test]
+        public void Constructor_RuntimeEquipmentSetsFlag()
+        {
+            ItemDefinitionCatalog catalog =
+                new ItemDefinitionCatalog(
+                    Array.Empty<ItemDefinition>());
+
+            CharacterInventory inventory =
+                new CharacterInventory(
+                    capacity: 10,
+                    definitionResolver: catalog);
+
+            CharacterEquipmentLoadout loadout =
+                new CharacterEquipmentLoadout();
+
+            CharacterBuildCompositionRequest request =
+                new CharacterBuildCompositionRequest(
+                    classDefinition,
+                    inventory: inventory,
+                    runtimeEquipmentLoadout: loadout);
+
+            Assert.That(
+                request.HasRuntimeEquipment,
+                Is.True);
+
+            Assert.That(
+                request.Inventory,
+                Is.SameAs(inventory));
+
+            Assert.That(
+                request.RuntimeEquipmentLoadout,
+                Is.SameAs(loadout));
+        }
+
+        [Test]
         public void Constructor_MissingClassThrows()
         {
             Assert.That(

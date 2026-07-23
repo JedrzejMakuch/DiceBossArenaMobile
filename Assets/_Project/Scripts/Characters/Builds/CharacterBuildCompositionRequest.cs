@@ -30,6 +30,20 @@ namespace DiceBossArena.Game
             SelectedSkills =>
                 selectedSkills;
 
+        public CharacterInventory Inventory
+        {
+            get;
+        }
+
+        public CharacterEquipmentLoadout RuntimeEquipmentLoadout
+        {
+            get;
+        }
+
+        public bool HasRuntimeEquipment =>
+            Inventory != null &&
+            RuntimeEquipmentLoadout != null;
+
         public CharacterBuildCompositionRequest(
     ClassDefinition classDefinition,
     SpecializationDefinition
@@ -37,7 +51,10 @@ namespace DiceBossArena.Game
     IReadOnlyList<CharacterBuildSkill>
         selectedSkills = null,
     EquipmentLoadoutSnapshot
-        equipmentLoadout = null)
+        equipmentLoadout = null,
+    CharacterInventory inventory = null,
+    CharacterEquipmentLoadout
+        runtimeEquipmentLoadout = null)
         {
             ClassDefinition =
                 classDefinition ??
@@ -55,6 +72,20 @@ namespace DiceBossArena.Game
             EquipmentLoadout =
         equipmentLoadout ??
         new EquipmentLoadoutSnapshot(null);
+
+            if ((inventory == null) !=
+    (runtimeEquipmentLoadout == null))
+            {
+                throw new ArgumentException(
+                    "Runtime inventory and equipment loadout " +
+                    "must be provided together.");
+            }
+
+            Inventory =
+                inventory;
+
+            RuntimeEquipmentLoadout =
+                runtimeEquipmentLoadout;
         }
 
         private static List<CharacterBuildSkill>

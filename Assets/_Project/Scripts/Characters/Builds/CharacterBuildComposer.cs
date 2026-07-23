@@ -11,17 +11,25 @@ namespace DiceBossArena.Game
         private readonly EquipmentLoadoutValidator
             equipmentLoadoutValidator;
 
+        private readonly CharacterEquipmentStatModifierResolver
+    runtimeEquipmentStatModifierResolver;
+
         public CharacterBuildComposer(
-            EquipmentStatModifierResolver
-                equipmentStatModifierResolver = null,
-            EquipmentLoadoutValidator
-                equipmentLoadoutValidator = null)
+    EquipmentStatModifierResolver
+        equipmentStatModifierResolver = null,
+    EquipmentLoadoutValidator
+        equipmentLoadoutValidator = null,
+    CharacterEquipmentStatModifierResolver
+        runtimeEquipmentStatModifierResolver = null)
         {
             this.equipmentStatModifierResolver =
                 equipmentStatModifierResolver;
 
             this.equipmentLoadoutValidator =
                 equipmentLoadoutValidator;
+
+            this.runtimeEquipmentStatModifierResolver =
+                runtimeEquipmentStatModifierResolver;
         }
 
         public CharacterBuildSnapshot Compose(
@@ -118,17 +126,20 @@ namespace DiceBossArena.Game
                         specialization.Passives));
             }
 
+            EquipmentLoadoutSnapshot equipmentLoadout =
+    ResolveEquipmentLoadout(request);
+
             if (equipmentLoadoutValidator != null)
             {
                 equipmentLoadoutValidator.Validate(
-                    request.EquipmentLoadout,
+                    equipmentLoadout,
                     classId,
                     specializationId);
             }
 
             List<FightStatModifier> statModifiers =
-                CreateStatModifiers(
-                    classDefinition.StatModifiers);
+    CreateStatModifiers(
+        classDefinition.StatModifiers);
 
             if (specialization != null)
             {
@@ -137,12 +148,10 @@ namespace DiceBossArena.Game
                         specialization.StatModifiers));
             }
 
-            if (equipmentStatModifierResolver != null)
-            {
-                statModifiers.AddRange(
-                    equipmentStatModifierResolver.Resolve(
-                        request.EquipmentLoadout));
-            }
+            AddEquipmentStatModifiers(
+                statModifiers,
+                request,
+                equipmentLoadout);
 
             return new CharacterBuildSnapshot(
                 classId,
@@ -152,10 +161,10 @@ namespace DiceBossArena.Game
                 statModifiers:
                     statModifiers,
                 equipmentLoadout:
-    request.EquipmentLoadout,
+                    equipmentLoadout,
                 passiveIds:
                     passiveIds);
-                    }
+        }
 
         private static List<CharacterBuildSkill>
     CreateSkills(
@@ -198,6 +207,61 @@ namespace DiceBossArena.Game
             }
 
             return result;
+        }
+
+        private static EquipmentLoadoutSnapshot
+    ResolveEquipmentLoadout(
+        CharacterBuildCompositionRequest request)
+        {
+            if (!request.HasRuntimeEquipment)
+            {
+                return request.EquipmentLoadout;
+            }
+
+            if (request.EquipmentLoadout.Items.Count > 0)
+            {
+                throw new InvalidOperationException(
+                    "Build composition request cannot contain " +
+                    "both a non-empty equipment snapshot and " +
+                    "runtime equipment.");
+            }
+
+            return EquipmentLoadoutSnapshotFactory.Create(
+                request.Inventory,
+                request.RuntimeEquipmentLoadout);
+        }
+
+        private void AddEquipmentStatModifiers(
+            List<FightStatModifier> destination,
+            CharacterBuildCompositionRequest request,
+            EquipmentLoadoutSnapshot equipmentLoadout)
+        {
+            if (request.HasRuntimeEquipment)
+            {
+                if (runtimeEquipmentStatModifierResolver == null)
+                {
+                    throw new InvalidOperationException(
+                        "Runtime equipment was provided, but no " +
+                        "runtime equipment stat modifier resolver " +
+                        "was configured.");
+                }
+
+                destination.AddRange(
+                    runtimeEquipmentStatModifierResolver.Resolve(
+                        request.Inventory,
+                        request.RuntimeEquipmentLoadout));
+
+                return;
+            }
+
+            if (equipmentStatModifierResolver == null)
+            {
+                return;
+            }
+
+            destination.AddRange(
+                equipmentStatModifierResolver.Resolve(
+                    equipmentLoadout));
         }
 
         private static List<CharacterPassiveId>

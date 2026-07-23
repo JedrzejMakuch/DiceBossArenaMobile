@@ -1,6 +1,7 @@
 ﻿using DiceBossArena.Game;
 using NUnit.Framework;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -52,6 +53,183 @@ namespace DiceBossArena.Tests.EditMode
                 UnityEngine.Object.DestroyImmediate(
                     classDefinition);
             }
+        }
+
+        [Test]
+        public void Compose_RuntimeEquipmentAddsRolledAffixModifiers()
+        {
+            EquipmentBaseTypeDefinition baseType =
+                CreateBaseType(
+                    "helmet",
+                    EquipmentSlotType.Head);
+
+            ItemDefinition itemDefinition =
+                CreateItemDefinition(
+                    "test_helmet",
+                    EquipmentSlotType.Head,
+                    baseType);
+
+            try
+            {
+                ItemDefinitionCatalog catalog =
+                    new ItemDefinitionCatalog(
+                        new[]
+                        {
+                    itemDefinition
+                        });
+
+                CharacterItemInstance item =
+                    CreateItem(
+                        instanceId: "helmet_instance",
+                        itemId: "test_helmet",
+                        baseTypeId: "helmet",
+                        affixes: new[]
+                        {
+                    new RolledEquipmentAffix(
+                        new EquipmentAffixId(
+                            "armor_flat"),
+                        FightStatType.Armor,
+                        FightStatModifierType.Flat,
+                        9)
+                        });
+
+                CharacterInventory inventory =
+                    new CharacterInventory(
+                        capacity: 10,
+                        definitionResolver: catalog,
+                        initialItems: new[]
+                        {
+                    item
+                        });
+
+                CharacterEquipmentLoadout loadout =
+                    new CharacterEquipmentLoadout(
+                        new[]
+                        {
+                    new EquippedItemInstance(
+                        EquipmentSlotType.Head,
+                        item.InstanceId)
+                        });
+
+                CharacterEquipmentStatModifierResolver
+                    runtimeResolver =
+                        new CharacterEquipmentStatModifierResolver(
+                            catalog);
+
+                CharacterBuildComposer composer =
+                    new CharacterBuildComposer(
+                        runtimeEquipmentStatModifierResolver:
+                            runtimeResolver);
+
+                CharacterBuildCompositionRequest request =
+                    new CharacterBuildCompositionRequest(
+                        classDefinition,
+                        inventory: inventory,
+                        runtimeEquipmentLoadout: loadout);
+
+                CharacterBuildSnapshot result =
+                    composer.Compose(request);
+
+                Assert.That(
+                    result.StatModifiers,
+                    Does.Contain(
+                        new FightStatModifier(
+                            FightStatType.Armor,
+                            FightStatModifierType.Flat,
+                            9)));
+
+                Assert.That(
+                    result.EquipmentLoadout.Items.Count,
+                    Is.EqualTo(1));
+
+                Assert.That(
+                    result.EquipmentLoadout.Items[0].ItemId,
+                    Is.EqualTo(item.ItemId));
+            }
+            finally
+            {
+                UnityEngine.Object.DestroyImmediate(
+                    itemDefinition);
+
+                UnityEngine.Object.DestroyImmediate(
+                    baseType);
+            }
+        }
+
+        [Test]
+        public void Compose_RuntimeEquipmentWithoutResolverThrows()
+        {
+            ItemDefinitionCatalog catalog =
+                new ItemDefinitionCatalog(
+                    Array.Empty<ItemDefinition>());
+
+            CharacterInventory inventory =
+                new CharacterInventory(
+                    capacity: 10,
+                    definitionResolver: catalog);
+
+            CharacterEquipmentLoadout loadout =
+                new CharacterEquipmentLoadout();
+
+            CharacterBuildComposer composer =
+                new CharacterBuildComposer();
+
+            CharacterBuildCompositionRequest request =
+                new CharacterBuildCompositionRequest(
+                    classDefinition,
+                    inventory: inventory,
+                    runtimeEquipmentLoadout: loadout);
+
+            Assert.That(
+                () => composer.Compose(request),
+                Throws.TypeOf<InvalidOperationException>());
+        }
+
+        [Test]
+        public void Compose_RuntimeAndNonEmptySnapshotThrows()
+        {
+            ItemDefinitionCatalog catalog =
+                new ItemDefinitionCatalog(
+                    Array.Empty<ItemDefinition>());
+
+            CharacterInventory inventory =
+                new CharacterInventory(
+                    capacity: 10,
+                    definitionResolver: catalog);
+
+            CharacterEquipmentLoadout runtimeLoadout =
+                new CharacterEquipmentLoadout();
+
+            EquipmentLoadoutSnapshot snapshot =
+                new EquipmentLoadoutSnapshot(
+                    new[]
+                    {
+                new EquippedItemSnapshot(
+                    EquipmentSlotType.Head,
+                    new CharacterItemId(
+                        "snapshot_item"))
+                    });
+
+            CharacterEquipmentStatModifierResolver
+                runtimeResolver =
+                    new CharacterEquipmentStatModifierResolver(
+                        catalog);
+
+            CharacterBuildComposer composer =
+                new CharacterBuildComposer(
+                    runtimeEquipmentStatModifierResolver:
+                        runtimeResolver);
+
+            CharacterBuildCompositionRequest request =
+                new CharacterBuildCompositionRequest(
+                    classDefinition,
+                    equipmentLoadout: snapshot,
+                    inventory: inventory,
+                    runtimeEquipmentLoadout:
+                        runtimeLoadout);
+
+            Assert.Throws<InvalidOperationException>(
+                () => composer.Compose(request));
         }
 
         [Test]
@@ -1488,6 +1666,59 @@ namespace DiceBossArena.Tests.EditMode
                         request),
                 Throws.TypeOf<
                     InvalidOperationException>());
+        }
+
+        private static EquipmentBaseTypeDefinition CreateBaseType(
+    string baseTypeId,
+    EquipmentSlotType slotType)
+        {
+            EquipmentBaseTypeDefinition definition =
+                ScriptableObject.CreateInstance<
+                    EquipmentBaseTypeDefinition>();
+
+            definition.InitializeForTests(
+                newBaseTypeId: baseTypeId,
+                newSlotType: slotType,
+                newCategory:
+                    EquipmentBaseTypeCategory.ChestArmor);
+
+            return definition;
+        }
+
+        private static ItemDefinition CreateItemDefinition(
+            string itemId,
+            EquipmentSlotType slotType,
+            EquipmentBaseTypeDefinition baseType)
+        {
+            ItemDefinition definition =
+                ScriptableObject.CreateInstance<
+                    ItemDefinition>();
+
+            definition.InitializeForTests(
+                newItemId: itemId,
+                newSlotType: slotType,
+                newBaseType: baseType);
+
+            return definition;
+        }
+
+        private static CharacterItemInstance CreateItem(
+            string instanceId,
+            string itemId,
+            string baseTypeId,
+            IReadOnlyList<RolledEquipmentAffix> affixes = null)
+        {
+            return new CharacterItemInstance(
+                new CharacterItemInstanceId(instanceId),
+                new CharacterItemId(itemId),
+                new EquipmentBaseTypeId(baseTypeId),
+                level: 1,
+                upgradeLevel: 0,
+                quantity: 1,
+                rarity: EquipmentItemRarity.Common,
+                newAffixes:
+                    affixes ??
+                    Array.Empty<RolledEquipmentAffix>());
         }
     }
 }

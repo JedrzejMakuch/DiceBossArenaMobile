@@ -9,17 +9,19 @@ namespace DiceBossArena.Game
             skillResolver;
 
         private readonly CharacterBuildComposer
-           buildComposer;
+            buildComposer;
 
         public CharacterBuildResolver(
-            ISkillDefinitionResolver skillResolver)
+            ISkillDefinitionResolver skillResolver,
+            CharacterBuildComposer buildComposer = null)
         {
             this.skillResolver =
                 skillResolver ??
                 throw new ArgumentNullException(
                     nameof(skillResolver));
 
-            buildComposer =
+            this.buildComposer =
+                buildComposer ??
                 new CharacterBuildComposer();
         }
 
