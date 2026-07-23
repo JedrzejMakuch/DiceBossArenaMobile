@@ -1,7 +1,8 @@
 ﻿using System;
 using DiceBossArena.Game;
 
-public sealed class WeaponAttackLifeStealApplier
+public sealed class WeaponAttackLifeStealApplier :
+    IWeaponAttackEffectApplier
 {
     private readonly WeaponAttackLifeStealCalculator
         calculator;
@@ -66,5 +67,12 @@ public sealed class WeaponAttackLifeStealApplier
             totalHealing);
 
         return attacker.CurrentHealth - before;
+    }
+
+    void IWeaponAttackEffectApplier.Apply(
+    WeaponAttackRollResult attackResult)
+    {
+        Apply(
+            attackResult);
     }
 }

@@ -65,7 +65,7 @@ public sealed class FightWeaponAttackManagerTests
                 CreateEffectsProfileResolver(
                     new SequenceRandomSource(0)),
                 new WeaponAttackDamageApplier(),
-                CreateLifeStealApplier());
+                CreateEffectsApplier());
 
         Assert.That(
             result,
@@ -85,7 +85,7 @@ public sealed class FightWeaponAttackManagerTests
                 profileDamageRoller,
                 null,
                 new WeaponAttackDamageApplier(),
-                CreateLifeStealApplier());
+                CreateEffectsApplier());
 
         Assert.That(
             result,
@@ -110,7 +110,7 @@ public sealed class FightWeaponAttackManagerTests
                 profileDamageRoller,
                 effectsProfileResolver,
                 null,
-                CreateLifeStealApplier());
+                CreateEffectsApplier());
 
         Assert.That(
             result,
@@ -118,7 +118,7 @@ public sealed class FightWeaponAttackManagerTests
     }
 
     [Test]
-    public void Initialize_NullLifeStealApplierReturnsFalse()
+    public void Initialize_NullEffectsApplierReturnsFalse()
     {
         WeaponAttackProfileDamageRoller
             profileDamageRoller =
@@ -140,6 +140,94 @@ public sealed class FightWeaponAttackManagerTests
         Assert.That(
             result,
             Is.False);
+    }
+
+    [Test]
+    public void Execute_ValidAttackAppliesRegisteredEffects()
+    {
+        WeaponAttackProfileDamageRoller
+            profileDamageRoller =
+                CreateProfileDamageRoller(
+                    new SequenceRandomSource(5));
+
+        WeaponAttackEffectsProfileResolver
+            effectsProfileResolver =
+                CreateEffectsProfileResolver(
+                    new SequenceRandomSource());
+
+        RecordingEffectApplier
+            recordingEffectApplier =
+                new RecordingEffectApplier();
+
+        WeaponAttackEffectsApplier
+            effectsApplier =
+                new WeaponAttackEffectsApplier(
+                    new IWeaponAttackEffectApplier[]
+                    {
+                    recordingEffectApplier
+                    });
+
+        Assert.That(
+            manager.Initialize(
+                profileDamageRoller,
+                effectsProfileResolver,
+                new WeaponAttackDamageApplier(),
+                effectsApplier),
+            Is.True);
+
+        FightUnit attacker =
+            CreateUnit(
+                "Attacker",
+                FightTeam.Player);
+
+        FightUnit target =
+            CreateUnit(
+                "Target",
+                FightTeam.Enemy);
+
+        RolledWeaponProfile weaponProfile =
+            new RolledWeaponProfile(
+                new[]
+                {
+                new RolledWeaponAttackLine(
+                    new WeaponAttackLineId(
+                        "primary_damage"),
+                    WeaponAttackElement.Neutral,
+                    5,
+                    6)
+                });
+
+        Assert.That(
+            attacker.ApplyActionSet(
+                CreateActionSet(
+                    weaponProfile)),
+            Is.True);
+
+        WeaponAttackExecutionResult result =
+            manager.Execute(
+                attacker,
+                target);
+
+        Assert.That(
+            result,
+            Is.EqualTo(
+                WeaponAttackExecutionResult.Success));
+
+        Assert.That(
+            recordingEffectApplier.ApplyCount,
+            Is.EqualTo(1));
+
+        Assert.That(
+            recordingEffectApplier.ReceivedAttackResult,
+            Is.Not.Null);
+
+        Assert.That(
+            recordingEffectApplier.ReceivedAttackResult.Attacker,
+            Is.SameAs(attacker));
+
+        Assert.That(
+            recordingEffectApplier.ReceivedAttackResult.Target,
+            Is.SameAs(target));
     }
 
     [Test]
@@ -168,7 +256,7 @@ public sealed class FightWeaponAttackManagerTests
                 profileDamageRoller,
                 effectsProfileResolver,
                 new WeaponAttackDamageApplier(),
-                CreateLifeStealApplier()),
+                CreateEffectsApplier()),
             Is.True);
 
         FightUnit attacker =
@@ -312,7 +400,7 @@ public sealed class FightWeaponAttackManagerTests
                 profileDamageRoller,
                 effectsProfileResolver,
                 new WeaponAttackDamageApplier(),
-                CreateLifeStealApplier()),
+                CreateEffectsApplier()),
             Is.True);
 
         FightUnit attacker =
@@ -413,7 +501,7 @@ public sealed class FightWeaponAttackManagerTests
                 profileDamageRoller,
                 effectsProfileResolver,
                 new WeaponAttackDamageApplier(),
-                CreateLifeStealApplier()),
+                CreateEffectsApplier()),
             Is.True);
 
         FightUnit attacker =
@@ -570,11 +658,39 @@ public sealed class FightWeaponAttackManagerTests
             effectLineResolver);
     }
 
-    private static WeaponAttackLifeStealApplier
-        CreateLifeStealApplier()
+    private sealed class RecordingEffectApplier :
+    IWeaponAttackEffectApplier
     {
-        return new WeaponAttackLifeStealApplier(
-            new WeaponAttackLifeStealCalculator());
+        public int ApplyCount
+        {
+            get;
+            private set;
+        }
+
+        public WeaponAttackRollResult
+            ReceivedAttackResult
+        {
+            get;
+            private set;
+        }
+
+        public void Apply(
+            WeaponAttackRollResult attackResult)
+        {
+            ApplyCount++;
+
+            ReceivedAttackResult =
+                attackResult;
+        }
+    }
+
+    private static WeaponAttackEffectsApplier
+    CreateEffectsApplier()
+    {
+        WeaponAttackEffectsApplierFactory factory =
+            new WeaponAttackEffectsApplierFactory();
+
+        return factory.Create();
     }
 
     private static WeaponAttackEffectDefinition

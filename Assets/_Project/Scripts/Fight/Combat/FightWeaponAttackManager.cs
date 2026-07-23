@@ -15,8 +15,8 @@ public sealed class FightWeaponAttackManager :
     private WeaponAttackDamageApplier
         damageApplier;
 
-    private WeaponAttackLifeStealApplier
-        lifeStealApplier;
+    private WeaponAttackEffectsApplier
+    effectsApplier;
 
     public event Action<WeaponAttackRollResult>
         WeaponAttackRolled;
@@ -28,13 +28,13 @@ public sealed class FightWeaponAttackManager :
             effectsProfileResolver,
         WeaponAttackDamageApplier
             damageApplier,
-        WeaponAttackLifeStealApplier
-            lifeStealApplier)
+        WeaponAttackEffectsApplier
+            effectsApplier)
     {
         if (profileDamageRoller == null ||
             effectsProfileResolver == null ||
             damageApplier == null ||
-            lifeStealApplier == null)
+            effectsApplier == null)
         {
             return false;
         }
@@ -48,8 +48,8 @@ public sealed class FightWeaponAttackManager :
         this.damageApplier =
             damageApplier;
 
-        this.lifeStealApplier =
-            lifeStealApplier;
+        this.effectsApplier =
+            effectsApplier;
 
         return true;
     }
@@ -85,7 +85,7 @@ public sealed class FightWeaponAttackManager :
         if (profileDamageRoller == null ||
             effectsProfileResolver == null ||
             damageApplier == null ||
-            lifeStealApplier == null)
+            effectsApplier == null)
         {
             return WeaponAttackExecutionResult
                 .DamageApplicationFailed;
@@ -135,7 +135,7 @@ public sealed class FightWeaponAttackManager :
             return executionResult;
         }
 
-        lifeStealApplier.Apply(
+        effectsApplier.Apply(
             attackResult);
 
         WeaponAttackRolled?.Invoke(
