@@ -11,6 +11,8 @@ namespace DiceBossArena.UI
             new();
         private readonly HashSet<TElement> activeElements =
             new();
+        private readonly List<TElement> releaseBuffer =
+            new();
 
         public UIElementPool(
             Func<TElement> createElement)
@@ -64,6 +66,19 @@ namespace DiceBossArena.UI
 
             element.ResetForPool();
             availableElements.Push(element);
+        }
+
+        public void ReleaseAll()
+        {
+            releaseBuffer.Clear();
+            releaseBuffer.AddRange(activeElements);
+
+            foreach (TElement element in releaseBuffer)
+            {
+                Release(element);
+            }
+
+            releaseBuffer.Clear();
         }
 
         private TElement CreateElement()

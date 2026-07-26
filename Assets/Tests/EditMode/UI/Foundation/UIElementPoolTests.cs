@@ -151,6 +151,84 @@ namespace DiceBossArena.Tests.EditMode
         }
 
         [Test]
+        public void ReleaseAll_WithMultipleActiveElements_ReleasesAll()
+        {
+            UIElementPool<TestReusableElement> pool =
+                CreatePool();
+
+            TestReusableElement first = pool.Get();
+            TestReusableElement second = pool.Get();
+            TestReusableElement third = pool.Get();
+
+            pool.ReleaseAll();
+
+            Assert.That(first.ResetCount, Is.EqualTo(1));
+            Assert.That(second.ResetCount, Is.EqualTo(1));
+            Assert.That(third.ResetCount, Is.EqualTo(1));
+
+            Assert.That(pool.CreatedCount, Is.EqualTo(3));
+            Assert.That(pool.ActiveCount, Is.Zero);
+            Assert.That(pool.AvailableCount, Is.EqualTo(3));
+        }
+
+        [Test]
+        public void ReleaseAll_EmptyPool_DoesNothing()
+        {
+            UIElementPool<TestReusableElement> pool =
+                CreatePool();
+
+            Assert.DoesNotThrow(
+                () => pool.ReleaseAll());
+
+            Assert.That(pool.CreatedCount, Is.Zero);
+            Assert.That(pool.ActiveCount, Is.Zero);
+            Assert.That(pool.AvailableCount, Is.Zero);
+        }
+
+        [Test]
+        public void ReleaseAll_AfterPartialRelease_ReleasesOnlyActiveElements()
+        {
+            UIElementPool<TestReusableElement> pool =
+                CreatePool();
+
+            TestReusableElement first = pool.Get();
+            TestReusableElement second = pool.Get();
+            TestReusableElement third = pool.Get();
+
+            pool.Release(second);
+            pool.ReleaseAll();
+
+            Assert.That(first.ResetCount, Is.EqualTo(1));
+            Assert.That(second.ResetCount, Is.EqualTo(1));
+            Assert.That(third.ResetCount, Is.EqualTo(1));
+
+            Assert.That(pool.CreatedCount, Is.EqualTo(3));
+            Assert.That(pool.ActiveCount, Is.Zero);
+            Assert.That(pool.AvailableCount, Is.EqualTo(3));
+        }
+
+        [Test]
+        public void ReleaseAll_ElementsCanBeReusedWithoutCreatingMore()
+        {
+            UIElementPool<TestReusableElement> pool =
+                CreatePool();
+
+            pool.Get();
+            pool.Get();
+            pool.Get();
+
+            pool.ReleaseAll();
+
+            pool.Get();
+            pool.Get();
+            pool.Get();
+
+            Assert.That(pool.CreatedCount, Is.EqualTo(3));
+            Assert.That(pool.ActiveCount, Is.EqualTo(3));
+            Assert.That(pool.AvailableCount, Is.Zero);
+        }
+
+        [Test]
         public void FiftySequentialUses_CreateOnlyOneElement()
         {
             UIElementPool<TestReusableElement> pool =
