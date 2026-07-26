@@ -32,5 +32,11 @@ namespace DiceBossArena.UI
                 prefab,
                 parent);
         }
+
+        public UIElementPool<ReusableTextUIElement> CreatePool()
+        {
+            return new UIElementPool<ReusableTextUIElement>(
+                Create);
+        }
     }
 }

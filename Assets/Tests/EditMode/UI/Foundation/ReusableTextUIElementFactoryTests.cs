@@ -110,6 +110,35 @@ namespace DiceBossArena.Tests.EditMode
             Assert.That(created, Is.Null);
         }
 
+        [Test]
+        public void CreatePool_ReleaseAndGet_ReusesSameInstance()
+        {
+            UIElementPool<ReusableTextUIElement> pool =
+                factory.CreatePool();
+
+            ReusableTextUIElement first =
+                pool.Get();
+
+            pool.Release(first);
+
+            ReusableTextUIElement second =
+                pool.Get();
+
+            Assert.That(second, Is.SameAs(first));
+
+            Assert.That(
+                second.transform.parent,
+                Is.SameAs(containerObject.transform));
+
+            Assert.That(
+                second.gameObject.activeSelf,
+                Is.True);
+
+            Assert.That(pool.CreatedCount, Is.EqualTo(1));
+            Assert.That(pool.ActiveCount, Is.EqualTo(1));
+            Assert.That(pool.AvailableCount, Is.Zero);
+        }
+
         private void AssignReference(
             string propertyName,
             Object value)
