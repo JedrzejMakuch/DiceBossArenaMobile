@@ -5,7 +5,8 @@
         "DiceBossArena.Tests.Fixtures",
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner",
-        "DiceBossArena.Game"
+        "DiceBossArena.Game",
+        "Unity.TextMeshPro"
     ],
     "includePlatforms": [
         "Editor"
