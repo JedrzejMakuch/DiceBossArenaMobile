@@ -53,10 +53,6 @@ namespace DiceBossArena.Tests.EditMode
                 rootObject.AddComponent<
                     ReusableTextUIElementFactory>();
 
-            factory =
-                rootObject.AddComponent<
-                    ReusableTextUIElementFactory>();
-
             AssignReference(
                 factory,
                 "prefab",
