@@ -53,6 +53,34 @@ namespace DiceBossArena.UI
             }
         }
 
+        public void SetItems<TItem>(
+    IReadOnlyList<TItem> items,
+    Action<TElement, TItem> bindElement)
+        {
+            if (items == null)
+            {
+                throw new ArgumentNullException(
+                    nameof(items));
+            }
+
+            if (bindElement == null)
+            {
+                throw new ArgumentNullException(
+                    nameof(bindElement));
+            }
+
+            SetCount(items.Count);
+
+            for (int index = 0;
+                 index < items.Count;
+                 index++)
+            {
+                bindElement.Invoke(
+                    elements[index],
+                    items[index]);
+            }
+        }
+
         public void Clear()
         {
             SetCount(0);
