@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 8328740176899879854}
   - component: {fileID: 2516873190501136457}
   - component: {fileID: 8711695159172496309}
+  - component: {fileID: 6347102201845343379}
   m_Layer: 5
   m_Name: UIRoot
   m_TagString: Untagged
@@ -108,6 +109,18 @@ MonoBehaviour:
   modalLayer: {fileID: 6478648020625547888}
   tooltipLayer: {fileID: 1592202489828997844}
   transitionLayer: {fileID: 5983741817446529702}
+--- !u!114 &6347102201845343379
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1166703341346342948}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c05d3b055010286429e3d695f55b3cab, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DiceBossArena.Game::DiceBossArena.UI.UIBackInputSource
 --- !u!1 &1357883370702983755
 GameObject:
   m_ObjectHideFlags: 0
