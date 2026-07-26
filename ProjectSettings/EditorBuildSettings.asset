@@ -12,10 +12,10 @@ EditorBuildSettings:
     path: Assets/Scenes/Prototype_GeneratedBoard.unity
     guid: 6f9da7425cb398a4392e9c7e56148e1c
   - enabled: 1
-    path: Assets/Scenes/Prototype_GeneratedBoard_DEV_PANEL.unity
+    path: Assets/_Project/Scenes/Prototype_GeneratedBoard_DEV_PANEL.unity
     guid: 0bdb21e95724fb549897dbf3d60c71e6
   - enabled: 1
-    path: Assets/Scenes/Prototype_FightScene.unity
+    path: Assets/_Project/Scenes/Prototype_FightScene.unity
     guid: 5766ebadc2abb9a4c996c590d77ad169
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
