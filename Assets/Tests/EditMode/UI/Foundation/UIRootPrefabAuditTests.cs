@@ -220,5 +220,207 @@ namespace DiceBossArena.UI.Tests
                     "a SafeAreaFitter.");
             }
         }
+
+        [Test]
+        public void UIRoot_SafeAreaContentStartsFullyStretched()
+        {
+            GameObject prefab =
+                AssetDatabase.LoadAssetAtPath<GameObject>(
+                    PrefabPath);
+
+            Assert.That(
+                prefab,
+                Is.Not.Null,
+                $"Could not load prefab at {PrefabPath}.");
+
+            SafeAreaFitter[] safeAreaFitters =
+                prefab.GetComponentsInChildren<SafeAreaFitter>(true);
+
+            Assert.That(
+                safeAreaFitters.Length,
+                Is.EqualTo(6));
+
+            foreach (SafeAreaFitter safeAreaFitter
+                     in safeAreaFitters)
+            {
+                RectTransform rectTransform =
+                    safeAreaFitter.GetComponent<RectTransform>();
+
+                Assert.That(
+                    rectTransform,
+                    Is.Not.Null);
+
+                Assert.That(
+                    rectTransform.anchorMin,
+                    Is.EqualTo(Vector2.zero));
+
+                Assert.That(
+                    rectTransform.anchorMax,
+                    Is.EqualTo(Vector2.one));
+
+                Assert.That(
+                    rectTransform.offsetMin,
+                    Is.EqualTo(Vector2.zero));
+
+                Assert.That(
+                    rectTransform.offsetMax,
+                    Is.EqualTo(Vector2.zero));
+            }
+        }
+
+        [Test]
+        public void UIRoot_HasExpectedCanvasScalerConfiguration()
+        {
+            GameObject prefab =
+                AssetDatabase.LoadAssetAtPath<GameObject>(
+                    PrefabPath);
+
+            Assert.That(
+                prefab,
+                Is.Not.Null,
+                $"Could not load prefab at {PrefabPath}.");
+
+            CanvasScaler[] canvasScalers =
+                prefab.GetComponentsInChildren<CanvasScaler>(true);
+
+            Assert.That(
+                canvasScalers.Length,
+                Is.EqualTo(1),
+                "UIRoot must have exactly one CanvasScaler.");
+
+            CanvasScaler canvasScaler =
+                canvasScalers[0];
+
+            Assert.That(
+                canvasScaler.uiScaleMode,
+                Is.EqualTo(
+                    CanvasScaler.ScaleMode.ScaleWithScreenSize));
+
+            Assert.That(
+                canvasScaler.referenceResolution,
+                Is.EqualTo(new Vector2(1080f, 1920f)));
+
+            Assert.That(
+                canvasScaler.screenMatchMode,
+                Is.EqualTo(
+                    CanvasScaler.ScreenMatchMode.MatchWidthOrHeight));
+
+            Assert.That(
+                canvasScaler.matchWidthOrHeight,
+                Is.EqualTo(0.5f));
+        }
+
+        [Test]
+        public void UIRoot_LayersAreFullyStretched()
+        {
+            GameObject prefab =
+                AssetDatabase.LoadAssetAtPath<GameObject>(
+                    PrefabPath);
+
+            Assert.That(
+                prefab,
+                Is.Not.Null,
+                $"Could not load prefab at {PrefabPath}.");
+
+            string[] expectedLayerNames =
+            {
+        "StaticNavigationLayer",
+        "DynamicHudLayer",
+        "ScreenLayer",
+        "ModalLayer",
+        "TooltipLayer",
+        "TransitionLayer"
+    };
+
+            foreach (string layerName in expectedLayerNames)
+            {
+                Transform layer =
+                    prefab.transform.Find(layerName);
+
+                Assert.That(
+                    layer,
+                    Is.Not.Null,
+                    $"Missing UI layer: {layerName}.");
+
+                RectTransform rectTransform =
+                    layer.GetComponent<RectTransform>();
+
+                Assert.That(
+                    rectTransform,
+                    Is.Not.Null,
+                    $"{layerName} must have a RectTransform.");
+
+                Assert.That(
+                    rectTransform.anchorMin,
+                    Is.EqualTo(Vector2.zero),
+                    $"{layerName} anchorMin changed.");
+
+                Assert.That(
+                    rectTransform.anchorMax,
+                    Is.EqualTo(Vector2.one),
+                    $"{layerName} anchorMax changed.");
+
+                Assert.That(
+                    rectTransform.offsetMin,
+                    Is.EqualTo(Vector2.zero),
+                    $"{layerName} offsetMin changed.");
+
+                Assert.That(
+                    rectTransform.offsetMax,
+                    Is.EqualTo(Vector2.zero),
+                    $"{layerName} offsetMax changed.");
+            }
+        }
+
+        [Test]
+        public void UIRoot_HasExpectedDirectLayerHierarchy()
+        {
+            GameObject prefab =
+                AssetDatabase.LoadAssetAtPath<GameObject>(
+                    PrefabPath);
+
+            Assert.That(
+                prefab,
+                Is.Not.Null,
+                $"Could not load prefab at {PrefabPath}.");
+
+            string[] expectedLayerNames =
+            {
+        "StaticNavigationLayer",
+        "DynamicHudLayer",
+        "ScreenLayer",
+        "ModalLayer",
+        "TooltipLayer",
+        "TransitionLayer"
+    };
+
+            foreach (string layerName in expectedLayerNames)
+            {
+                Transform layer =
+                    prefab.transform.Find(layerName);
+
+                Assert.That(
+                    layer,
+                    Is.Not.Null,
+                    $"{layerName} must be a direct child of UIRoot.");
+            }
+
+            Canvas[] canvases =
+                prefab.GetComponentsInChildren<Canvas>(true);
+
+            foreach (Canvas canvas in canvases)
+            {
+                if (canvas.gameObject == prefab)
+                {
+                    continue;
+                }
+
+                Assert.That(
+                    expectedLayerNames,
+                    Does.Contain(canvas.gameObject.name),
+                    $"Unexpected layer Canvas: " +
+                    $"{canvas.gameObject.name}.");
+            }
+        }
     }
 }
