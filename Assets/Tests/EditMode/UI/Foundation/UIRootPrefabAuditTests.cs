@@ -171,5 +171,54 @@ namespace DiceBossArena.UI.Tests
                     $"{name} has an unexpected sorting order.");
             }
         }
+
+        [Test]
+        public void UIRoot_HasSafeAreaContentUnderEveryLayer()
+        {
+            GameObject prefab =
+                AssetDatabase.LoadAssetAtPath<GameObject>(
+                    PrefabPath);
+
+            Assert.That(
+                prefab,
+                Is.Not.Null,
+                $"Could not load prefab at {PrefabPath}.");
+
+            string[] expectedLayerNames =
+            {
+        "StaticNavigationLayer",
+        "DynamicHudLayer",
+        "ScreenLayer",
+        "ModalLayer",
+        "TooltipLayer",
+        "TransitionLayer"
+    };
+
+            foreach (string layerName in expectedLayerNames)
+            {
+                Transform layer =
+                    prefab.transform.Find(layerName);
+
+                Assert.That(
+                    layer,
+                    Is.Not.Null,
+                    $"Missing UI layer: {layerName}.");
+
+                Transform safeAreaContent =
+                    layer.Find("SafeAreaContent");
+
+                Assert.That(
+                    safeAreaContent,
+                    Is.Not.Null,
+                    $"{layerName} must have a direct " +
+                    "SafeAreaContent child.");
+
+                Assert.That(
+                    safeAreaContent.GetComponent<SafeAreaFitter>(),
+                    Is.Not.Null,
+                    $"{layerName}/SafeAreaContent must have " +
+                    "a SafeAreaFitter.");
+            }
+        }
     }
 }
