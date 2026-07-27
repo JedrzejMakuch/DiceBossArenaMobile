@@ -66,5 +66,57 @@ namespace DiceBossArena.UI.Tests
                 Is.EqualTo(6),
                 "Each UI layer must have one SafeAreaFitter.");
         }
+
+        [Test]
+        public void UIRoot_HasRaycastersOnlyOnInteractiveLayers()
+        {
+            GameObject prefab =
+                AssetDatabase.LoadAssetAtPath<GameObject>(
+                    PrefabPath);
+
+            Assert.That(
+                prefab,
+                Is.Not.Null,
+                $"Could not load prefab at {PrefabPath}.");
+
+            GraphicRaycaster[] raycasters =
+                prefab.GetComponentsInChildren<GraphicRaycaster>(true);
+
+            string[] expectedLayerNames =
+            {
+                "StaticNavigationLayer",
+                "ScreenLayer",
+                "ModalLayer"
+            };
+
+            Assert.That(
+                raycasters.Length,
+                Is.EqualTo(expectedLayerNames.Length));
+
+            foreach (GraphicRaycaster raycaster in raycasters)
+            {
+                Assert.That(
+                    expectedLayerNames,
+                    Does.Contain(raycaster.gameObject.name),
+                    $"Unexpected GraphicRaycaster on " +
+                    $"{raycaster.gameObject.name}.");
+            }
+
+            foreach (string layerName in expectedLayerNames)
+            {
+                Transform layer =
+                    prefab.transform.Find(layerName);
+
+                Assert.That(
+                    layer,
+                    Is.Not.Null,
+                    $"Missing UI layer: {layerName}.");
+
+                Assert.That(
+                    layer.GetComponent<GraphicRaycaster>(),
+                    Is.Not.Null,
+                    $"{layerName} must have a GraphicRaycaster.");
+            }
+        }
     }
 }
