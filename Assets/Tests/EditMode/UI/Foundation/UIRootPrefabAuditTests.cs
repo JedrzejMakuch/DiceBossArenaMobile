@@ -118,5 +118,58 @@ namespace DiceBossArena.UI.Tests
                     $"{layerName} must have a GraphicRaycaster.");
             }
         }
+
+        [Test]
+        public void UIRoot_HasExpectedLayerSortingOrder()
+        {
+            GameObject prefab =
+                AssetDatabase.LoadAssetAtPath<GameObject>(
+                    PrefabPath);
+
+            Assert.That(
+                prefab,
+                Is.Not.Null,
+                $"Could not load prefab at {PrefabPath}.");
+
+            (string Name, int SortingOrder)[] expectedLayers =
+            {
+            ("StaticNavigationLayer", 0),
+            ("DynamicHudLayer", 100),
+            ("ScreenLayer", 200),
+            ("ModalLayer", 300),
+            ("TooltipLayer", 400),
+            ("TransitionLayer", 500)
+        };
+
+            foreach ((string name, int sortingOrder)
+                     in expectedLayers)
+            {
+                Transform layer =
+                    prefab.transform.Find(name);
+
+                Assert.That(
+                    layer,
+                    Is.Not.Null,
+                    $"Missing UI layer: {name}.");
+
+                Canvas canvas =
+                    layer.GetComponent<Canvas>();
+
+                Assert.That(
+                    canvas,
+                    Is.Not.Null,
+                    $"{name} must have a Canvas.");
+
+                Assert.That(
+                    canvas.overrideSorting,
+                    Is.True,
+                    $"{name} must override sorting.");
+
+                Assert.That(
+                    canvas.sortingOrder,
+                    Is.EqualTo(sortingOrder),
+                    $"{name} has an unexpected sorting order.");
+            }
+        }
     }
 }
