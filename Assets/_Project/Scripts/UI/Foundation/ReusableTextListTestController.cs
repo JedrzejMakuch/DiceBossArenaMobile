@@ -92,7 +92,6 @@ namespace DiceBossArena.UI
             RefreshFiftyItemsRepeatedly();
         }
 
-        [ContextMenu("Refresh Fifty Items 100 Times")]
         private void RefreshFiftyItemsRepeatedly()
         {
             using (RefreshFiftyItemsMarker.Auto())
